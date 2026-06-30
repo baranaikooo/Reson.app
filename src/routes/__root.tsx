@@ -101,10 +101,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  // Inline script to prevent FOUC (flash of unstyled content / wrong theme).
+  // Runs before React hydration, reading localStorage to set the class immediately.
+  const themeScript = `
+    (function(){
+      try {
+        var t = localStorage.getItem('reson:theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.classList.add(t);
+        } else {
+          document.documentElement.classList.add('dark');
+        }
+      } catch(e) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  `;
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         {children}
