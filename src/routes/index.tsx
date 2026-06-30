@@ -54,14 +54,14 @@ export const Route = createFileRoute("/")({
 // ============ Shared UI ============
 function Wave({ size = 280, intense = false }: { size?: number; intense?: boolean }) {
   return (
-    <div className="relative grid place-items-center" style={{ width: size, height: size }}>
+    <div className="relative grid place-items-center animate-fade-in" style={{ width: size, height: size }}>
       {[0, 0.6, 1.2].map((d, i) => (
         <span key={i} className="absolute rounded-full border animate-wave"
-          style={{ width: size * 0.5, height: size * 0.5, borderColor: "#67e8f9", borderWidth: 1, animationDelay: `${d}s`, opacity: intense ? 0.9 : 0.6 }} />
+          style={{ width: size * 0.5, height: size * 0.5, borderColor: "currentColor", borderWidth: 1, animationDelay: `${d}s`, opacity: intense ? 0.8 : 0.4 }} />
       ))}
       <span className="absolute rounded-full animate-resonance"
-        style={{ width: size * 0.32, height: size * 0.32, background: "radial-gradient(circle, rgba(0,242,254,0.55), rgba(127,0,255,0.15) 60%, transparent 70%)" }} />
-      <span className="absolute rounded-full" style={{ width: 14, height: 14, background: "#67e8f9", boxShadow: "0 0 28px #67e8f9" }} />
+        style={{ width: size * 0.32, height: size * 0.32, background: "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)" }} />
+      <span className="absolute rounded-full bg-foreground" style={{ width: 12, height: 12 }} />
     </div>
   );
 }
@@ -341,7 +341,6 @@ function ResonApp() {
       )}
       {screen === "snippets-onboarding" && (
         <SnippetsOnboarding
-          livenessVideoUrl={livenessVideoUrl}
           onDone={(urls) => {
             setProfile(prev => {
               if (!prev) return null;
@@ -1931,9 +1930,9 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
               </div>
             </div>
           )}
-          <div className="ml-auto h-[4px] flex-1 overflow-hidden rounded-full bg-foreground/5">
-            <div className="h-full transition-all duration-500"
-              style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, #67e8f9, #a78bfa)" }} />
+          <div className="ml-auto h-[4px] flex-1 overflow-hidden bg-foreground/5">
+            <div className="h-full transition-all duration-500 bg-foreground"
+              style={{ width: `${progressPct}%` }} />
           </div>
         </div>
       </div>
@@ -2293,8 +2292,8 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] tracking-widest text-foreground/40">ODHAĽOVANIE</p>
           <div className="mt-1 h-[2px] w-full overflow-hidden bg-foreground/5">
-            <div className="h-full transition-all duration-500"
-              style={{ width: `${100 - conversation.blurLevel}%`, background: "linear-gradient(90deg, #67e8f9, #a78bfa)" }} />
+            <div className="h-full transition-all duration-500 bg-foreground"
+              style={{ width: `${100 - conversation.blurLevel}%` }} />
           </div>
           <p className="mt-1 text-[10px] text-foreground/40">Každá tvoja správa odhalí o niečo viac.</p>
         </div>
@@ -2310,8 +2309,7 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
           {conversation.messages.map((m) => (
             <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
               {m.media ? (
-                <div className="max-w-[78%] overflow-hidden border border-foreground/30"
-                  style={{ boxShadow: "0 0 24px -8px rgba(167,139,250,0.5)" }}>
+                <div className="max-w-[78%] overflow-hidden border border-foreground/30">
                   <img src={m.media.url} alt={m.media.kind} className="block max-h-72 w-full object-cover" />
                 </div>
               ) : (
@@ -2401,9 +2399,8 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
             className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50 disabled:pointer-events-none"
           />
           <button onClick={send} disabled={pressureActive || !input.trim() || conversation.status === "closed"}
-            className="grid size-10 shrink-0 place-items-center rounded-xl disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg, #67e8f9, #a78bfa)" }}>
-            <Send className="size-4 text-background" />
+            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40">
+            <Send className="size-4" />
           </button>
         </div>
       </div>
@@ -2693,32 +2690,33 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
 
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-      <div className="flex max-w-[80%] items-center gap-3 rounded-2xl px-4 py-3"
-        style={{ background: mine ? "linear-gradient(135deg, rgba(0,242,254,0.18), rgba(127,0,255,0.18))" : "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className={`flex max-w-[80%] items-center gap-3 rounded-none px-4 py-3 border border-foreground/10 ${
+        mine ? "bg-foreground/10" : "bg-card"
+      }`}>
         <button
           onClick={handleToggle}
           disabled={!canPlay}
           aria-label={playing ? "Pauznúť" : "Prehrať"}
-          className="grid size-9 place-items-center rounded-full disabled:opacity-50"
-          style={{ background: mine ? "#67e8f9" : "rgba(255,255,255,0.08)" }}>
-          {playing ? <Pause className="size-4" style={{ color: mine ? "#0D0F12" : "#fff" }} /> :
-            <Play className="size-4" style={{ color: mine ? "#0D0F12" : "#fff" }} />}
+          className={`grid size-9 place-items-center rounded-none disabled:opacity-50 ${
+            mine ? "bg-foreground text-background" : "bg-foreground/10 text-foreground"
+          }`}
+        >
+          {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
         <div className="flex items-end gap-[2px]">
           {Array.from({ length: 22 }).map((_, i) => {
             const lit = playing ? (i / 22) <= progress : false;
             return (
-              <span key={i} className="w-[2px] rounded-full"
+              <span key={i} className="w-[2px]"
                 style={{
                   height: 6 + Math.abs(Math.sin(i * 0.6 + msg.duration)) * 18,
-                  background: lit ? (mine ? "#67e8f9" : "#a78bfa") : "rgba(255,255,255,0.6)",
+                  background: lit ? "currentColor" : "rgba(128,128,128,0.4)",
                   opacity: playing || lit ? 1 : 0.5,
                 }} />
             );
           })}
         </div>
-        <span className="font-mono text-xs text-white/60">{msg.duration}s</span>
+        <span className="font-mono text-xs text-foreground/60">{msg.duration}s</span>
         {hasAudio && (
           <audio
             ref={audioRef}

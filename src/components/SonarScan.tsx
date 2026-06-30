@@ -71,13 +71,13 @@ export function SonarScan({
       <svg viewBox="0 0 100 100" width={size} height={size} className="block">
         <defs>
           <radialGradient id="sonar-bg" cx="50%" cy="50%" r="55%">
-            <stop offset="0%" stopColor="#0b1620" />
-            <stop offset="70%" stopColor="#06090f" />
-            <stop offset="100%" stopColor="#03050a" />
+            <stop offset="0%" stopColor="#1a1a1a" />
+            <stop offset="70%" stopColor="#0d0d0d" />
+            <stop offset="100%" stopColor="#050505" />
           </radialGradient>
           <radialGradient id="sonar-inner" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(103,232,249,0.10)" />
-            <stop offset="60%" stopColor="rgba(103,232,249,0.02)" />
+            <stop offset="0%" stopColor="rgba(255,255,255,0.06)" />
+            <stop offset="60%" stopColor="rgba(255,255,255,0.01)" />
             <stop offset="100%" stopColor="rgba(0,0,0,0)" />
           </radialGradient>
         </defs>
@@ -89,11 +89,11 @@ export function SonarScan({
         {/* concentric guide rings */}
         {[0.28, 0.5, 0.74, 0.95].map((k) => (
           <circle key={k} cx={cx} cy={cy} r={R * k}
-            fill="none" stroke="rgba(103,232,249,0.08)" strokeWidth={0.25} />
+            fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={0.25} />
         ))}
         {/* crosshair */}
-        <line x1={cx - R} y1={cy} x2={cx + R} y2={cy} stroke="rgba(103,232,249,0.07)" strokeWidth={0.2} />
-        <line x1={cx} y1={cy - R} x2={cx} y2={cy + R} stroke="rgba(103,232,249,0.07)" strokeWidth={0.2} />
+        <line x1={cx - R} y1={cy} x2={cx + R} y2={cy} stroke="rgba(255,255,255,0.08)" strokeWidth={0.2} />
+        <line x1={cx} y1={cy - R} x2={cx} y2={cy + R} stroke="rgba(255,255,255,0.08)" strokeWidth={0.2} />
 
         {/* dots — flare as the wave crosses */}
         {dots.map((d, i) => {
@@ -106,12 +106,12 @@ export function SonarScan({
                 <circle
                   cx={cx + d.x * R} cy={cy + d.y * R}
                   r={d.size * (1 + glow * 1.4)}
-                  fill={`hsla(${d.hue}, 90%, 70%, ${glow * 0.35})`}
+                  fill={`rgba(255, 255, 255, ${glow * 0.25})`}
                 />
               )}
               <circle
                 cx={cx + d.x * R} cy={cy + d.y * R} r={d.size * 0.45}
-                fill={`hsla(${d.hue}, 95%, ${55 + glow * 25}%, ${baseAlpha})`}
+                fill={`rgba(255, 255, 255, ${baseAlpha})`}
               />
             </g>
           );
@@ -121,28 +121,27 @@ export function SonarScan({
         <circle
           cx={cx} cy={cy} r={Math.max(0.1, wave * R)}
           fill="none"
-          stroke="#67e8f9"
+          stroke="rgba(255,255,255,0.85)"
           strokeWidth={0.45}
           opacity={waveOpacity}
-          style={{ filter: "drop-shadow(0 0 1.4px rgba(103,232,249,0.9))" }}
         />
         {/* faint trailing wave */}
         <circle
           cx={cx} cy={cy} r={Math.max(0.1, wave * R * 0.82)}
           fill="none"
-          stroke="rgba(103,232,249,0.35)"
+          stroke="rgba(255,255,255,0.3)"
           strokeWidth={0.25}
           opacity={waveOpacity * 0.5}
         />
 
         {/* rim */}
         <circle cx={cx} cy={cy} r={R} fill="none"
-          stroke="rgba(103,232,249,0.22)" strokeWidth={0.4} />
+          stroke="rgba(255,255,255,0.2)" strokeWidth={0.4} />
         <circle cx={cx} cy={cy} r={R - 1.2} fill="none"
-          stroke="rgba(255,255,255,0.04)" strokeWidth={0.3} />
+          stroke="rgba(255,255,255,0.05)" strokeWidth={0.3} />
 
         {/* center pip */}
-        <circle cx={cx} cy={cy} r={0.9} fill="#67e8f9" opacity={0.85} />
+        <circle cx={cx} cy={cy} r={0.9} fill="rgba(255,255,255,0.9)" opacity={0.85} />
       </svg>
     </div>
   );

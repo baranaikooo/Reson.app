@@ -603,6 +603,9 @@ export type UserProfile = {
   redemptionQuota?: number; // drawdown redemption quota
   completedPressureScenarios?: string[]; // track completed pressure scenarios
   id?: string;
+  videoUrls?: string[];          // live snippet video URLs
+  nonNegotiable?: string;        // user directive: non-negotiable
+  currentThesis?: string;        // user directive: current thesis
 };
 
 export function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
@@ -906,10 +909,10 @@ export type Archetype = {
 };
 
 export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
-  ANALYTIK: { id: "ANALYTIK", label: "ANALYTIK", tagline: "Hlava + istota.", hue: 0.52, accent: "#67e8f9", accent2: "#818cf8" },
-  STRATEG:  { id: "STRATEG",  label: "STRATÉG",  tagline: "Hlava + zmena.",  hue: 0.70, accent: "#a78bfa", accent2: "#67e8f9" },
-  STRAZCA:  { id: "STRAZCA",  label: "STRÁŽCA",  tagline: "Srdce + istota.", hue: 0.95, accent: "#f0abfc", accent2: "#a78bfa" },
-  SNILEK:   { id: "SNILEK",   label: "SNÍLEK",   tagline: "Srdce + zmena.",  hue: 0.10, accent: "#fcd34d", accent2: "#f0abfc" },
+  ANALYTIK: { id: "ANALYTIK", label: "ANALYTIK", tagline: "Hlava + istota.", hue: 0.52, accent: "#e5e5e5", accent2: "#a3a3a3" },
+  STRATEG:  { id: "STRATEG",  label: "STRATÉG",  tagline: "Hlava + zmena.",  hue: 0.70, accent: "#d4d4d4", accent2: "#a3a3a3" },
+  STRAZCA:  { id: "STRAZCA",  label: "STRÁŽCA",  tagline: "Srdce + istota.", hue: 0.95, accent: "#c4c4c4", accent2: "#8a8a8a" },
+  SNILEK:   { id: "SNILEK",   label: "SNÍLEK",   tagline: "Srdce + zmena.",  hue: 0.10, accent: "#b4b4b4", accent2: "#8a8a8a" },
 };
 
 export function archetypeOf(a: FullAnswers): Archetype {

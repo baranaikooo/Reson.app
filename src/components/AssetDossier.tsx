@@ -16,8 +16,8 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   // Blur Toggle state: Pre-vote (blurred to 15px) vs Unlocked (sharp)
   const [isPreviewBlurred, setIsPreviewBlurred] = useState(true);
 
-  // Snippets local list
-  const [snippets, setSnippets] = useState<string[]>([]);
+  // Snippets local list — initialized from profile data
+  const [snippets, setSnippets] = useState<string[]>(user.videoUrls ?? []);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [recordingState, setRecordingState] = useState<"idle" | "countdown" | "recording" | "saving">("idle");
@@ -45,27 +45,14 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       };
     });
   }
-
-  // Initialize loops from user profile
-  useEffect(() => {
-    if (user.videoUrls && user.videoUrls.length > 0) {
-      setSnippets(user.videoUrls);
-    } else {
-      setSnippets([]);
-    }
-  }, [user.videoUrls]);
-
-  // Sync local snippets changes to user profile parent state
-  useEffect(() => {
+  // Push snippet changes to parent profile (non-circular, explicit)
+  function syncVideoUrls(urls: string[]) {
     onUpdateUser((prev) => {
       if (!prev) return null;
-      if (JSON.stringify(prev.videoUrls) === JSON.stringify(snippets)) return prev;
-      return {
-        ...prev,
-        videoUrls: snippets,
-      };
+      return { ...prev, videoUrls: urls };
     });
-  }, [snippets, onUpdateUser]);
+  }
+
 
   // Save directives changes back to profile
   function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
@@ -126,6 +113,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       setSnippets((prev) => {
         const next = [...prev];
         next[index] = videoUrl;
+        syncVideoUrls(next);
         return next;
       });
 
@@ -183,6 +171,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       setSnippets((prev) => {
         const next = [...prev];
         next[index] = videoUrl;
+        syncVideoUrls(next);
         return next;
       });
       haptic("success");
@@ -195,6 +184,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     setSnippets((prev) => {
       const next = [...prev];
       next.splice(index, 1);
+      syncVideoUrls(next);
       return next;
     });
   }

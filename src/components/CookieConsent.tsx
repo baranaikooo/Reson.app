@@ -138,13 +138,13 @@ export function CookieConsent() {
           <div className="flex flex-1 justify-end gap-2">
             <button
               onClick={() => (expanded ? save("custom", prefs) : save("rejected"))}
-              className="rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-[11px] font-medium tracking-[0.14em] text-foreground/80 hover:bg-background/60"
+              className="border border-border/60 bg-background/40 px-3 py-2 text-[11px] font-mono font-medium tracking-[0.14em] text-foreground/80 hover:bg-background/60"
             >
               {expanded ? "ULOŽIŤ" : "ODMIETNUŤ"}
             </button>
             <button
               onClick={() => save("accepted")}
-              className="cta-gradient cta-gradient-hover rounded-xl px-4 py-2 text-[11px] font-semibold tracking-[0.14em]"
+              className="cta-gradient cta-gradient-hover px-4 py-2 text-[11px] font-mono font-semibold tracking-[0.14em]"
             >
               <span className="relative z-10">PRIJAŤ VŠETKO</span>
             </button>

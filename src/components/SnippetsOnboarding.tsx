@@ -4,14 +4,13 @@ import { useHaptic } from "@/hooks/use-haptics";
 import { openCamera, recordStreamForMs, stopStream, attachStreamToVideo } from "@/lib/media";
 
 interface SnippetsOnboardingProps {
-  livenessVideoUrl: string | null;
   onDone: (urls: string[]) => void;
 }
 
-export function SnippetsOnboarding({ livenessVideoUrl, onDone }: SnippetsOnboardingProps) {
+export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
   const haptic = useHaptic();
 
-  // Initialize snippets list. Slot 1 is the liveness video url.
+  // Initialize snippets list as empty slots
   const [snippets, setSnippets] = useState<string[]>([]);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
@@ -21,14 +20,6 @@ export function SnippetsOnboarding({ livenessVideoUrl, onDone }: SnippetsOnboard
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (livenessVideoUrl) {
-      setSnippets([livenessVideoUrl]);
-    } else {
-      setSnippets([]);
-    }
-  }, [livenessVideoUrl]);
 
   // JIT Camera Record Flow
   async function startRecording(index: number) {
