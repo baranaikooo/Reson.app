@@ -149,7 +149,7 @@ export function SystemConfig({
 
       {/* Hardware Protocols */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDWARE PROTOCOLS (ZARIADENIA & LOKÁCIA)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDVÉROVÉ PROTOKOLY (ZARIADENIA & LOKÁCIA)</p>
 
         <div className="space-y-3 font-mono text-xs">
           {/* Permission indicators */}
@@ -183,21 +183,21 @@ export function SystemConfig({
             disabled={isGpsLoading}
             className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none bg-card flex justify-center items-center gap-2"
           >
-            {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ REFRESH COORDINATES ]"}
+            {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ OBNOVIŤ SÚRADNICE ]"}
           </button>
         </div>
       </div>
 
       {/* Alert System (Anti-Ghosting Penalty Warning highlights) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">ALERT SYSTEM (NOTIFIKÁCIE)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">SYSTÉMOVÉ UPOZORNENIA (NOTIFIKÁCIE)</p>
 
         <div className="space-y-4 font-mono text-xs">
           {/* CRITICAL WARNING MANDATORY ALERTS */}
           <div className="border border-red-500/35 bg-red-500/[0.02] p-4 rounded-none space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-red-500 font-bold uppercase flex items-center gap-1.5">
-                <AlertTriangle className="size-3.5" /> CRITICAL ALERTS
+                <AlertTriangle className="size-3.5" /> KRITICKÉ UPOZORNENIA
               </span>
               <span className="bg-red-500/20 text-red-500 text-[8px] font-bold px-2 py-0.5 rounded-none uppercase">
                 POVINNÉ
@@ -261,7 +261,7 @@ export function SystemConfig({
 
       {/* Account Liquidity & Wiping Actions */}
       <div className="border border-red-500/25 bg-red-500/5 p-5 rounded-none space-y-3">
-        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">ACCOUNT LIQUIDITY & SAFETY</p>
+        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">LIKVIDITA A BEZPEČNOSŤ ÚČTU</p>
 
         <div className="grid grid-cols-3 gap-2">
           {/* MARKET FREEZE */}
@@ -274,7 +274,7 @@ export function SystemConfig({
             }`}
           >
             <Snowflake className="size-4 mb-1" />
-            {isFrozen ? "[ UNFROZEN ]" : "[ FREEZE ]"}
+            {isFrozen ? "[ ROZMRAZENÝ ]" : "[ ZMRAZIŤ ]"}
           </button>
 
           {/* SIGN OUT */}
@@ -292,7 +292,7 @@ export function SystemConfig({
             className="flex flex-col items-center justify-center border border-red-500/40 hover:border-red-500/60 py-2.5 font-mono text-[8px] font-bold tracking-wider text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all"
           >
             <Trash2 className="size-4 mb-1" />
-            [ DATA WIPE ]
+            [ ZMAZAŤ DÁTA ]
           </button>
         </div>
       </div>

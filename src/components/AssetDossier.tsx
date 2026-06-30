@@ -46,13 +46,26 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     });
   }
 
-  // Initialize loops
+  // Initialize loops from user profile
   useEffect(() => {
-    setSnippets([
-      "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-cyberpunk-look-39891-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-woman-close-up-under-neon-light-40409-large.mp4",
-    ]);
-  }, []);
+    if (user.videoUrls && user.videoUrls.length > 0) {
+      setSnippets(user.videoUrls);
+    } else {
+      setSnippets([]);
+    }
+  }, [user.videoUrls]);
+
+  // Sync local snippets changes to user profile parent state
+  useEffect(() => {
+    onUpdateUser((prev) => {
+      if (!prev) return null;
+      if (JSON.stringify(prev.videoUrls) === JSON.stringify(snippets)) return prev;
+      return {
+        ...prev,
+        videoUrls: snippets,
+      };
+    });
+  }, [snippets, onUpdateUser]);
 
   // Save directives changes back to profile
   function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
@@ -219,7 +232,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Blur Preview Toggle */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none flex items-center justify-between">
-        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NÁHĽAD PRE TRH (MARKET PREVIEW)</span>
+        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NÁHĽAD PRE TRH</span>
         <button
           onClick={() => { haptic("tap"); setIsPreviewBlurred(!isPreviewBlurred); }}
           className={`flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[9px] tracking-widest uppercase transition-all rounded-none font-bold ${
@@ -229,13 +242,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           }`}
         >
           {isPreviewBlurred ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
-          {isPreviewBlurred ? "[ PRE-VOTE STATE ]" : "[ UNLOCKED STATE ]"}
+          {isPreviewBlurred ? "[ STAV PRED HLASOVANÍM ]" : "[ ODOMKNUTÝ STAV ]"}
         </button>
       </div>
 
       {/* CCTV Live Snippets Grid (respects preview blur toggle) */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MULTIPLE LIVE SNIPPETS (3s CCTV LOOPS)</p>
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">VIACERÉ LIVE SNIPPETY (3s CCTV SLUČKY)</p>
         <div className="grid grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, idx) => {
             const url = snippets[idx];
@@ -309,7 +322,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Market Parameters (Moved from settings to DNA section) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MARKET PARAMETERS (TRHOVÉ FILTRE)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">PARAMETRE TRHU (TRHOVÉ FILTRE)</p>
 
         <div className="space-y-4 font-mono text-xs">
           {/* Global vs National Toggle */}
@@ -328,7 +341,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                     : "border-foreground/15 text-foreground hover:bg-foreground/5"
                 }`}
               >
-                NATIONAL
+                NÁRODNÝ
               </button>
               <button
                 onClick={() => {
@@ -342,7 +355,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                     : "border-foreground/15 text-foreground hover:bg-foreground/5"
                 }`}
               >
-                GLOBAL
+                GLOBÁLNY
               </button>
             </div>
           </div>
@@ -474,7 +487,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           
           {/* HARDCODED ALGORITHMIC BRACKET */}
           <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
-            <span className="text-amber-500 font-bold uppercase">Algorithmic_Market_Bracket</span>
+            <span className="text-amber-500 font-bold uppercase">Algoritmické_Rozmedzie_Trhu</span>
             <span className="font-black text-amber-500 font-mono">{calculatedBracket}</span>
           </div>
 
@@ -490,7 +503,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[150] flex flex-col justify-center items-center p-4">
           <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative">
             <div className="mb-4 font-mono text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
-              [ CCTV CAMERA RECORDER INTERFACE ]
+              [ ROZHRANIE CCTV KAMERY ]
             </div>
             
             <div className="relative aspect-video w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
@@ -506,7 +519,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               {recordingState === "recording" && (
                 <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/70 px-2 py-0.5 border border-red-500">
                   <span className="size-1.5 rounded-full bg-red-500 animate-ping" />
-                  <span className="font-mono text-[7px] text-white tracking-widest uppercase">REC (3s)</span>
+                  <span className="font-mono text-[7px] text-white tracking-widest uppercase">ZÁZNAM (3s)</span>
                 </div>
               )}
             </div>

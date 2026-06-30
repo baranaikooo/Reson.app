@@ -37,6 +37,7 @@ import { BlindVote } from "@/components/BlindVote";
 import { RadarChart } from "@/components/RadarChart";
 import { AssetDossier } from "@/components/AssetDossier";
 import { SystemConfig } from "@/components/SystemConfig";
+import { SnippetsOnboarding } from "@/components/SnippetsOnboarding";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -101,7 +102,7 @@ function primeMicPermission(): Promise<void> {
 
 // ============ Screens ============
 type Screen =
-  | "landing" | "verify" | "liveness" | "profile" | "briefing" | "mirror" | "bankroll" | "pressure"
+  | "landing" | "verify" | "liveness" | "profile" | "snippets-onboarding" | "briefing" | "mirror" | "bankroll" | "pressure"
   | "test" | "processing" | "autoMatch" | "chamber" | "noOne"
   | "messages" | "thread"
   | "settings" | "legal-terms" | "legal-privacy" | "legal-cookies" | "legal-contact"
@@ -333,6 +334,18 @@ function ResonApp() {
               setProfile({ ...p, id: user?.id || "00000000-0000-0000-0000-000000000001" });
             }).catch(() => {
               setProfile({ ...p, id: "00000000-0000-0000-0000-000000000001" });
+            });
+            setScreen("snippets-onboarding");
+          }}
+        />
+      )}
+      {screen === "snippets-onboarding" && (
+        <SnippetsOnboarding
+          livenessVideoUrl={livenessVideoUrl}
+          onDone={(urls) => {
+            setProfile(prev => {
+              if (!prev) return null;
+              return { ...prev, videoUrls: urls };
             });
             setScreen("briefing");
           }}
