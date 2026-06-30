@@ -73,7 +73,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     setRecordingState("recording");
 
     try {
-      const blob = await recordStreamForMs(stream, 3000);
+      const { blob } = await recordStreamForMs(stream, 3000, "video");
       setRecordingState("saving");
       
       const videoUrl = URL.createObjectURL(blob);
@@ -154,28 +154,22 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     });
   }
 
-  // Toggle Blur state
-  const isBlurEnabled = user.hesitated ?? true;
-  function handleToggleBlur() {
-    haptic("tap");
-    onUpdateUser((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        hesitated: !prev.hesitated,
-      };
-    });
-  }
-
   // Pure mathematical metrics for ALGORITHMIC DIAGNOSTICS
-  const primaryMarker = `[${(user.attachmentStyle || "Secure").toUpperCase()}]`;
+  const styleMap: Record<string, string> = {
+    Secure: "BEZPEČNÝ",
+    Anxious: "ÚZKOSTNÝ",
+    Avoidant: "VYHÝBAVÝ",
+    Fearful: "DEZORGANIZOVANÝ"
+  };
+  const attachmentStyleSlovak = styleMap[user.attachmentStyle || "Secure"] || "BEZPEČNÝ";
+  const primaryMarker = `[${attachmentStyleSlovak}]`;
   const decisionLatency = `${(user.avgResponseTime || 2.45).toFixed(2)}s`;
   const redemptionQuota = `${user.redemptionQuota ?? 0}`;
   const closureRate = "85%";
   const cognitiveDepth = `${(user.cognitiveDepth || 0.55).toFixed(2)}`;
   const conscientiousness = `${(user.conscientiousness || 0.50).toFixed(2)}`;
   const extraversion = `${(user.extraversion || 0.50).toFixed(2)}`;
-  const hesitationFlag = `[${user.hesitated ? "TRUE" : "FALSE"}]`;
+  const hesitationFlag = user.hesitated ? "[ÁNO]" : "[NIE]";
 
   return (
     <div className="animate-fade-up">
@@ -257,35 +251,17 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         />
       </div>
 
-      {/* The Blur Toggle */}
-      <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">INTERACTIONS DIRECTIVE</p>
-        <button
-          onClick={handleToggleBlur}
-          className="w-full flex items-center justify-between border border-foreground/10 p-4 text-left transition-all hover:bg-foreground/5 rounded-none font-mono text-xs uppercase"
-        >
-          <div className="flex items-center gap-3">
-            {isBlurEnabled ? <EyeOff className="size-4 text-foreground/75" /> : <Eye className="size-4 text-foreground/75" />}
-            <div>
-              <p className="font-bold text-foreground">Blur Matches: {isBlurEnabled ? "AKTÍVNY" : "NEAKTÍVNY"}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5 font-sans normal-case">Filter rozmazania kandidátov pred rezonanciou</p>
-            </div>
-          </div>
-          <span className="text-[10px] text-foreground/45 font-bold font-mono">{isBlurEnabled ? "[ ON ]" : "[ OFF ]"}</span>
-        </button>
-      </div>
-
       {/* Directives Section */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">PSYCHOLOGICAL DIRECTIVES</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">PSYCHOLOGICKÉ SMERNICE</p>
         
         <div className="font-mono text-xs text-foreground/80 space-y-2.5">
           <div className="border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase text-[9px] block mb-0.5">Non-Negotiable Priority</span>
+            <span className="text-foreground/45 uppercase text-[9px] block mb-0.5">Nezjednateľná priorita (Non-Negotiable)</span>
             <span className="font-bold text-foreground">STABILITA A BLÍZKOSŤ</span>
           </div>
           <div>
-            <span className="text-foreground/45 uppercase text-[9px] block mb-1">Current Cognitive Thesis</span>
+            <span className="text-foreground/45 uppercase text-[9px] block mb-1">Aktuálna kognitívna téza</span>
             <p className="italic text-[10px] text-foreground/75 leading-relaxed bg-foreground/[0.01] p-2 border border-foreground/5 font-sans">
               "Kolektívny architekt hľadajúci kľúč k zjednoteniu v asymetrii ticha."
             </p>
@@ -295,43 +271,43 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Pure Data Algorithmic Diagnostics */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITHMIC DIAGNOSTICS</p>
+        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITMICKÁ DIAGNOSTIKA</p>
         <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Primary_Marker</span>
+            <span className="text-foreground/45 uppercase">Primárny_Marker</span>
             <span className="font-bold text-foreground">{primaryMarker}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Decision_Latency</span>
+            <span className="text-foreground/45 uppercase">Reakčný_čas</span>
             <span className="font-bold text-foreground">{decisionLatency}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Redemption_Quota</span>
+            <span className="text-foreground/45 uppercase">Počet_penalizácií</span>
             <span className="font-bold text-foreground">{redemptionQuota}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Closure_Rate</span>
+            <span className="text-foreground/45 uppercase">Úspešnosť_ukončenia</span>
             <span className="font-bold text-foreground">{closureRate}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Cognitive_Depth</span>
+            <span className="text-foreground/45 uppercase">Kognitívna_hĺbka</span>
             <span className="font-bold text-foreground">{cognitiveDepth}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Conscientiousness</span>
+            <span className="text-foreground/45 uppercase">Svedomitosť</span>
             <span className="font-bold text-foreground">{conscientiousness}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Extraversion</span>
+            <span className="text-foreground/45 uppercase">Extraverzia</span>
             <span className="font-bold text-foreground">{extraversion}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Hesitation_Flag</span>
+            <span className="text-foreground/45 uppercase">Príznak_váhania</span>
             <span className="font-bold text-foreground">{hesitationFlag}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-foreground/45 uppercase">Active_Dossier_Status</span>
-            <span className="font-bold text-green-500 uppercase">CALIBRATED</span>
+            <span className="text-foreground/45 uppercase">Stav_aktívneho_spisu</span>
+            <span className="font-bold text-green-600 uppercase">KALIBROVANÉ</span>
           </div>
         </div>
       </div>

@@ -133,6 +133,7 @@ function ResonApp() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"ev" | "distance">("ev");
   
   // Psychometric EV variables
   const [cognitiveDepth, setCognitiveDepth] = useState<number>(0.5);
@@ -201,10 +202,18 @@ function ResonApp() {
     return () => subscription.unsubscribe();
   }, [haptic]);
 
-  const rankedMatches = useMemo(
-    () => profile ? rankMatches(profile, MOCK_MATCHES) : [],
-    [profile]
-  );
+  const rankedMatches = useMemo(() => {
+    if (!profile) return [];
+    const baseMatches = rankMatches(profile, MOCK_MATCHES);
+    if (sortBy === "distance") {
+      return [...baseMatches].sort((a, b) => {
+        const distA = a.distanceKm ?? 9999;
+        const distB = b.distanceKm ?? 9999;
+        return distA - distB;
+      });
+    }
+    return baseMatches;
+  }, [profile, sortBy]);
 
   const inConversation = useMemo(() => new Set(conversations.map(c => c.matchId)), [conversations]);
 
@@ -449,6 +458,8 @@ function ResonApp() {
         <Dashboard
           profile={profile}
           matches={rankedMatches}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
           onSelectMatch={(id) => { setActiveMatchId(id); setScreen("chamber"); }}
           onMessages={() => setScreen("messages")}
           hasMessages={conversations.length > 0}
@@ -1008,12 +1019,16 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
 function Dashboard({
   profile,
   matches,
+  sortBy,
+  onSortChange,
   onSelectMatch,
   onMessages,
   hasMessages
 }: {
   profile: UserProfile;
   matches: RankedMatch[];
+  sortBy: "ev" | "distance";
+  onSortChange: (sort: "ev" | "distance") => void;
   onSelectMatch: (matchId: string) => void;
   onMessages: () => void;
   hasMessages: boolean;
@@ -1048,6 +1063,33 @@ function Dashboard({
           </div>
         </div>
       ) : null}
+
+      {/* Sort options */}
+      <div className="mb-6 flex justify-between items-center border border-foreground/10 bg-card p-3 rounded-none font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+        <span>Zoradiť podľa:</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { haptic("tap"); onSortChange("ev"); }}
+            className={`px-2 py-1 border transition-all rounded-none font-bold ${
+              sortBy === "ev"
+                ? "border-foreground bg-foreground text-background"
+                : "border-foreground/15 text-foreground hover:bg-foreground/5"
+            }`}
+          >
+            DNA ZHODA
+          </button>
+          <button
+            onClick={() => { haptic("tap"); onSortChange("distance"); }}
+            className={`px-2 py-1 border transition-all rounded-none font-bold ${
+              sortBy === "distance"
+                ? "border-foreground bg-foreground text-background"
+                : "border-foreground/15 text-foreground hover:bg-foreground/5"
+            }`}
+          >
+            VZDIALENOSŤ
+          </button>
+        </div>
+      </div>
 
       <div className="space-y-2 mb-8">
         <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase">// Tvoje dnešné spojenia</p>
