@@ -35,6 +35,8 @@ import { PressureChat, SCENARIOS } from "@/components/PressureChat";
 import { IcebreakerDilemma } from "@/components/IcebreakerDilemma";
 import { BlindVote } from "@/components/BlindVote";
 import { RadarChart } from "@/components/RadarChart";
+import { AssetDossier } from "@/components/AssetDossier";
+import { SystemConfig } from "@/components/SystemConfig";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -296,7 +298,7 @@ function ResonApp() {
   const navActive: "home" | "test" | "messages" | "settings" | "profile" =
     screen === "messages" ? "messages"
     : screen === "profile-dossier" ? "profile"
-    : (["settings","legal-terms","legal-privacy","legal-cookies","legal-contact"] as Screen[]).includes(screen) ? (hasAnswers ? "profile" : "settings")
+    : (["settings","legal-terms","legal-privacy","legal-cookies","legal-contact"] as Screen[]).includes(screen) ? "settings"
     : "home";
 
   return (
@@ -472,8 +474,10 @@ function ResonApp() {
         />
       )}
 
-      {screen === "settings" && (
-        <Settings
+      {screen === "settings" && profile && (
+        <SystemConfig
+          user={profile}
+          onUpdateUser={setProfile}
           theme={theme}
           onTheme={(m) => { haptic("tap"); setTheme(m); }}
           onOpenTerms={() => setScreen("legal-terms")}
@@ -487,9 +491,9 @@ function ResonApp() {
       {screen === "legal-cookies" && <LegalPage title="Cookies" onBack={() => setScreen("settings")} body={COOKIES_BODY} />}
       {screen === "legal-contact" && <LegalPage title="Kontakt" onBack={() => setScreen("settings")} body={CONTACT_BODY} />}
       {screen === "profile-dossier" && profile && (
-        <UserProfileDossier
+        <AssetDossier
           user={profile}
-          onBack={() => setScreen("settings")}
+          onBack={() => setScreen("autoMatch")}
           onUpdateUser={setProfile}
         />
       )}
@@ -540,9 +544,20 @@ function BottomNav({ active, unread, testDone, onHome, onTest, onMessages, onSet
         <Item id="home" icon={<Home className="size-5" />} label={testDone ? "Matche" : "Domov"} onClick={onHome} />
         {!testDone && <Item id="test" icon={<Brain className="size-5" />} label="Test" onClick={onTest} />}
         <Item id="messages" icon={<MessageCircle className="size-5" />} label="Správy" onClick={onMessages} badge={unread} />
-        {testDone
-          ? <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
-          : <Item id="settings" icon={<SettingsIcon className="size-5" />} label="Nastav." onClick={onSettings} />}
+        
+        {testDone && (
+          <>
+            <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
+            <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
+            <Item id="settings" icon={<SettingsIcon className="size-5" />} label="Nastav." onClick={onSettings} />
+          </>
+        )}
+        {!testDone && (
+          <>
+            <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
+            <Item id="settings" icon={<SettingsIcon className="size-5" />} label="Nastav." onClick={onSettings} />
+          </>
+        )}
       </div>
     </nav>
   );
@@ -2659,479 +2674,7 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
 
 // ============ Settings + Legal ============
 
-function Settings({ theme, onTheme, onOpenTerms, onOpenPrivacy, onOpenCookies, onOpenContact }: {
-  theme: ThemeMode;
-  onTheme: (m: ThemeMode) => void;
-  onOpenTerms: () => void;
-  onOpenPrivacy: () => void;
-  onOpenCookies: () => void;
-  onOpenContact: () => void;
-}) {
-  const Row = ({ icon, label, sub, onClick }: { icon: React.ReactNode; label: string; sub?: string; onClick: () => void }) => (
-    <button onClick={onClick}
-      className="group flex w-full items-center gap-4 border border-foreground/10 bg-card p-4 text-left transition-all hover:border-foreground/35 hover:bg-card active:scale-[0.99] rounded-none">
-      <span className="grid size-10 shrink-0 place-items-center bg-foreground/5 border border-foreground/10 rounded-none">{icon}</span>
-      <span className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground uppercase tracking-wide">{label}</p>
-        {sub && <p className="mt-0.5 text-[9px] font-mono text-foreground/45 uppercase tracking-wide">{sub}</p>}
-      </span>
-      <ChevronRight className="size-4 text-foreground/60 group-hover:text-foreground" />
-    </button>
-  );
 
-  return (
-    <div className="animate-fade-up">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-sans text-3xl tracking-tight text-foreground font-black uppercase">Nastavenia</h1>
-        <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON</span>
-      </div>
-
-      <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">VZHĽAD</p>
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => onTheme("dark")}
-            className={`flex items-center justify-center gap-2 border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
-              theme === "dark"
-                ? "border-foreground bg-foreground text-background font-bold"
-                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
-            }`}>
-            <Moon className="size-4" /> TMAVÝ
-          </button>
-          <button onClick={() => onTheme("light")}
-            className={`flex items-center justify-center gap-2 border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
-              theme === "light"
-                ? "border-foreground bg-foreground text-background font-bold"
-                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
-            }`}>
-            <Sun className="size-4" /> SVETLÝ
-          </button>
-        </div>
-      </div>
-
-      <div className="mb-3 grid gap-3">
-        <Row icon={<FileText className="size-5 text-violet-600 dark:text-violet-400" />} label="Podmienky používania" sub="Zmluvný rámec a pravidlá služby" onClick={onOpenTerms} />
-        <Row icon={<Shield className="size-5 text-cyan-600 dark:text-cyan-400" />} label="Ochrana súkromia (GDPR)" sub="Aké dáta zbierame a tvoje práva" onClick={onOpenPrivacy} />
-        <Row icon={<Cookie className="size-5 text-pink-600 dark:text-pink-400" />} label="Cookies" sub="Aké technológie ukladáme v zariadení" onClick={onOpenCookies} />
-        <Row icon={<Mail className="size-5 text-indigo-600 dark:text-indigo-400" />} label="Kontakt" sub="Napíš nám s otázkou alebo sťažnosťou" onClick={onOpenContact} />
-      </div>
-
-      <div className="mt-6 border border-red-500/25 bg-red-500/5 p-4 rounded-none">
-        <div className="flex items-start gap-3">
-          <Trash className="mt-0.5 size-5 shrink-0 text-red-500" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground uppercase tracking-wide">Vymazať lokálne dáta</p>
-            <p className="mt-1 text-[9px] font-mono text-foreground/45 uppercase leading-relaxed">Profil aj rozhovory sú uložené iba v tomto zariadení. Tlačidlo nižšie ich okamžite vyčistí.</p>
-            <button
-              onClick={() => { if (confirm("Naozaj vymazať všetky lokálne dáta? Túto akciu nemožno vrátiť.")) { try { localStorage.clear(); } catch { /* ignore */ } location.reload(); } }}
-              className="mt-3 border border-red-500/40 px-3 py-2 text-xs tracking-widest text-red-500 hover:bg-red-500/10 font-mono rounded-none">
-              VYMAZAŤ A REŠTARTOVAŤ
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <p className="mt-8 text-center font-mono text-[10px] tracking-widest text-muted-foreground">VERZIA 0.9 · RESON © 2026</p>
-    </div>
-  );
-}
-
-function UserProfileDossier({ user, onBack, onUpdateUser }: {
-  user: UserProfile;
-  onBack: () => void;
-  onUpdateUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
-}) {
-  const haptic = useHaptic();
-  const [snippets, setSnippets] = useState<string[]>(() => {
-    return user.completedPressureScenarios ? [ "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-cyberpunk-look-39891-large.mp4" ] : [];
-  });
-  
-  // Camera/Recording state
-  const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState(3);
-  const [recordingState, setRecordingState] = useState<"idle" | "countdown" | "recording" | "saving">("idle");
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Profile Editor state
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(user.name);
-  const [editAge, setEditAge] = useState(user.age);
-  const [editCity, setEditCity] = useState(user.city || "");
-  const [editBio, setEditBio] = useState(user.bio || "");
-  const [editRadius, setEditRadius] = useState(user.radiusKm || 250);
-
-  function handleSaveProfile() {
-    haptic("success");
-    onUpdateUser((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        name: editName,
-        age: Number(editAge),
-        city: editCity,
-        bio: editBio,
-        radiusKm: Number(editRadius),
-      };
-    });
-    setIsEditing(false);
-  }
-
-  // Initialize with any existing snippets (e.g. liveness video)
-  useEffect(() => {
-    setSnippets([
-      "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-cyberpunk-look-39891-large.mp4",
-      "https://assets.mixkit.co/videos/preview/mixkit-woman-close-up-under-neon-light-40409-large.mp4",
-    ]);
-  }, []);
-
-  async function startRecording(index: number) {
-    haptic("tap");
-    setRecordingIndex(index);
-    setRecordingState("countdown");
-    setCountdown(3);
-
-    let stream: MediaStream;
-    try {
-      stream = await openCamera();
-      setCameraStream(stream);
-    } catch (err) {
-      console.error("[dossier] openCamera failed:", err);
-      alert("Nepodarilo sa spustiť kameru. Skontrolujte povolenia.");
-      cancelRecording();
-      return;
-    }
-
-    setTimeout(() => {
-      if (videoRef.current) {
-        attachStreamToVideo(videoRef.current, stream);
-      }
-    }, 100);
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          triggerRecord(stream, index);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }
-
-  async function triggerRecord(stream: MediaStream, index: number) {
-    haptic("warning");
-    setRecordingState("recording");
-
-    try {
-      const blob = await recordStreamForMs(stream, 3000);
-      setRecordingState("saving");
-      
-      const videoUrl = URL.createObjectURL(blob);
-      setSnippets((prev) => {
-        const next = [...prev];
-        next[index] = videoUrl;
-        return next;
-      });
-
-      haptic("success");
-    } catch (err) {
-      console.error("[dossier] recordStreamForMs failed:", err);
-      alert("Nahrávanie zlyhalo.");
-    } finally {
-      stopStream(stream);
-      setCameraStream(null);
-      setRecordingIndex(null);
-      setRecordingState("idle");
-    }
-  }
-
-  function cancelRecording() {
-    if (cameraStream) {
-      stopStream(cameraStream);
-      setCameraStream(null);
-    }
-    setRecordingIndex(null);
-    setRecordingState("idle");
-  }
-
-  function deleteSnippet(index: number) {
-    haptic("warning");
-    setSnippets((prev) => {
-      const next = [...prev];
-      next.splice(index, 1);
-      return next;
-    });
-  }
-
-  // Pure mathematical metrics for ALGORITHMIC DIAGNOSTICS
-  const primaryMarker = `[${(user.attachmentStyle || "Secure").toUpperCase()}]`;
-  const decisionLatency = `${(user.avgResponseTime || 2.45).toFixed(2)}s`;
-  const redemptionQuota = `${user.redemptionQuota ?? 0}`;
-  const closureRate = "85%";
-  const cognitiveDepth = `${(user.cognitiveDepth || 0.55).toFixed(2)}`;
-  const conscientiousness = `${(user.conscientiousness || 0.50).toFixed(2)}`;
-  const extraversion = `${(user.extraversion || 0.50).toFixed(2)}`;
-  const searchRadius = `${user.radiusKm || 250}km`;
-  const hesitationFlag = `[${user.hesitated ? "TRUE" : "FALSE"}]`;
-
-  return (
-    <div className="animate-fade-up">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">ASSET DOSSIER // KOGNITÍVNA DNA</h1>
-        <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{user.name}</span>
-      </div>
-
-      {/* CCTV Live Snippets Grid (Redesign Slot grid) */}
-      <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">MULTIPLE LIVE SNIPPETS (3s CCTV LOOPS)</p>
-        <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, idx) => {
-            const url = snippets[idx];
-            return (
-              <div key={idx} className="relative aspect-video w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
-                {url ? (
-                  <>
-                    <video
-                      src={url}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="size-full object-cover rounded-none"
-                    />
-                    {/* Corner CCTV Indicator */}
-                    <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
-                      <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">LIVE</span>
-                    </div>
-                    {/* Pulsing overlay timestamp */}
-                    <div className="absolute bottom-1.5 left-1.5 bg-black/70 px-1.5 py-0.5 rounded-none">
-                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">00:03:00</span>
-                    </div>
-                    {/* Delete button */}
-                    <button
-                      onClick={() => deleteSnippet(idx)}
-                      className="absolute top-1.5 right-1.5 bg-red-600/90 text-white p-1 rounded-none border border-red-500 hover:bg-red-700 transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => startRecording(idx)}
-                    className="size-full flex flex-col items-center justify-center p-3 text-center hover:bg-foreground/[0.04] transition-all border border-dashed border-foreground/20 rounded-none text-[9px] font-mono text-foreground/45"
-                  >
-                    <span>[ RECORD LIVE SNIPPET ]</span>
-                    <span className="mt-1 text-[7px] text-foreground/30">SLOT {idx + 1} // 3 SECONDS</span>
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Pure Data Algorithmic Diagnostics (Brutalist Key: Value) */}
-      <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITHMIC DIAGNOSTICS</p>
-        <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Primary_Marker</span>
-            <span className="font-bold text-foreground">{primaryMarker}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Decision_Latency</span>
-            <span className="font-bold text-foreground">{decisionLatency}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Redemption_Quota</span>
-            <span className="font-bold text-foreground">{redemptionQuota}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Closure_Rate</span>
-            <span className="font-bold text-foreground">{closureRate}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Cognitive_Depth</span>
-            <span className="font-bold text-foreground">{cognitiveDepth}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Conscientiousness</span>
-            <span className="font-bold text-foreground">{conscientiousness}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Extraversion</span>
-            <span className="font-bold text-foreground">{extraversion}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Search_Radius</span>
-            <span className="font-bold text-foreground">{searchRadius}</span>
-          </div>
-          <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Hesitation_Flag</span>
-            <span className="font-bold text-foreground">{hesitationFlag}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-foreground/45 uppercase">Active_Dossier_Status</span>
-            <span className="font-bold text-green-500 uppercase">CALIBRATED</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Settings (Editor Section) */}
-      <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none">
-        <div className="flex items-center justify-between mb-4 border-b border-foreground/10 pb-3">
-          <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NASTAVENIE PROFILU // ATRIBÚTY</p>
-          <button
-            onClick={() => {
-              haptic("tap");
-              if (isEditing) {
-                handleSaveProfile();
-              } else {
-                setIsEditing(true);
-              }
-            }}
-            className="border border-foreground/20 px-3 py-1 font-mono text-[9px] font-bold text-foreground hover:bg-foreground/5 transition-all rounded-none uppercase"
-          >
-            {isEditing ? "[ 💾 ULOŽIŤ ]" : "[ ✎ UPRAVIŤ ]"}
-          </button>
-        </div>
-
-        {isEditing ? (
-          <div className="space-y-4 font-mono text-xs">
-            <div>
-              <label className="block text-[8px] text-muted-foreground uppercase mb-1">Meno</label>
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[8px] text-muted-foreground uppercase mb-1">Vek</label>
-                <input
-                  type="number"
-                  value={editAge}
-                  onChange={(e) => setEditAge(Number(e.target.value))}
-                  className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-                />
-              </div>
-              <div>
-                <label className="block text-[8px] text-muted-foreground uppercase mb-1">Mesto</label>
-                <input
-                  type="text"
-                  value={editCity}
-                  onChange={(e) => setEditCity(e.target.value)}
-                  className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[8px] text-muted-foreground uppercase mb-1">Hľadaný rádius (km)</label>
-              <input
-                type="number"
-                value={editRadius}
-                onChange={(e) => setEditRadius(Number(e.target.value))}
-                className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-              />
-            </div>
-            <div>
-              <label className="block text-[8px] text-muted-foreground uppercase mb-1">Krátke bio</label>
-              <textarea
-                value={editBio}
-                onChange={(e) => setEditBio(e.target.value)}
-                rows={3}
-                className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="font-mono text-xs text-foreground/80 space-y-2.5">
-            <div className="flex justify-between border-b border-foreground/5 pb-2">
-              <span className="text-foreground/45 uppercase text-[9px]">Meno</span>
-              <span className="font-bold">{user.name}</span>
-            </div>
-            <div className="flex justify-between border-b border-foreground/5 pb-2">
-              <span className="text-foreground/45 uppercase text-[9px]">Vek</span>
-              <span className="font-bold">{user.age} rokov</span>
-            </div>
-            <div className="flex justify-between border-b border-foreground/5 pb-2">
-              <span className="text-foreground/45 uppercase text-[9px]">Mesto</span>
-              <span className="font-bold">{user.city || "Neuvedené"}</span>
-            </div>
-            <div className="flex justify-between border-b border-foreground/5 pb-2">
-              <span className="text-foreground/45 uppercase text-[9px]">Rádius</span>
-              <span className="font-bold">{user.radiusKm || 250} km</span>
-            </div>
-            <div>
-              <span className="text-foreground/45 uppercase text-[9px] block mb-1">Bio</span>
-              <p className="italic text-[10px] text-foreground/75 leading-relaxed bg-foreground/[0.01] p-2 border border-foreground/5 font-sans">
-                {user.bio || "Tento profil zatiaľ nemá žiadne vyplnené bio."}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation Actions */}
-      <div className="space-y-3">
-        <button
-          onClick={onBack}
-          className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none"
-        >
-          [ SPÄŤ ]
-        </button>
-      </div>
-
-      {/* Recording Overlay Modal */}
-      {recordingIndex !== null && (
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[150] flex flex-col justify-center items-center p-4">
-          <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative">
-            <div className="mb-4 font-mono text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
-              [ CCTV CAMERA RECORDER INTERFACE ]
-            </div>
-            
-            <div className="relative aspect-video w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
-              <video ref={videoRef} playsInline muted className="size-full object-cover scale-110" style={{ transform: "scaleX(-1)" }} />
-              
-              {recordingState === "countdown" && (
-                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
-                  <span className="font-mono text-4xl text-white font-bold animate-ping">{countdown}</span>
-                  <span className="font-mono text-[9px] text-white/50 tracking-widest uppercase mt-2">Príprava...</span>
-                </div>
-              )}
-
-              {recordingState === "recording" && (
-                <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/70 px-2 py-0.5 border border-red-500">
-                  <span className="size-1.5 rounded-full bg-red-500 animate-ping" />
-                  <span className="font-mono text-[7px] text-white tracking-widest uppercase">REC (3s)</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={cancelRecording}
-                className="flex-1 border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none"
-              >
-                [ ZRUŠIŤ ]
-              </button>
-              {recordingState === "countdown" && (
-                <div className="flex-1 grid place-items-center font-mono text-[10px] tracking-widest text-foreground font-bold uppercase">
-                  Priprav sa...
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function LegalPage({ title, onBack, body }: { title: string; onBack: () => void; body: Array<{ h: string; p: string[] }> }) {
   return (
