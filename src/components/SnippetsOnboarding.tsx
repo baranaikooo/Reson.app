@@ -246,8 +246,14 @@ export function SnippetsOnboarding({ livenessVideoUrl, onDone }: SnippetsOnboard
       <div className="space-y-3">
         <button
           onClick={() => {
+            const activeSnippets = snippets.filter(Boolean);
+            if (activeSnippets.length === 0) {
+              haptic("error");
+              alert("Chyba: Musíte nahrať aspoň 1 nový live snippet na overenie a pokračovanie.");
+              return;
+            }
             haptic("success");
-            onDone(snippets.filter(Boolean));
+            onDone(activeSnippets);
           }}
           className="w-full border-2 border-foreground py-4 text-xs font-black tracking-widest text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
         >

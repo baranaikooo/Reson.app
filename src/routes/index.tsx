@@ -271,7 +271,7 @@ function ResonApp() {
   const activeConversationMatch = activeConversation ? MOCK_MATCHES.find(m => m.id === activeConversation.matchId) ?? null : null;
 
   const hasAnswers = profile?.cognitiveDepth !== undefined;
-  const onboardingScreens: Screen[] = ["landing", "verify", "liveness", "profile", "briefing", "mirror", "bankroll", "pressure"];
+  const onboardingScreens: Screen[] = ["landing", "verify", "liveness", "profile", "snippets-onboarding", "briefing", "mirror", "bankroll", "pressure"];
   const focusScreens: Screen[] = ["test", "chamber", "thread"];
   const showNav = profile !== null && !onboardingScreens.includes(screen) && !focusScreens.includes(screen);
   const unreadCount = conversations.filter(c => c.unread).length;
