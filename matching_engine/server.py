@@ -62,6 +62,8 @@ class MatchResponse(BaseModel):
     similarity_pct: float
     complementarity_label: str
     attachment_safety: str
+    distance_km: Optional[float] = None
+    is_auto_expanded: Optional[bool] = False
 
 class VoiceMessageSend(BaseModel):
     match_id: UUID
@@ -187,8 +189,66 @@ async def get_daily_matches(user_id: UUID):
         m_ghost_p = float(get_ghosting_multiplier(user_ghosting_count))
 
         # 3. Calculate final EV compatibility scores locally
-        matches_scored = []
+        import math
+        def get_haversine_distance(lat1, lon1, lat2, lon2):
+            if lat1 is None or lon1 is None or lat2 is None or lon2 is None:
+                return None
+            R = 6371.0
+            dlat = math.radians(lat2 - lat1)
+            dlon = math.radians(lon2 - lon1)
+            a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return R * c
+
+        MIN_CANDIDATE_POOL = 50
+        user_radius = user_profile.get("radius_km")
+        if user_radius is None:
+            user_radius = user_profile.get("radiusKm", 200)
+
+        is_global = user_radius >= 500
+        pre_filtered = []
+        user_age = int(user_profile["age"])
+        user_lat = user_profile.get("latitude")
+        user_lon = user_profile.get("longitude")
+
         for candidate in candidates_res.data:
+            candidate_age = int(candidate["age"])
+            
+            # Age Reciprocity Bracket
+            user_min_allowed = max(18, user_age // 2 + 7)
+            user_max_allowed = (user_age - 7) * 2
+            
+            candidate_min_allowed = max(18, candidate_age // 2 + 7)
+            candidate_max_allowed = (candidate_age - 7) * 2
+            
+            if not (user_min_allowed <= candidate_age <= user_max_allowed):
+                continue
+            if not (candidate_min_allowed <= user_age <= candidate_max_allowed):
+                continue
+
+            c_lat = candidate.get("latitude")
+            c_lon = candidate.get("longitude")
+            c_dist = get_haversine_distance(user_lat, user_lon, c_lat, c_lon)
+            
+            pre_filtered.append((candidate, c_dist))
+
+        # Iterative auto-expansion
+        current_radius = user_radius
+        pool_matches = [item for item in pre_filtered if is_global or item[1] is None or item[1] <= current_radius]
+        total_compatible = len(pre_filtered)
+        target_threshold = min(MIN_CANDIDATE_POOL, total_compatible)
+        
+        auto_expanded = False
+        if not is_global and len(pool_matches) < target_threshold:
+            auto_expanded = True
+            while len(pool_matches) < target_threshold and current_radius < 500:
+                current_radius += 25
+                pool_matches = [item for item in pre_filtered if item[1] is None or item[1] <= current_radius]
+            if len(pool_matches) < target_threshold:
+                pool_matches = pre_filtered # fallback to global
+
+        matches_scored = []
+        for candidate, c_dist in pool_matches:
             c_id = UUID(candidate["id"])
             candidate_hesitated = bool(candidate.get("hesitated", False))
             candidate_red_quota = int(candidate.get("redemption_quota", 0))
@@ -198,7 +258,6 @@ async def get_daily_matches(user_id: UUID):
             m_red_q = float(get_redemption_multiplier(candidate_red_quota))
             m_ghost_q = float(get_ghosting_multiplier(candidate_ghosting_count))
             
-            # Math engine computations (float() handles 0-dim numpy arrays from scalar inputs)
             sim = float(calculate_similarity(
                 user_profile["cognitive_depth"], candidate["cognitive_depth"],
                 user_profile["conscientiousness"], candidate["conscientiousness"]
@@ -208,7 +267,6 @@ async def get_daily_matches(user_id: UUID):
                 user_profile["extraversion"], candidate["extraversion"], target=dynamic_target_t
             ))
             
-            # Dynamic toxicity: get count for this style pair
             pair_key = tuple(sorted([user_profile["attachment_style"], candidate["attachment_style"]]))
             coop_count = coop_counts.get(pair_key, 0)
             
@@ -224,11 +282,9 @@ async def get_daily_matches(user_id: UUID):
                 hesitated_p=user_hesitated, hesitated_q=candidate_hesitated
             ))
 
-            # EV compatibility formula: (0.6 * similarity + 0.4 * complementarity) * toxicity * anti-cheat * redemption * ghosting multipliers
             base_score = (0.6 * sim) + (0.4 * comp)
             final_score = base_score * tox_mult * cheat_mult * m_red_p * m_red_q * m_ghost_p * m_ghost_q
             
-            # Format labels
             ext_sum = user_profile["extraversion"] + candidate["extraversion"]
             if ext_sum < 0.6:
                 comp_label = "Tichá harmónia (Introvert + Introvert)"
@@ -240,12 +296,16 @@ async def get_daily_matches(user_id: UUID):
             is_secure_match = user_profile["attachment_style"] == "Secure" and candidate["attachment_style"] == "Secure"
             safety_label = "Maximálne bezpečné" if is_secure_match else "Štandardné spojenie"
 
+            is_expanded_flag = not is_global and auto_expanded and c_dist is not None and c_dist > user_radius
+
             matches_scored.append({
                 "candidate_profile": candidate,
                 "ev_score": float(final_score * 100.0),
                 "similarity_pct": float(sim * 100.0),
                 "complementarity_label": comp_label,
-                "attachment_safety": safety_label
+                "attachment_safety": safety_label,
+                "distance_km": c_dist,
+                "is_auto_expanded": is_expanded_flag
             })
 
         # 4. Sort candidates by score descending
@@ -256,8 +316,6 @@ async def get_daily_matches(user_id: UUID):
         output = []
         for m in top_matches:
             candidate = m["candidate_profile"]
-            
-            # Sort IDs to maintain user_p < user_q constraint
             sorted_users = sorted([str(user_id), candidate["id"]])
             
             match_payload = {
@@ -266,7 +324,6 @@ async def get_daily_matches(user_id: UUID):
                 "ev_score": m["ev_score"]
             }
             
-            # Create match or fetch existing
             match_res = supabase_client.table("matches").upsert(
                 match_payload, on_conflict="user_p,user_q"
             ).execute()
@@ -282,7 +339,9 @@ async def get_daily_matches(user_id: UUID):
                         ev_score=m["ev_score"],
                         similarity_pct=m["similarity_pct"],
                         complementarity_label=m["complementarity_label"],
-                        attachment_safety=m["attachment_safety"]
+                        attachment_safety=m["attachment_safety"],
+                        distance_km=m["distance_km"],
+                        is_auto_expanded=m["is_auto_expanded"]
                     )
                 )
 

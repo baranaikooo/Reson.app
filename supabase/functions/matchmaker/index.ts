@@ -88,7 +88,65 @@ serve(async (req) => {
     const dynamicTargetT = Math.max(0.6, Math.min(1.4, avgCandidateE * 2.0))
 
     // 4. Calculate final EV compatibility scores locally
-    const scoredMatches = candidates.map((candidate: any) => {
+    const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371.0;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+
+    const userAge = userProfile.age;
+    const userLat = userProfile.latitude;
+    const userLon = userProfile.longitude;
+    const userRadius = userProfile.radius_km ?? userProfile.radiusKm ?? 200;
+    const isGlobal = userRadius >= 500;
+    const MIN_CANDIDATE_POOL = 50;
+
+    const compatiblePool = candidates.map((c: any) => {
+      const distanceKm = (userLat != null && userLon != null && c.latitude != null && c.longitude != null)
+        ? haversineKm(userLat, userLon, c.latitude, c.longitude)
+        : undefined;
+      return { ...c, distanceKm };
+    }).filter((c: any) => {
+      const candidateAge = c.age;
+
+      const userMinAllowed = Math.max(18, Math.floor((userAge / 2) + 7));
+      const userMaxAllowed = Math.floor((userAge - 7) * 2);
+
+      const candidateMinAllowed = Math.max(18, Math.floor((candidateAge / 2) + 7));
+      const candidateMaxAllowed = Math.floor((candidateAge - 7) * 2);
+
+      return (
+        candidateAge >= userMinAllowed &&
+        candidateAge <= userMaxAllowed &&
+        userAge >= candidateMinAllowed &&
+        userAge <= candidateMaxAllowed
+      );
+    });
+
+    let currentRadius = userRadius;
+    let poolMatches = compatiblePool.filter((c: any) => isGlobal || c.distanceKm === undefined || c.distanceKm <= currentRadius);
+    const totalCompatible = compatiblePool.length;
+    const targetThreshold = Math.min(MIN_CANDIDATE_POOL, totalCompatible);
+    let autoExpanded = false;
+
+    if (!isGlobal && poolMatches.length < targetThreshold) {
+      autoExpanded = true;
+      while (poolMatches.length < targetThreshold && currentRadius < 500) {
+        currentRadius += 25;
+        poolMatches = compatiblePool.filter((c: any) => c.distanceKm === undefined || c.distanceKm <= currentRadius);
+      }
+      if (poolMatches.length < targetThreshold) {
+        poolMatches = compatiblePool;
+      }
+    }
+
+    const scoredMatches = poolMatches.map((candidate: any) => {
       // 4.1. Similarity calculation (1 - Euclidean / sqrt(2))
       const simDist = Math.sqrt(
         Math.pow(userProfile.cognitive_depth - candidate.cognitive_depth, 2) +
@@ -148,12 +206,16 @@ serve(async (req) => {
       const isSecureMatch = userProfile.attachment_style === "Secure" && candidate.attachment_style === "Secure"
       const safetyLabel = isSecureMatch ? "Maximálne bezpečné" : "Štandardné spojenie"
 
+      const isExpandedFlag = !isGlobal && autoExpanded && candidate.distanceKm !== undefined && candidate.distanceKm > userRadius;
+
       return {
         candidate,
         ev_score: finalScore * 100.0,
         similarity_pct: sim * 100.0,
         complementarity_label: compLabel,
-        attachment_safety: safetyLabel
+        attachment_safety: safetyLabel,
+        distance_km: candidate.distanceKm,
+        is_auto_expanded: isExpandedFlag
       }
     })
 
@@ -183,7 +245,9 @@ serve(async (req) => {
           ev_score: m.ev_score,
           similarity_pct: m.similarity_pct,
           complementarity_label: m.complementarity_label,
-          attachment_safety: m.attachment_safety
+          attachment_safety: m.attachment_safety,
+          distance_km: m.distance_km,
+          is_auto_expanded: m.is_auto_expanded
         })
       }
     }

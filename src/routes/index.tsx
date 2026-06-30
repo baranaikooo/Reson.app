@@ -1166,8 +1166,19 @@ function Dashboard({
                     <h3 className="text-lg font-bold text-foreground leading-tight">
                       {match.name}, <span className="text-foreground/60 font-light">{match.age}</span>
                     </h3>
-                    <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5">
-                      {match.city}
+                    <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
+                      <span>{match.city}</span>
+                      {match.distanceKm !== undefined && (
+                        <>
+                          <span>•</span>
+                          <span>{Math.round(match.distanceKm)} km</span>
+                        </>
+                      )}
+                      {match.isAutoExpanded && (
+                        <span className="bg-amber-500/15 border border-amber-500/30 px-1 py-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 rounded-none tracking-normal">
+                          [AUTO-EXPANDED]
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>

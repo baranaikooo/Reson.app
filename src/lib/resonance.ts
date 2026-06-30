@@ -617,7 +617,9 @@ export function haversineKm(a: { lat: number; lon: number }, b: { lat: number; l
 
 
 export function ageBounds(age: number): { min: number; max: number } {
-  return { min: Math.floor(age / 2) + 7, max: Math.max(age, (age - 7) * 2) };
+  const min = Math.max(18, Math.floor((age / 2) + 7));
+  const max = Math.floor((age - 7) * 2);
+  return { min, max: max < min ? min : max };
 }
 
 export function isCompatible(me: UserProfile, other: UserProfile): boolean {
@@ -784,7 +786,9 @@ export function calcEVScore(
 }
 
 export function rankMatches(me: UserProfile, list: MockMatch[]): RankedMatch[] {
-  const radius = me.radiusKm ?? 200;
+  const isGlobal = me.radiusKm === undefined || me.radiusKm >= 500;
+  let currentRadius = me.radiusKm ?? 200;
+  const MIN_CANDIDATE_POOL = 50;
   
   const cDepthP = me.cognitiveDepth ?? 0.5;
   const consP = me.conscientiousness ?? 0.5;
@@ -795,34 +799,54 @@ export function rankMatches(me: UserProfile, list: MockMatch[]): RankedMatch[] {
 
   const compatibleCandidates = list.filter((m) => isCompatible(me, m));
   
-  // Calculate dynamic target T: clamp(mean(E_candidates) * 2, 0.6, 1.4)
   const avgCandidateE = compatibleCandidates.length > 0
     ? compatibleCandidates.reduce((acc, c) => acc + c.extraversion, 0) / compatibleCandidates.length
     : 0.5;
   const dynamicTargetT = Math.max(0.6, Math.min(1.4, avgCandidateE * 2.0));
 
-  return compatibleCandidates
-    .map((m) => {
-      const base = calcEVScore(
-        cDepthP, m.cognitive_depth,
-        consP, m.conscientiousness,
-        extP, m.extraversion,
-        styleP, m.attachment_style,
-        rtP, m.avg_response_time,
-        dynamicTargetT,
-        hesitatedP,
-        m.hesitated ?? false
-      );
-      const bonus = ageBonus(me.age, m.age) / 100.0; // scale age bonus to fit matching bounds
-      
-      const distanceKm = me.coords && m.coords ? haversineKm(me.coords, m.coords) : undefined;
-      return {
-        ...m,
-        distanceKm,
-        score: Math.min(100, Math.round((base + bonus) * 1000) / 10),
-      };
-    })
-    .filter((m) => m.distanceKm === undefined || m.distanceKm <= radius)
+  const allScored = compatibleCandidates.map((m) => {
+    const base = calcEVScore(
+      cDepthP, m.cognitive_depth,
+      consP, m.conscientiousness,
+      extP, m.extraversion,
+      styleP, m.attachment_style,
+      rtP, m.avg_response_time,
+      dynamicTargetT,
+      hesitatedP,
+      m.hesitated ?? false
+    );
+    const bonus = ageBonus(me.age, m.age) / 100.0;
+    const distanceKm = me.coords && m.coords ? haversineKm(me.coords, m.coords) : undefined;
+    return {
+      ...m,
+      distanceKm,
+      score: Math.min(100, Math.round((base + bonus) * 1000) / 10),
+    };
+  });
+
+  // Iterative auto-expansion
+  let filtered = allScored.filter((m) => isGlobal || m.distanceKm === undefined || m.distanceKm <= currentRadius);
+  const totalCompatibleCount = allScored.length;
+  const targetThreshold = Math.min(MIN_CANDIDATE_POOL, totalCompatibleCount);
+  let autoExpanded = false;
+
+  if (!isGlobal && filtered.length < targetThreshold) {
+    autoExpanded = true;
+    while (filtered.length < targetThreshold && currentRadius < 500) {
+      currentRadius += 25;
+      filtered = allScored.filter((m) => m.distanceKm === undefined || m.distanceKm <= currentRadius);
+    }
+    if (filtered.length < targetThreshold) {
+      filtered = allScored; // fallback to global
+    }
+  }
+
+  const originalRadius = me.radiusKm ?? 200;
+  return filtered
+    .map((m) => ({
+      ...m,
+      isAutoExpanded: !isGlobal && autoExpanded && m.distanceKm !== undefined && m.distanceKm > originalRadius,
+    }))
     .sort((a, b) => b.score - a.score);
 }
 

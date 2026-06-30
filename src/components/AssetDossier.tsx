@@ -12,7 +12,10 @@ interface AssetDossierProps {
 
 export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) {
   const haptic = useHaptic();
-  
+
+  // Blur Toggle state: Pre-vote (blurred to 15px) vs Unlocked (sharp)
+  const [isPreviewBlurred, setIsPreviewBlurred] = useState(true);
+
   // Snippets local list
   const [snippets, setSnippets] = useState<string[]>([]);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
@@ -24,13 +27,28 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
 
-  // Initialize list
+  // Directives local editing states
+  const [nonNegotiable, setNonNegotiable] = useState(user.nonNegotiable || "");
+  const [currentThesis, setCurrentThesis] = useState(user.currentThesis || "");
+
+  // Initialize loops
   useEffect(() => {
     setSnippets([
       "https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-cyberpunk-look-39891-large.mp4",
       "https://assets.mixkit.co/videos/preview/mixkit-woman-close-up-under-neon-light-40409-large.mp4",
     ]);
   }, []);
+
+  // Save directives changes back to profile
+  function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
+    onUpdateUser((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [field]: val,
+      };
+    });
+  }
 
   // JIT Camera Record Flow
   async function startRecording(index: number) {
@@ -128,7 +146,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
     const videoUrl = URL.createObjectURL(file);
 
-    // Validate duration
     const tempVideo = document.createElement("video");
     tempVideo.src = videoUrl;
     tempVideo.onloadedmetadata = () => {
@@ -154,7 +171,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     });
   }
 
-  // Pure mathematical metrics for ALGORITHMIC DIAGNOSTICS
+  // Algorithmic Age Bracket Calculations (Half-your-age-plus-seven reciprocity)
+  const minBracketAge = Math.max(18, Math.floor((user.age / 2) + 7));
+  const maxBracketAge = Math.floor((user.age - 7) * 2);
+  const calculatedBracket = `[${minBracketAge} - ${maxBracketAge < minBracketAge ? minBracketAge : maxBracketAge}]`;
+
+  // Slovak attachment styles mapper
   const styleMap: Record<string, string> = {
     Secure: "BEZPEČNÝ",
     Anxious: "ÚZKOSTNÝ",
@@ -162,6 +184,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     Fearful: "DEZORGANIZOVANÝ"
   };
   const attachmentStyleSlovak = styleMap[user.attachmentStyle || "Secure"] || "BEZPEČNÝ";
+
   const primaryMarker = `[${attachmentStyleSlovak}]`;
   const decisionLatency = `${(user.avgResponseTime || 2.45).toFixed(2)}s`;
   const redemptionQuota = `${user.redemptionQuota ?? 0}`;
@@ -179,7 +202,23 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{user.name}</span>
       </div>
 
-      {/* CCTV Live Snippets Grid */}
+      {/* Blur Preview Toggle */}
+      <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none flex items-center justify-between">
+        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NÁHĽAD PRE TRH (MARKET PREVIEW)</span>
+        <button
+          onClick={() => { haptic("tap"); setIsPreviewBlurred(!isPreviewBlurred); }}
+          className={`flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[9px] tracking-widest uppercase transition-all rounded-none font-bold ${
+            isPreviewBlurred 
+              ? "border-amber-500 bg-amber-500/10 text-amber-500" 
+              : "border-foreground bg-foreground text-background"
+          }`}
+        >
+          {isPreviewBlurred ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+          {isPreviewBlurred ? "[ PRE-VOTE STATE ]" : "[ UNLOCKED STATE ]"}
+        </button>
+      </div>
+
+      {/* CCTV Live Snippets Grid (respects preview blur toggle) */}
       <div className="mb-6">
         <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MULTIPLE LIVE SNIPPETS (3s CCTV LOOPS)</p>
         <div className="grid grid-cols-2 gap-3">
@@ -200,7 +239,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                           e.currentTarget.currentTime = 0;
                         }
                       }}
-                      className="size-full object-cover rounded-none"
+                      className={`size-full object-cover rounded-none transition-all duration-300 ${
+                        isPreviewBlurred ? "blur-[15px]" : "blur-none"
+                      }`}
                     />
                     <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
                       <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -251,27 +292,54 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         />
       </div>
 
-      {/* Directives Section */}
+      {/* Brutalist Directives Form Fields */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">PSYCHOLOGICKÉ SMERNICE</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">KOGNITÍVNE SMERNICE (DIRECTIVES)</p>
         
-        <div className="font-mono text-xs text-foreground/80 space-y-2.5">
-          <div className="border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase text-[9px] block mb-0.5">Nezjednateľná priorita (Non-Negotiable)</span>
-            <span className="font-bold text-foreground">STABILITA A BLÍZKOSŤ</span>
+        {/* NON-NEGOTIABLE */}
+        <div className="space-y-1">
+          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
+            <span>Non-Negotiable (Nezjednateľná podmienka)</span>
+            <span>{nonNegotiable.length} / 60</span>
           </div>
-          <div>
-            <span className="text-foreground/45 uppercase text-[9px] block mb-1">Aktuálna kognitívna téza</span>
-            <p className="italic text-[10px] text-foreground/75 leading-relaxed bg-foreground/[0.01] p-2 border border-foreground/5 font-sans">
-              "Kolektívny architekt hľadajúci kľúč k zjednoteniu v asymetrii ticha."
-            </p>
+          <input
+            type="text"
+            maxLength={60}
+            value={nonNegotiable}
+            onChange={(e) => {
+              const val = e.target.value;
+              setNonNegotiable(val);
+              handleSaveDirectives("nonNegotiable", val);
+            }}
+            placeholder="Napr. Tolerancia hluku, stabilita hodnôt, vernosť..."
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none placeholder:text-foreground/30"
+          />
+        </div>
+
+        {/* CURRENT THESIS */}
+        <div className="space-y-1">
+          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
+            <span>Current Thesis (Súčasná téza o živote)</span>
+            <span>{currentThesis.length} / 100</span>
           </div>
+          <textarea
+            maxLength={100}
+            rows={2}
+            value={currentThesis}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCurrentThesis(val);
+              handleSaveDirectives("currentThesis", val);
+            }}
+            placeholder="Napr. Hľadám kľúč k zjednoteniu v asymetrii ticha a racionálneho dialogu..."
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
+          />
         </div>
       </div>
 
       {/* Pure Data Algorithmic Diagnostics */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITMICKÁ DIAGNOSTIKA</p>
+        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITMICKÁ DIAGNOSTIKA // METRIKY</p>
         <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Primárny_Marker</span>
@@ -305,6 +373,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <span className="text-foreground/45 uppercase">Príznak_váhania</span>
             <span className="font-bold text-foreground">{hesitationFlag}</span>
           </div>
+          
+          {/* HARDCODED ALGORITHMIC BRACKET */}
+          <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
+            <span className="text-amber-500 font-bold uppercase">Algorithmic_Market_Bracket</span>
+            <span className="font-black text-amber-500 font-mono">{calculatedBracket}</span>
+          </div>
+
           <div className="flex justify-between">
             <span className="text-foreground/45 uppercase">Stav_aktívneho_spisu</span>
             <span className="font-bold text-green-600 uppercase">KALIBROVANÉ</span>

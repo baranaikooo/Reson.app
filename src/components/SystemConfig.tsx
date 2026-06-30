@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Settings as SettingsIcon, ShieldAlert, Key, LogOut, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Settings as SettingsIcon, ShieldAlert, Key, LogOut, Trash2, Camera, Mic, Compass, AlertTriangle, Snowflake } from "lucide-react";
 import { UserProfile, ThemeMode } from "@/lib/resonance";
 import { useHaptic } from "@/hooks/use-haptics";
 
@@ -27,13 +27,39 @@ export function SystemConfig({
   const haptic = useHaptic();
 
   // Local settings states
-  const [ageMin, setAgeMin] = useState(18);
-  const [ageMax, setAgeMax] = useState(user.age + 10 || 35);
-  const [distance, setDistance] = useState(user.radiusKm || 250);
+  const [distance, setDistance] = useState(user.radiusKm || 200);
+  const [isGlobalMode, setIsGlobalMode] = useState(user.radiusKm === undefined || user.radiusKm >= 500);
   const [orientation, setOrientation] = useState(user.orientation || "hetero");
 
+  // Hardware permissions states
+  const [micPermission, setMicPermission] = useState<"granted" | "denied" | "prompt">("prompt");
+  const [camPermission, setCamPermission] = useState<"granted" | "denied" | "prompt">("prompt");
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lon: number } | null>(user.coords ?? null);
+  const [isGpsLoading, setIsGpsLoading] = useState(false);
+
+  // Alerts states
+  const [criticalAlerts, setCriticalAlerts] = useState(true);
+  const [messageAlerts, setMessageAlerts] = useState(true);
+
+  // Market freeze state
+  const [isFrozen, setIsFrozen] = useState(false);
+
+  // Fetch permissions status on mount
+  useEffect(() => {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "microphone" as any }).then((result) => {
+        setMicPermission(result.state);
+        result.onchange = () => setMicPermission(result.state);
+      }).catch(() => {});
+
+      navigator.permissions.query({ name: "camera" as any }).then((result) => {
+        setCamPermission(result.state);
+        result.onchange = () => setCamPermission(result.state);
+      }).catch(() => {});
+    }
+  }, []);
+
   function saveFilterChange(key: string, value: any) {
-    haptic("tap");
     onUpdateUser((prev) => {
       if (!prev) return null;
       return {
@@ -43,22 +69,56 @@ export function SystemConfig({
     });
   }
 
-  // Reset Hardware permissions JIT state
-  function handleResetPermissions() {
-    haptic("warning");
-    try {
-      localStorage.removeItem("reson:mic_primed");
-      localStorage.removeItem("reson:camera_primed");
-      alert("Hardvérové povolenia boli zresetované. Pri najbližšej interakcii sa znova vyžiada prístup.");
-    } catch {
-      alert("Nepodarilo sa vyčistiť nastavenia prehliadača.");
+  // Refresh Geolocation coordinates
+  function handleRefreshCoordinates() {
+    haptic("tap");
+    setIsGpsLoading(true);
+    
+    if (!navigator.geolocation) {
+      alert("Geolokácia nie je podporovaná týmto prehliadačom.");
+      setIsGpsLoading(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const newCoords = { lat: latitude, lon: longitude };
+        setGpsCoords(newCoords);
+        saveFilterChange("coords", newCoords);
+        setIsGpsLoading(false);
+        haptic("success");
+        alert(`Súradnice aktualizované: [Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}]`);
+      },
+      (err) => {
+        console.error("[config] GPS refresh error:", err);
+        alert("Chyba geolokácie: Uistite sa, že máte zapnuté GPS a povolené vyhľadávanie.");
+        setIsGpsLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 10000,
+      }
+    );
+  }
+
+  // Market Freeze Toggle (hides profile without EV penalty)
+  function handleToggleFreeze() {
+    haptic("warning");
+    const nextState = !isFrozen;
+    setIsFrozen(nextState);
+    alert(
+      nextState
+        ? "MARKET FREEZE AKTIVOVANÝ: Váš profil je dočasne skrytý pred ostatnými používateľmi. Skóre kompatibility (EV) ostáva zachované bez penalizácií."
+        : "MARKET FREEZE DEAKTIVOVANÝ: Váš profil bol znova uvoľnený na trh."
+    );
   }
 
   // Account Management
   function handleLogout() {
     haptic("warning");
-    if (confirm("Naozaj sa chcete odhlásiť? Všetky lokálne dáta a rozhovory zostanú v tomto zariadení.")) {
+    if (confirm("Naozaj sa chcete odhlásiť? Lokálne relácie zostanú v tomto zariadení.")) {
       try {
         localStorage.removeItem("reson:profile");
       } catch {
@@ -68,9 +128,13 @@ export function SystemConfig({
     }
   }
 
-  function handleDeleteAccount() {
+  function handleDataWipe() {
     haptic("destructive");
-    if (confirm("POZOR: Naozaj chcete natrvalo vymazať svoj účet? Táto akcia je nevratná a zmaže všetky vaše dáta z našich systémov.")) {
+    if (
+      confirm(
+        "KATASTROFICKÉ VAROVANIE: Chystáte sa spustiť protokol okamžitého zmazania dát (DATA WIPE). Všetky informácie o vašom profile, kognitívne DNA a správy budú permanentne vymazané z prehliadača aj zo systémových serverov. Táto akcia je NEVRATNÁ. Chcete pokračovať?"
+      )
+    ) {
       try {
         localStorage.clear();
       } catch {
@@ -88,23 +152,59 @@ export function SystemConfig({
         <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON v0.9</span>
       </div>
 
-      {/* Discovery Filters */}
+      {/* Market Parameters (NO AGE UI ELEMENTS) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">DISCOVERY FILTERS</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MARKET PARAMETERS (TRHOVÉ FILTRE)</p>
 
         <div className="space-y-4 font-mono text-xs">
-          {/* Distance Filter */}
-          <div>
+          {/* Global vs National Toggle */}
+          <div className="flex justify-between items-center border-b border-foreground/5 pb-3">
+            <span className="text-foreground/45 uppercase text-[9px]">ROZSAH VYHĽADÁVANIA</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setIsGlobalMode(false);
+                  saveFilterChange("radiusKm", distance);
+                }}
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                  !isGlobalMode
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                NATIONAL
+              </button>
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setIsGlobalMode(true);
+                  saveFilterChange("radiusKm", 500); // 500+ triggers Global search
+                }}
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                  isGlobalMode
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                GLOBAL
+              </button>
+            </div>
+          </div>
+
+          {/* Distance Filter (Active only in National mode) */}
+          <div className={isGlobalMode ? "opacity-30 pointer-events-none transition-opacity" : "transition-opacity"}>
             <div className="flex justify-between mb-1">
-              <span className="text-foreground/45 uppercase text-[9px]">MAX VZDIALENOSŤ</span>
+              <span className="text-foreground/45 uppercase text-[9px]">MAXIMÁLNA VZDIALENOSŤ</span>
               <span className="font-bold text-foreground">{distance} km</span>
             </div>
             <input
               type="range"
               min="5"
-              max="500"
+              max="250"
               step="5"
               value={distance}
+              disabled={isGlobalMode}
               onChange={(e) => {
                 const val = Number(e.target.value);
                 setDistance(val);
@@ -114,41 +214,9 @@ export function SystemConfig({
             />
           </div>
 
-          {/* Age range mock representation */}
+          {/* Target Demographic Orientation Dropdown */}
           <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-foreground/45 uppercase text-[9px]">VEKOVÉ ROZPÄTIE</span>
-              <span className="font-bold text-foreground">{ageMin} - {ageMax} rokov</span>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                min="18"
-                max="99"
-                value={ageMin}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setAgeMin(val);
-                }}
-                className="w-1/2 border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-              />
-              <input
-                type="number"
-                min="18"
-                max="99"
-                value={ageMax}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setAgeMax(val);
-                }}
-                className="w-1/2 border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-              />
-            </div>
-          </div>
-
-          {/* Orientation Dropdown */}
-          <div>
-            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Sexuálna orientácia</label>
+            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Cieľová demografia (Sexuálna orientácia)</label>
             <select
               value={orientation}
               onChange={(e) => {
@@ -167,9 +235,83 @@ export function SystemConfig({
         </div>
       </div>
 
-      {/* Theme Config */}
+      {/* Hardware Protocols */}
+      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDWARE PROTOCOLS (ZARIADENIA & LOKÁCIA)</p>
+
+        <div className="space-y-3 font-mono text-xs">
+          {/* Permission indicators */}
+          <div className="flex justify-between border-b border-foreground/5 pb-2">
+            <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Mic className="size-3.5" /> Mikrofón</span>
+            <span className={`font-bold uppercase ${micPermission === "granted" ? "text-green-500" : "text-amber-500"}`}>
+              {micPermission === "granted" ? "[ POVOLENÝ ]" : "[ NEPOVOLENÝ ]"}
+            </span>
+          </div>
+
+          <div className="flex justify-between border-b border-foreground/5 pb-2">
+            <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Camera className="size-3.5" /> Kamera</span>
+            <span className={`font-bold uppercase ${camPermission === "granted" ? "text-green-500" : "text-amber-500"}`}>
+              {camPermission === "granted" ? "[ POVOLENÝ ]" : "[ NEPOVOLENÝ ]"}
+            </span>
+          </div>
+
+          {/* Coordinate status */}
+          <div className="flex justify-between items-center border-b border-foreground/5 pb-2">
+            <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Compass className="size-3.5" /> GPS Súradnice</span>
+            <span className="text-[10px] text-foreground/80">
+              {gpsCoords 
+                ? `[${gpsCoords.lat.toFixed(4)}, ${gpsCoords.lon.toFixed(4)}]` 
+                : "[ VYŽADUJE SA PING ]"}
+            </span>
+          </div>
+
+          {/* High accuracy ping button */}
+          <button
+            onClick={handleRefreshCoordinates}
+            disabled={isGpsLoading}
+            className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none bg-card flex justify-center items-center gap-2"
+          >
+            {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ REFRESH COORDINATES ]"}
+          </button>
+        </div>
+      </div>
+
+      {/* Alert System (Anti-Ghosting Penalty Warning highlights) */}
+      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">ALERT SYSTEM (NOTIFIKÁCIE)</p>
+
+        <div className="space-y-4 font-mono text-xs">
+          {/* CRITICAL WARNING MANDATORY ALERTS */}
+          <div className="border border-red-500/35 bg-red-500/[0.02] p-4 rounded-none space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-red-500 font-bold uppercase flex items-center gap-1.5">
+                <AlertTriangle className="size-3.5" /> CRITICAL ALERTS
+              </span>
+              <span className="bg-red-500/20 text-red-500 text-[8px] font-bold px-2 py-0.5 rounded-none uppercase">
+                POVINNÉ
+              </span>
+            </div>
+            <p className="text-[9px] text-red-500/70 normal-case leading-relaxed font-sans">
+              Varovania pred penalizáciou za útek z konverzácie (Anti-Ghosting Penalty) a upozornenia na vypršanie časového limitu 180s v hlasových komorách. Tieto notifikácie nemožno zablokovať.
+            </p>
+          </div>
+
+          {/* Standard alert toggles */}
+          <div className="flex justify-between items-center pt-2">
+            <span className="text-foreground/60 uppercase">Nové správy a matches</span>
+            <button
+              onClick={() => { haptic("tap"); setMessageAlerts(!messageAlerts); }}
+              className="border border-foreground/20 px-3 py-1 text-[10px] rounded-none font-bold"
+            >
+              {messageAlerts ? "[ ZAPNUTÉ ]" : "[ VYPNUTÉ ]"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Theme Settings */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">VZHĽAD SYSTEMU</p>
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">VZHĽAD SYSTÉMU</p>
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => { haptic("tap"); onTheme("dark"); }}
@@ -194,24 +336,6 @@ export function SystemConfig({
         </div>
       </div>
 
-      {/* Hardware Access Reset */}
-      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDWARE & PERMISSIONS</p>
-        <button
-          onClick={handleResetPermissions}
-          className="w-full flex items-center justify-between border border-foreground/10 p-4 text-left transition-all hover:bg-foreground/5 rounded-none font-mono text-xs uppercase"
-        >
-          <div className="flex items-center gap-3">
-            <Key className="size-4 text-foreground/70" />
-            <div>
-              <p className="font-bold text-foreground">Reset JIT prístupu</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5 font-sans normal-case">Vynútiť znovuvyžiadanie prístupu ku kamere a mikrofónu</p>
-            </div>
-          </div>
-          <span className="text-[10px] text-foreground/45 font-bold font-mono">[ RESET ]</span>
-        </button>
-      </div>
-
       {/* Legal & Terms Row actions */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none space-y-2">
         <p className="mb-2 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">DOKUMENTÁCIA</p>
@@ -223,22 +347,40 @@ export function SystemConfig({
         </div>
       </div>
 
-      {/* Account Management Actions */}
+      {/* Account Liquidity & Wiping Actions */}
       <div className="border border-red-500/25 bg-red-500/5 p-5 rounded-none space-y-3">
-        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">ACCOUNT MANAGEMENT</p>
+        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">ACCOUNT LIQUIDITY & SAFETY</p>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
+          {/* MARKET FREEZE */}
+          <button
+            onClick={handleToggleFreeze}
+            className={`flex flex-col items-center justify-center border py-2.5 font-mono text-[8px] font-bold tracking-wider transition-all rounded-none bg-card ${
+              isFrozen 
+                ? "border-blue-500 text-blue-500 bg-blue-500/5" 
+                : "border-foreground/20 text-foreground hover:bg-foreground/5"
+            }`}
+          >
+            <Snowflake className="size-4 mb-1" />
+            {isFrozen ? "[ UNFROZEN ]" : "[ FREEZE ]"}
+          </button>
+
+          {/* SIGN OUT */}
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 border border-foreground/20 hover:border-foreground/40 py-3 font-mono text-xs font-bold text-foreground rounded-none bg-card hover:bg-foreground/5 transition-all"
+            className="flex flex-col items-center justify-center border border-foreground/20 hover:border-foreground/40 py-2.5 font-mono text-[8px] font-bold tracking-wider text-foreground rounded-none bg-card hover:bg-foreground/5 transition-all"
           >
-            <LogOut className="size-4" /> ODHLÁSIŤ SA
+            <LogOut className="size-4 mb-1" />
+            [ ODHLÁSIŤ ]
           </button>
+
+          {/* DATA WIPE */}
           <button
-            onClick={handleDeleteAccount}
-            className="flex items-center justify-center gap-2 border border-red-500/40 hover:border-red-500/60 py-3 font-mono text-xs font-bold text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all"
+            onClick={handleDataWipe}
+            className="flex flex-col items-center justify-center border border-red-500/40 hover:border-red-500/60 py-2.5 font-mono text-[8px] font-bold tracking-wider text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all"
           >
-            <Trash2 className="size-4" /> ZMAZAŤ ÚČET
+            <Trash2 className="size-4 mb-1" />
+            [ DATA WIPE ]
           </button>
         </div>
       </div>
