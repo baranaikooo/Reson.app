@@ -26,11 +26,6 @@ export function SystemConfig({
 }: SystemConfigProps) {
   const haptic = useHaptic();
 
-  // Local settings states
-  const [distance, setDistance] = useState(user.radiusKm || 200);
-  const [isGlobalMode, setIsGlobalMode] = useState(user.radiusKm === undefined || user.radiusKm >= 500);
-  const [orientation, setOrientation] = useState(user.orientation || "hetero");
-
   // Hardware permissions states
   const [micPermission, setMicPermission] = useState<"granted" | "denied" | "prompt">("prompt");
   const [camPermission, setCamPermission] = useState<"granted" | "denied" | "prompt">("prompt");
@@ -152,89 +147,6 @@ export function SystemConfig({
         <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON v0.9</span>
       </div>
 
-      {/* Market Parameters (NO AGE UI ELEMENTS) */}
-      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MARKET PARAMETERS (TRHOVÉ FILTRE)</p>
-
-        <div className="space-y-4 font-mono text-xs">
-          {/* Global vs National Toggle */}
-          <div className="flex justify-between items-center border-b border-foreground/5 pb-3">
-            <span className="text-foreground/45 uppercase text-[9px]">ROZSAH VYHĽADÁVANIA</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  haptic("tap");
-                  setIsGlobalMode(false);
-                  saveFilterChange("radiusKm", distance);
-                }}
-                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
-                  !isGlobalMode
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
-                }`}
-              >
-                NATIONAL
-              </button>
-              <button
-                onClick={() => {
-                  haptic("tap");
-                  setIsGlobalMode(true);
-                  saveFilterChange("radiusKm", 500); // 500+ triggers Global search
-                }}
-                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
-                  isGlobalMode
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
-                }`}
-              >
-                GLOBAL
-              </button>
-            </div>
-          </div>
-
-          {/* Distance Filter (Active only in National mode) */}
-          <div className={isGlobalMode ? "opacity-30 pointer-events-none transition-opacity" : "transition-opacity"}>
-            <div className="flex justify-between mb-1">
-              <span className="text-foreground/45 uppercase text-[9px]">MAXIMÁLNA VZDIALENOSŤ</span>
-              <span className="font-bold text-foreground">{distance} km</span>
-            </div>
-            <input
-              type="range"
-              min="5"
-              max="250"
-              step="5"
-              value={distance}
-              disabled={isGlobalMode}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                setDistance(val);
-                saveFilterChange("radiusKm", val);
-              }}
-              className="w-full accent-foreground h-1 bg-foreground/10 rounded-none cursor-pointer"
-            />
-          </div>
-
-          {/* Target Demographic Orientation Dropdown */}
-          <div>
-            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Cieľová demografia (Sexuálna orientácia)</label>
-            <select
-              value={orientation}
-              onChange={(e) => {
-                const val = e.target.value;
-                setOrientation(val);
-                saveFilterChange("orientation", val);
-              }}
-              className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
-            >
-              <option value="hetero">Heterosexuálna</option>
-              <option value="homo">Homosexuálna</option>
-              <option value="bi">Bisexuálna</option>
-              <option value="other">Iná / Neurodivergentná</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       {/* Hardware Protocols */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
         <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDWARE PROTOCOLS (ZARIADENIA & LOKÁCIA)</p>
@@ -258,7 +170,7 @@ export function SystemConfig({
           {/* Coordinate status */}
           <div className="flex justify-between items-center border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Compass className="size-3.5" /> GPS Súradnice</span>
-            <span className="text-[10px] text-foreground/80">
+            <span className="text-[10px] text-foreground/80 font-mono">
               {gpsCoords 
                 ? `[${gpsCoords.lat.toFixed(4)}, ${gpsCoords.lon.toFixed(4)}]` 
                 : "[ VYŽADUJE SA PING ]"}
@@ -317,7 +229,7 @@ export function SystemConfig({
             onClick={() => { haptic("tap"); onTheme("dark"); }}
             className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
               theme === "dark"
-                ? "border-foreground bg-foreground text-background font-bold"
+                ? "border-foreground bg-foreground text-background"
                 : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
             }`}
           >
@@ -327,7 +239,7 @@ export function SystemConfig({
             onClick={() => { haptic("tap"); onTheme("light"); }}
             className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
               theme === "light"
-                ? "border-foreground bg-foreground text-background font-bold"
+                ? "border-foreground bg-foreground text-background"
                 : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
             }`}
           >

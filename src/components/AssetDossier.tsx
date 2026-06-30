@@ -31,6 +31,21 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const [nonNegotiable, setNonNegotiable] = useState(user.nonNegotiable || "");
   const [currentThesis, setCurrentThesis] = useState(user.currentThesis || "");
 
+  // Local settings states
+  const [distance, setDistance] = useState(user.radiusKm || 200);
+  const [isGlobalMode, setIsGlobalMode] = useState(user.radiusKm === undefined || user.radiusKm >= 500);
+  const [orientation, setOrientation] = useState(user.orientation || "hetero");
+
+  function saveFilterChange(key: string, value: any) {
+    onUpdateUser((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [key]: value,
+      };
+    });
+  }
+
   // Initialize loops
   useEffect(() => {
     setSnippets([
@@ -290,6 +305,89 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           className="hidden"
           onChange={handleFileChange}
         />
+      </div>
+
+      {/* Market Parameters (Moved from settings to DNA section) */}
+      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">MARKET PARAMETERS (TRHOVÉ FILTRE)</p>
+
+        <div className="space-y-4 font-mono text-xs">
+          {/* Global vs National Toggle */}
+          <div className="flex justify-between items-center border-b border-foreground/5 pb-3">
+            <span className="text-foreground/45 uppercase text-[9px]">ROZSAH VYHĽADÁVANIA</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setIsGlobalMode(false);
+                  saveFilterChange("radiusKm", distance);
+                }}
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                  !isGlobalMode
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                NATIONAL
+              </button>
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setIsGlobalMode(true);
+                  saveFilterChange("radiusKm", 500); // 500+ triggers Global search
+                }}
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                  isGlobalMode
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                GLOBAL
+              </button>
+            </div>
+          </div>
+
+          {/* Distance Filter */}
+          <div className={isGlobalMode ? "opacity-30 pointer-events-none transition-opacity" : "transition-opacity"}>
+            <div className="flex justify-between mb-1">
+              <span className="text-foreground/45 uppercase text-[9px]">MAXIMÁLNA VZDIALENOSŤ</span>
+              <span className="font-bold text-foreground">{distance} km</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="250"
+              step="5"
+              value={distance}
+              disabled={isGlobalMode}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setDistance(val);
+                saveFilterChange("radiusKm", val);
+              }}
+              className="w-full accent-foreground h-1 bg-foreground/10 rounded-none cursor-pointer"
+            />
+          </div>
+
+          {/* Target Demographic Orientation Dropdown */}
+          <div>
+            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Cieľová demografia (Sexuálna orientácia)</label>
+            <select
+              value={orientation}
+              onChange={(e) => {
+                const val = e.target.value;
+                setOrientation(val);
+                saveFilterChange("orientation", val);
+              }}
+              className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
+            >
+              <option value="hetero">Heterosexuálna</option>
+              <option value="homo">Homosexuálna</option>
+              <option value="bi">Bisexuálna</option>
+              <option value="other">Iná / Neurodivergentná</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Brutalist Directives Form Fields */}
