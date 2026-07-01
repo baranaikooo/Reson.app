@@ -3,6 +3,7 @@ import { X, Camera, Upload, Eye, EyeOff } from "lucide-react";
 import { UserProfile } from "@/lib/resonance";
 import { useHaptic } from "@/hooks/use-haptics";
 import { openCamera, recordStreamForMs, stopStream, attachStreamToVideo } from "@/lib/media";
+import { supabase } from "@/lib/supabase";
 
 interface AssetDossierProps {
   user: UserProfile;
@@ -77,8 +78,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       stream = await openCamera({
         video: {
           facingMode: "user",
-          width: { ideal: 1080 },
-          height: { ideal: 1920 },
+          width: { ideal: 720 },
+          height: { ideal: 1280 },
+          frameRate: { ideal: 30 },
           aspectRatio: { ideal: 0.5625 } // 9:16 portrait
         },
         audio: false
@@ -117,10 +119,39 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       const { blob } = await recordStreamForMs(stream, 3000, "video");
       setRecordingState("saving");
       
-      const videoUrl = URL.createObjectURL(blob);
+      // Enforce max upload limit of 5 MB
+      const maxLimit = 5 * 1024 * 1024;
+      if (blob.size > maxLimit) {
+        alert(`Súbor je príliš veľký (${(blob.size / 1024 / 1024).toFixed(2)} MB). Limit je 5 MB.`);
+        throw new Error("File size exceeds 5MB limit");
+      }
+
+      // Upload target to media_snippets storage bucket
+      const userId = user.id || "00000000-0000-0000-0000-000000000001";
+      const filename = `snippets/${userId}/slot_${index + 1}_${Date.now()}.mp4`;
+
+      const { data, error } = await supabase.storage
+        .from("media_snippets")
+        .upload(filename, blob, {
+          contentType: blob.type || "video/mp4",
+          cacheControl: "3600",
+          upsert: true
+        });
+
+      if (error) {
+        console.error("[dossier] upload error:", error);
+        alert(`Ukladanie zlyhalo: ${error.message}`);
+        throw error;
+      }
+
+      // Retrieve public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("media_snippets")
+        .getPublicUrl(filename);
+
       setSnippets((prev) => {
         const next = [...prev];
-        next[index] = videoUrl;
+        next[index] = publicUrl;
         syncVideoUrls(next);
         return next;
       });
@@ -128,7 +159,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       haptic("success");
     } catch (err) {
       console.error("[dossier] recordStreamForMs failed:", err);
-      alert("Nahrávanie zlyhalo.");
+      alert("Nahrávanie alebo nahratie na úložisko zlyhalo.");
     } finally {
       stopStream(stream);
       setCameraStream(null);

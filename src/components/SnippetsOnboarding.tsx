@@ -33,8 +33,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       stream = await openCamera({
         video: {
           facingMode: "user",
-          width: { ideal: 1080 },
-          height: { ideal: 1920 },
+          width: { ideal: 720 },
+          height: { ideal: 1280 },
+          frameRate: { ideal: 30 },
           aspectRatio: { ideal: 0.5625 } // 9:16 portrait
         },
         audio: false

@@ -156,7 +156,7 @@ export function createMediaRecorder(stream: MediaStream, mime: string, kind?: "a
   const options: MediaRecorderOptions = {};
   if (mime) options.mimeType = mime;
   if (kind === "video") {
-    options.videoBitsPerSecond = 8000000; // 8 Mbps high quality
+    options.videoBitsPerSecond = 3500000; // 3.5 Mbps optimized for 720p vertical video size under 1.5MB-2MB
   }
   try {
     return new MediaRecorder(stream, options);
