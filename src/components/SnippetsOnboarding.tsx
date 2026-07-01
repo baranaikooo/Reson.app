@@ -177,7 +177,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         {Array.from({ length: 4 }).map((_, idx) => {
           const url = snippets[idx];
           return (
-            <div key={idx} className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
+            <div key={idx} className="relative aspect-[9/16] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
               {url ? (
                 <>
                   <video
@@ -191,7 +191,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
                         e.currentTarget.currentTime = 0;
                       }
                     }}
-                    className="size-full object-cover rounded-none transition-all duration-300"
+                    className="size-full object-contain bg-black rounded-none transition-all duration-300"
                   />
                   <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
                     <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -272,8 +272,8 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
               [ CCTV CAMERA RECORDER INTERFACE ]
             </div>
             
-            <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
-              <video ref={videoRef} playsInline muted className="size-full object-cover" style={{ transform: "scaleX(-1)" }} />
+            <div className="relative aspect-[9/16] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
+              <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
               
               {recordingState === "countdown" && (
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">

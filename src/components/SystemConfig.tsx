@@ -466,7 +466,7 @@ function LivenessModal({ user, onVerifySuccess, onClose }: LivenessModalProps) {
               Držte občiansky preukaz alebo pas v zornom poli kamery.
             </p>
 
-            <div className="relative aspect-[3/4] w-full border border-foreground/20 bg-black flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-[9/16] w-full border border-foreground/20 bg-black flex items-center justify-center overflow-hidden">
               {/* Pulsing Guide box */}
               <div className="absolute size-4/5 border-2 border-dashed border-foreground/35 rounded-sm flex items-center justify-center">
                 <span className="text-[8px] font-mono text-foreground/40 uppercase">Vložte doklad sem</span>
@@ -495,7 +495,7 @@ function LivenessModal({ user, onVerifySuccess, onClose }: LivenessModalProps) {
               Umiestnite tvár do stredu a žmurknite na kameru.
             </p>
 
-            <div className="relative aspect-[3/4] w-full border border-foreground/20 bg-black flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-[9/16] w-full border border-foreground/20 bg-black flex items-center justify-center overflow-hidden">
               {/* Oval guide box */}
               <div className="absolute w-2/3 h-3/4 border-2 border-dashed border-foreground/35 rounded-full flex items-center justify-center" />
 
