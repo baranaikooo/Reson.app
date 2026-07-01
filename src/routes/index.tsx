@@ -765,27 +765,6 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
         </p>
 
         <div className="mt-10 w-full">
-          <div className="flex items-center gap-3 border border-foreground/20 bg-card px-4 py-3.5">
-            <span className="text-xs font-mono text-foreground/40">TEL //</span>
-            <input inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-              placeholder="+421 900 000 000"
-              className="w-full bg-transparent text-sm font-mono outline-none placeholder:text-foreground/30 text-foreground" />
-          </div>
-          
-          <button 
-            onClick={onNext} 
-            disabled={!valid} 
-            className="mt-4 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all"
-          >
-            POKRAČOVAŤ
-          </button>
-
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-foreground/15" />
-            <span className="text-[10px] font-mono tracking-widest text-foreground/40">ALEBO</span>
-            <div className="h-px flex-1 bg-foreground/15" />
-          </div>
-
           <GoogleSignInButton onSuccess={onGoogle} />
 
           <div className="mt-5 text-[10px] font-mono tracking-wider text-foreground/40 uppercase">
