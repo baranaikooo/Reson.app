@@ -903,13 +903,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
 
     try {
       const s = await openCamera({
-        video: {
-          facingMode: "user",
-          width: { ideal: 720 },
-          height: { ideal: 1280 },
-          frameRate: { ideal: 30 },
-          aspectRatio: { ideal: 0.5625 } // 9:16 portrait
-        },
+        video: { facingMode: "user" },
         audio: false
       });
       streamRef.current = s;
@@ -986,9 +980,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         </p>
 
         <div className="relative my-6 grid place-items-center">
-          <div className="relative w-56 aspect-[9/16] overflow-hidden border border-foreground/25">
+          <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25 bg-black">
             {phase !== "ready" && stream && (
-              <video ref={videoRef} playsInline muted className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} playsInline muted className="w-full h-full object-contain" style={{ transform: "scaleX(-1)" }} />
             )}
             {phase !== "ready" && !stream && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/5 text-foreground/20">
@@ -1004,7 +998,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             )}
             {phase === "ready" && recordedUrl && (
               <video ref={previewRef} src={recordedUrl} autoPlay loop muted playsInline
-                className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
+                className="w-full h-full object-contain" style={{ transform: "scaleX(-1)" }} />
             )}
             {phase === "countdown" && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/10 backdrop-blur-sm">
@@ -1218,7 +1212,7 @@ function Dashboard({
                         loop
                         muted
                         playsInline
-                        className="size-full object-cover blur-[5px] scale-110"
+                        className="size-full object-contain bg-black blur-[5px]"
                       />
                     ) : (
                       <img
@@ -1970,7 +1964,7 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           {/* Heavy blur for profiles initially */}
           <div className="relative size-14 shrink-0 overflow-hidden border border-foreground/20 rounded-none bg-black">
             {match.videoUrls && match.videoUrls.length > 0 ? (
-              <video src={match.videoUrls[0]} autoPlay loop muted playsInline className="size-full object-cover scale-110" style={{ filter: `blur(${blurPx}px)` }} />
+              <video src={match.videoUrls[0]} autoPlay loop muted playsInline className="size-full object-contain bg-black" style={{ filter: `blur(${blurPx}px)` }} />
             ) : (
               <img src={match.img} alt={match.name} className="size-full object-cover scale-125" style={{ filter: `blur(${blurPx}px)` }} />
             )}
@@ -1981,7 +1975,7 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           </div>
           {myVideoUrl && (
             <div className="relative size-14 shrink-0 overflow-hidden border border-foreground/20 rounded-none bg-black">
-              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-cover scale-110" style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)` }} />
+              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)` }} />
               <span className="absolute bottom-0.5 right-0.5 bg-background/60 px-1 font-mono text-[6px] tracking-widest text-foreground/70 uppercase">TY</span>
               <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
                 <span className="size-1 animate-pulse rounded-full bg-red-500" />
@@ -2339,7 +2333,7 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
         <div className="flex -space-x-3">
           {myVideoUrl && (
             <div className="relative size-12 overflow-hidden rounded-full ring-2 ring-[#11151B]">
-              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-cover"
+              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-contain bg-black"
                 style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)`, transition: "filter 500ms ease" }} />
             </div>
           )}

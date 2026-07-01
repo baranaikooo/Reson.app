@@ -76,13 +76,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     let stream: MediaStream;
     try {
       stream = await openCamera({
-        video: {
-          facingMode: "user",
-          width: { ideal: 720 },
-          height: { ideal: 1280 },
-          frameRate: { ideal: 30 },
-          aspectRatio: { ideal: 0.5625 } // 9:16 portrait
-        },
+        video: { facingMode: "user" },
         audio: false
       });
       setCameraStream(stream);
@@ -282,7 +276,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           {Array.from({ length: 4 }).map((_, idx) => {
             const url = snippets[idx];
             return (
-              <div key={idx} className="relative aspect-[9/16] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
+              <div key={idx} className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
                 {url ? (
                   <>
                     <video
@@ -544,7 +538,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               [ ROZHRANIE CCTV KAMERY ]
             </div>
             
-            <div className="relative aspect-[9/16] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
+            <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
               <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
               
               {recordingState === "countdown" && (
