@@ -38,14 +38,5 @@ Reson is a next-generation dating and matching application focused on cognitive 
 2. Open Android Studio: `npx cap open android`
 3. Or build the APK via Gradle: `cd android && ./gradlew assembleDebug`
 
-## 🔒 Branch Protection
 
-To ensure the stability of the `main` branch, we recommend enabling Branch Protection on GitHub:
-1. Go to **Settings** > **Branches** in this repository.
-2. Click **Add branch ruleset** or **Add rule** for the `main` branch.
-3. Require pull request reviews before merging.
-4. Require status checks to pass before merging.
-5. Do not allow bypassing the above settings.
 
----
-*Built by baranaikooo & Antigravity AI.*
