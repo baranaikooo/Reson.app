@@ -253,7 +253,7 @@ function ResonApp() {
     });
   }, [theme]);
 
-  const [liveCandidates, setLiveCandidates] = useState<MockMatch[]>([]);
+  const [liveCandidates, setLiveCandidates] = useState<RankedMatch[]>([]);
   const [isLoadingMarket, setIsLoadingMarket] = useState(false);
 
   useEffect(() => {
@@ -278,8 +278,8 @@ function ResonApp() {
 
         if (error) throw error;
         
-        // Map Supabase rows to MockMatch interface
-        const mapped: MockMatch[] = (data || []).map((row: any) => ({
+        // Map Supabase rows to RankedMatch interface
+        const mapped: RankedMatch[] = (data || []).map((row: any) => ({
           id: row.id,
           name: row.name,
           age: row.age,
@@ -2193,7 +2193,7 @@ const REPLY_TYPING_MS = 1400;
 
 function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, onBack, onEnd, onUpdate }: {
   conversation: Conversation;
-  match: MockMatch;
+  match: RankedMatch;
   myVideoUrl: string | null;
   user: UserProfile;
   onUpdateUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
