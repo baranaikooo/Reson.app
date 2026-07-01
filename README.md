@@ -4,11 +4,7 @@
 
 Reson is a next-generation dating and matching application focused on cognitive resonance, deep psychological alignment, and authentic interactions. It replaces superficial swiping with a 6-question psychometric test, voice-only communication, and strict liveness verification.
 
-## 📱 Download the App
 
-**[Download the latest Android APK (reson-alpha.apk)](https://github.com/baranaikooo/Reson/raw/main/releases/reson-alpha.apk)**
-
-*Note: You may need to enable "Install from unknown sources" in your Android settings to install the APK.*
 
 ## 🌟 Key Features
 
