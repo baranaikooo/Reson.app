@@ -537,9 +537,14 @@ function ResonApp() {
                 if (updated.videoUrls && updated.videoUrls.length > 0) {
                   const uploadPromises = updated.videoUrls.map(async (url, idx) => {
                     if (!url || !url.startsWith("blob:")) return url;
-                    const res = await fetch(url);
-                    const blob = await res.blob();
-                    return await uploadSnippetVideo(updated.id, idx + 1, blob);
+                    try {
+                      const res = await fetch(url);
+                      const blob = await res.blob();
+                      return await uploadSnippetVideo(updated.id, idx + 1, blob);
+                    } catch (uploadErr) {
+                      console.warn(`[UPLOAD_FAILED]: Snippet ${idx + 1} failed. Skipping.`, uploadErr);
+                      return url; // fallback to keeping the original (blob) URL if upload fails
+                    }
                   });
                   publicVideoUrls = await Promise.all(uploadPromises);
                   
@@ -1761,7 +1766,7 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
     return () => {
       if (tickRef.current) clearInterval(tickRef.current);
       try { mediaRecRef.current?.state !== "inactive" && mediaRecRef.current?.stop(); } catch { /* ignore */ }
-      micStreamRef.current?.getTracks().forEach((t) => t.stop());
+      stopStream(micStreamRef.current);
       setMessages((m) => {
         m.forEach((x) => { if (x.audioUrl) URL.revokeObjectURL(x.audioUrl); });
         return m;

@@ -154,6 +154,11 @@ export function onAuthStateChange(callback: (event: string, session: any) => voi
 }
 
 export async function uploadSnippetVideo(userId: string, slotIndex: number, blob: Blob): Promise<string> {
+  if (userId === "00000000-0000-0000-0000-000000000001") {
+    console.warn(`[Demo Mode] Bypassing uploadSnippetVideo for Demo User (Slot ${slotIndex})`);
+    return URL.createObjectURL(blob);
+  }
+
   const fileName = `${userId}/snippet_${slotIndex}_${Date.now()}.webm`;
   
   const { data, error } = await supabase.storage
@@ -180,6 +185,11 @@ export async function saveUserProfile(
   profileData: any, 
   videoUrls: string[]
 ): Promise<void> {
+  if (userId === "00000000-0000-0000-0000-000000000001") {
+    console.warn("[Demo Mode] Bypassing saveUserProfile for Demo User");
+    return;
+  }
+
   // 1. Upsert Profile
   const { error: profileError } = await supabase
     .from('profiles')
