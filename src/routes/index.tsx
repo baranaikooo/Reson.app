@@ -110,16 +110,13 @@ type Screen =
 
 type ThemeMode = "dark" | "light";
 function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
-  const [mode, setMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return "dark";
-    return (localStorage.getItem("reson:theme") as ThemeMode) || "dark";
-  });
+  const mode: ThemeMode = "dark";
+  const setMode = () => {}; // No-op, always dark
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.documentElement.classList.remove("dark", "light");
-    document.documentElement.classList.add(mode);
-    try { localStorage.setItem("reson:theme", mode); } catch { /* ignore */ }
-  }, [mode]);
+    document.documentElement.classList.remove("light");
+    document.documentElement.classList.add("dark");
+  }, []);
   return [mode, setMode];
 }
 

@@ -105,16 +105,7 @@ function RootShell({ children }: { children: ReactNode }) {
   // Runs before React hydration, reading localStorage to set the class immediately.
   const themeScript = `
     (function(){
-      try {
-        var t = localStorage.getItem('reson:theme');
-        if (t === 'light' || t === 'dark') {
-          document.documentElement.classList.add(t);
-        } else {
-          document.documentElement.classList.add('dark');
-        }
-      } catch(e) {
-        document.documentElement.classList.add('dark');
-      }
+      document.documentElement.classList.add('dark');
     })();
   `;
 
