@@ -28,7 +28,7 @@ import {
   makeMockToneWavUrl,
   blobToPlayableAudioUrl,
 } from "@/lib/media";
-import { getCurrentUser, onAuthStateChange, supabase } from "@/lib/supabase";
+import { getCurrentUser, onAuthStateChange, supabase, uploadSnippetVideo, saveUserProfile } from "@/lib/supabase";
 import { SemanticMirror } from "@/components/SemanticMirror";
 import { ValueBankroll } from "@/components/ValueBankroll";
 import { PressureChat, SCENARIOS } from "@/components/PressureChat";
@@ -508,28 +508,47 @@ function ResonApp() {
       {screen === "pressure" && (
         <PressureChat 
           isOnboarding={true}
-          onDone={(style, rt, isHesitated, scenarioId) => {
+          onDone={async (style, rt, isHesitated, scenarioId) => {
             try {
               setAttachmentStyle(style);
               setAvgResponseTime(rt);
               setHesitated(isHesitated);
               
+              if (!profile) throw new Error("Profile not initialized");
+
               // Build the final UserProfile
-              if (profile) {
-                const updated: UserProfile = {
-                  ...profile,
-                  cognitiveDepth: cognitiveDepth || 0.5,
-                  conscientiousness: conscientiousness || 0.5,
-                  extraversion: extraversion || 0.5,
-                  attachmentStyle: style,
-                  avgResponseTime: rt,
-                  topPriority: topPriority || "rodina",
-                  hesitated: isHesitated,
-                  completedPressureScenarios: [scenarioId]
-                };
+              const updated: UserProfile = {
+                ...profile,
+                cognitiveDepth: cognitiveDepth || 0.5,
+                conscientiousness: conscientiousness || 0.5,
+                extraversion: extraversion || 0.5,
+                attachmentStyle: style,
+                avgResponseTime: rt,
+                topPriority: topPriority || "rodina",
+                hesitated: isHesitated,
+                completedPressureScenarios: [scenarioId]
+              };
+              setProfile(updated);
+              
+              // Backend Sync: Batch Upload Videos
+              let publicVideoUrls: string[] = [];
+              if (updated.videoUrls && updated.videoUrls.length > 0) {
+                const uploadPromises = updated.videoUrls.map(async (url, idx) => {
+                  if (!url || !url.startsWith("blob:")) return url;
+                  const res = await fetch(url);
+                  const blob = await res.blob();
+                  return await uploadSnippetVideo(updated.id, idx + 1, blob);
+                });
+                publicVideoUrls = await Promise.all(uploadPromises);
+                
+                // Update local profile with public URLs so they don't break on reload
+                updated.videoUrls = publicVideoUrls;
                 setProfile(updated);
               }
-              
+
+              // Backend Sync: Save Profile
+              await saveUserProfile(updated.id, updated, publicVideoUrls);
+
               // Generate mock legacy answers for the orb seed
               const derivedAnswers: FullAnswers = {
                 q1: rt < 2.5 ? "A" : "B",
@@ -542,9 +561,8 @@ function ResonApp() {
               setAnswers(derivedAnswers);
               setScreen("processing");
             } catch (err) {
-              console.error("[pressure] onDone failed, falling back:", err);
-              // Fallback to bypass crash
-              setScreen("processing");
+              console.error("[UPLOAD_FAILED]: CONNECTION_SEVERED", err);
+              alert("[ UPLOAD_FAILED ]: CONNECTION_SEVERED\\n\\nOdoslanie tvojich dát do cloudu zlyhalo. Skontroluj internet a klikni na tlačidlo znova.");
             }
           }}
         />
