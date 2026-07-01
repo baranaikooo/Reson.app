@@ -152,3 +152,79 @@ export async function getCurrentUser() {
 export function onAuthStateChange(callback: (event: string, session: any) => void) {
   return supabase.auth.onAuthStateChange(callback);
 }
+
+export async function uploadSnippetVideo(userId: string, slotIndex: number, blob: Blob): Promise<string> {
+  const fileName = `${userId}/snippet_${slotIndex}_${Date.now()}.webm`;
+  
+  const { data, error } = await supabase.storage
+    .from('media-snippets')
+    .upload(fileName, blob, {
+      contentType: blob.type || 'video/webm',
+      upsert: true
+    });
+
+  if (error) {
+    console.error(`[Supabase] Upload failed for slot ${slotIndex}:`, error);
+    throw error;
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from('media-snippets')
+    .getPublicUrl(data.path);
+
+  return publicUrlData.publicUrl;
+}
+
+export async function saveUserProfile(
+  userId: string, 
+  profileData: any, 
+  videoUrls: string[]
+): Promise<void> {
+  // 1. Upsert Profile
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({
+      liveness_verified: true,
+      // Only updating fields the user set in onboarding
+    })
+    .eq('id', userId);
+
+  if (profileError) {
+    console.error('[Supabase] Profile update failed:', profileError);
+    throw profileError;
+  }
+
+  // 2. Upsert Psychometric Ledger
+  const { error: ledgerError } = await supabase
+    .from('psychometric_ledger')
+    .update({
+      primary_marker: profileData.attachmentStyle || 'UNTESTED',
+      avg_decision_latency: profileData.avgResponseTime || 0,
+      ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50
+    })
+    .eq('user_id', userId);
+
+  if (ledgerError) {
+    console.error('[Supabase] Ledger update failed:', ledgerError);
+    throw ledgerError;
+  }
+
+  // 3. Upsert Media Snippets
+  for (let i = 0; i < videoUrls.length; i++) {
+    const url = videoUrls[i];
+    if (!url || url.startsWith('blob:')) continue; // Skip if it's still a local blob
+    
+    const { error: snippetError } = await supabase
+      .from('media_snippets')
+      .upsert({
+        user_id: userId,
+        slot_index: i + 1,
+        video_url: url
+      }, { onConflict: 'user_id, slot_index' });
+
+    if (snippetError) {
+      console.error(`[Supabase] Snippet ${i+1} insert failed:`, snippetError);
+      throw snippetError;
+    }
+  }
+}
