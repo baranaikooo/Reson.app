@@ -541,7 +541,7 @@ function ResonApp() {
                     const blob = await res.blob();
                     return await uploadSnippetVideo(updated.id, idx + 1, blob);
                   });
-                  publicVideoUrls = await Promise.all(uploadPromises);
+                  publicVideoUrls = (await Promise.all(uploadPromises)).filter(Boolean) as string[];
                   
                   // Update local profile with public URLs so they don't break on reload
                   updated.videoUrls = publicVideoUrls;
@@ -1761,7 +1761,7 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
     return () => {
       if (tickRef.current) clearInterval(tickRef.current);
       try { mediaRecRef.current?.state !== "inactive" && mediaRecRef.current?.stop(); } catch { /* ignore */ }
-      micStreamRef.current?.getTracks().forEach((t) => t.stop());
+      if (micStreamRef.current) stopStream(micStreamRef.current);
       setMessages((m) => {
         m.forEach((x) => { if (x.audioUrl) URL.revokeObjectURL(x.audioUrl); });
         return m;
