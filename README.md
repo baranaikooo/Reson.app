@@ -22,17 +22,7 @@ Reson is a next-generation dating and matching application focused on cognitive 
 - **Backend/Auth/DB**: Supabase (PostgreSQL, Edge Functions, Auth)
 - **AI/ML**: TensorFlow.js (BlazeFace for on-device liveness verification)
 
-## 🚀 Running Locally
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Run the development server: `npm run dev`
-4. Build the web app: `npm run build`
-
-**For Android (Capacitor):**
-1. Sync web assets: `npx cap sync android`
-2. Open Android Studio: `npx cap open android`
-3. Or build the APK via Gradle: `cd android && ./gradlew assembleDebug`
 
 
 
