@@ -1569,14 +1569,14 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
           Základné Údaje
         </h2>
         <p className="mx-auto mt-3 max-w-md text-xs text-foreground/60 leading-relaxed font-mono uppercase">
-          Tieto informácie slúžia pre potreby prvotnej sociometrickej filtrácie.
+          Tieto informácie slúžia na vyhľadanie vhodných partnerov vo vašom okolí.
         </p>
 
         <div className="mt-8 text-left border border-foreground/20 bg-card p-6">
           <div className="space-y-5">
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Meno <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Primárny sémantický trigger</span>
+                Meno <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Ako ťa majú oslovovať</span>
               </label>
               <input value={name}
                 onChange={(e) => setName(e.target.value.slice(0, 30))}
@@ -1586,7 +1586,7 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Vek <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Kognitívne zrenie a neuroplasticita</span>
+                Vek <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Tvoj skutočný vek</span>
               </label>
               <input inputMode="numeric" value={age}
                 onChange={(e) => setAge(e.target.value.replace(/\D/g, "").slice(0, 2))}
@@ -1596,7 +1596,7 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Mesto <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Teritoriálne a sociometrické pole</span>
+                Mesto <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Kde sa práve nachádzaš</span>
               </label>
               <div className="flex items-center gap-3 border border-foreground/10 bg-foreground/5 px-4 py-3">
                 <MapPin className="size-4 text-foreground/50" />

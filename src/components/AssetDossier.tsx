@@ -224,13 +224,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">ASSET DOSSIER // KOGNITÍVNA DNA</h1>
+        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">MÔJ PROFIL // OSOBNOSŤ</h1>
         <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{user.name}</span>
       </div>
 
       {/* Blur Preview Toggle */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none flex items-center justify-between">
-        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NÁHĽAD PRE TRH</span>
+        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Ukážka pre ostatných</span>
         <button
           onClick={() => { haptic("tap"); setIsPreviewBlurred(!isPreviewBlurred); }}
           className={`flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[9px] tracking-widest uppercase transition-all rounded-none font-bold ${
@@ -240,13 +240,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           }`}
         >
           {isPreviewBlurred ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
-          {isPreviewBlurred ? "[ STAV PRED HLASOVANÍM ]" : "[ ODOMKNUTÝ STAV ]"}
+          {isPreviewBlurred ? "[ ROZMAZANÝ PROFIL ]" : "[ ODOMKNUTÝ PROFIL ]"}
         </button>
       </div>
 
       {/* CCTV Live Snippets Grid (respects preview blur toggle) */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">VIACERÉ LIVE SNIPPETY (3s CCTV SLUČKY)</p>
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Moje videá (3-sekundové slučky)</p>
         <div className="grid grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, idx) => {
             const url = snippets[idx];
@@ -382,7 +382,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
           {/* Target Demographic Orientation Dropdown */}
           <div>
-            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Cieľová demografia (Sexuálna orientácia)</label>
+            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Koho hľadáš (Sexuálna orientácia)</label>
             <select
               value={orientation}
               onChange={(e) => {
@@ -395,7 +395,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               <option value="hetero">Heterosexuálna</option>
               <option value="homo">Homosexuálna</option>
               <option value="bi">Bisexuálna</option>
-              <option value="other">Iná / Neurodivergentná</option>
+              <option value="other">Iná</option>
             </select>
           </div>
         </div>
@@ -403,12 +403,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Brutalist Directives Form Fields */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">KOGNITÍVNE SMERNICE (DIRECTIVES)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Moje životné smernice</p>
         
         {/* NON-NEGOTIABLE */}
         <div className="space-y-1">
           <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Non-Negotiable (Nezjednateľná podmienka)</span>
+            <span>Cez čo u mňa nejde vlak (Zásadná podmienka)</span>
             <span>{nonNegotiable.length} / 60</span>
           </div>
           <input
@@ -420,7 +420,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               setNonNegotiable(val);
               handleSaveDirectives("nonNegotiable", val);
             }}
-            placeholder="Napr. Tolerancia hluku, stabilita hodnôt, vernosť..."
+            placeholder="Napr. Vernosť, úprimnosť, tolerancia..."
             className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none placeholder:text-foreground/30"
           />
         </div>
@@ -428,7 +428,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         {/* CURRENT THESIS */}
         <div className="space-y-1">
           <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Current Thesis (Súčasná téza o živote)</span>
+            <span>Môj pohľad na svet (Stručne o mne)</span>
             <span>{currentThesis.length} / 100</span>
           </div>
           <textarea
@@ -440,7 +440,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               setCurrentThesis(val);
               handleSaveDirectives("currentThesis", val);
             }}
-            placeholder="Napr. Hľadám kľúč k zjednoteniu v asymetrii ticha a racionálneho dialogu..."
+            placeholder="Napr. Snažím sa žiť naplno a hľadám niekoho, kto má podobné hodnoty..."
             className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
           />
         </div>
@@ -448,26 +448,26 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Pure Data Algorithmic Diagnostics */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">ALGORITMICKÁ DIAGNOSTIKA // METRIKY</p>
+        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">OSOBNOSTNÝ PROFIL // METRIKY</p>
         <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Primárny_Marker</span>
+            <span className="text-foreground/45 uppercase">Typ_osobnosti</span>
             <span className="font-bold text-foreground">{primaryMarker}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Reakčný_čas</span>
+            <span className="text-foreground/45 uppercase">Rýchlosť_odpovedí</span>
             <span className="font-bold text-foreground">{decisionLatency}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Počet_penalizácií</span>
+            <span className="text-foreground/45 uppercase">Zostávajúce_pokusy</span>
             <span className="font-bold text-foreground">{redemptionQuota}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Úspešnosť_ukončenia</span>
+            <span className="text-foreground/45 uppercase">Dokončené_scenáre</span>
             <span className="font-bold text-foreground">{closureRate}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Kognitívna_hĺbka</span>
+            <span className="text-foreground/45 uppercase">Hĺbka_osobnosti</span>
             <span className="font-bold text-foreground">{cognitiveDepth}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
@@ -479,18 +479,18 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <span className="font-bold text-foreground">{extraversion}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase">Príznak_váhania</span>
+            <span className="text-foreground/45 uppercase">Váhavosť_pri_teste</span>
             <span className="font-bold text-foreground">{hesitationFlag}</span>
           </div>
           
           {/* HARDCODED ALGORITHMIC BRACKET */}
           <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
-            <span className="text-amber-500 font-bold uppercase">Algoritmické_Rozmedzie_Trhu</span>
+            <span className="text-amber-500 font-bold uppercase">Hľadaný_vek_partnera</span>
             <span className="font-black text-amber-500 font-mono">{calculatedBracket}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-foreground/45 uppercase">Stav_aktívneho_spisu</span>
+            <span className="text-foreground/45 uppercase">Stav_účtu</span>
             <span className="font-bold text-green-600 uppercase">KALIBROVANÉ</span>
           </div>
         </div>

@@ -129,7 +129,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
       {/* Step Indicator */}
       <div className="flex items-center justify-between text-xs tracking-widest text-foreground/50 uppercase font-mono mb-4">
-        <span>Sémantické zrkadlo</span>
+        <span>Kvíz osobnosti (1. časť)</span>
         <span>{step + 1} / {metaphors.length}</span>
       </div>
       
@@ -143,7 +143,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
 
       {/* Main card */}
       <div className="border border-foreground/20 bg-card p-8 relative overflow-hidden mb-6">
-        <p className="font-mono text-[9px] tracking-wider text-foreground/45 uppercase mb-3">// Doplň myšlienku</p>
+        <p className="font-mono text-[9px] tracking-wider text-foreground/45 uppercase mb-3">// Dokonči vetu podľa svojho pocitu</p>
         <h3 className="font-sans text-xl font-bold leading-relaxed text-foreground uppercase">
           &ldquo;{currentMetaphor.text}&rdquo;
         </h3>
@@ -178,7 +178,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
           onClick={handleNext}
           className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 active:scale-[0.99] transition-all"
         >
-          <span>{step === metaphors.length - 1 ? "DOKONČIŤ ZRKADLO" : "ĎALŠIA KARTA"}</span>
+          <span>{step === metaphors.length - 1 ? "DOKONČIŤ KVÍZ" : "ĎALŠIA OTÁZKA"}</span>
           <ArrowRight className="size-4" />
         </button>
       </div>

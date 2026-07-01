@@ -105,15 +105,15 @@ export function SystemConfig({
     setIsFrozen(nextState);
     alert(
       nextState
-        ? "MARKET FREEZE AKTIVOVANÝ: Váš profil je dočasne skrytý pred ostatnými používateľmi. Skóre kompatibility (EV) ostáva zachované bez penalizácií."
-        : "MARKET FREEZE DEAKTIVOVANÝ: Váš profil bol znova uvoľnený na trh."
+        ? "SKRYTIE PROFILU AKTÍVNE: Váš profil je dočasne skrytý pred ostatnými. Vaša doterajšia kompatibilita zostáva zachovaná."
+        : "PROFIL JE AKTÍVNY: Váš profil je znova viditeľný pre ostatných."
     );
   }
 
   // Account Management
   function handleLogout() {
     haptic("warning");
-    if (confirm("Naozaj sa chcete odhlásiť? Lokálne relácie zostanú v tomto zariadení.")) {
+    if (confirm("Naozaj sa chcete odhlásiť?")) {
       try {
         localStorage.removeItem("reson:profile");
       } catch {
@@ -127,7 +127,7 @@ export function SystemConfig({
     haptic("destructive");
     if (
       confirm(
-        "KATASTROFICKÉ VAROVANIE: Chystáte sa spustiť protokol okamžitého zmazania dát (DATA WIPE). Všetky informácie o vašom profile, kognitívne DNA a správy budú permanentne vymazané z prehliadača aj zo systémových serverov. Táto akcia je NEVRATNÁ. Chcete pokračovať?"
+        "UPOZORNENIE: Chystáte sa natrvalo zmazať svoj profil. Všetky informácie, výsledky testov a správy budú permanentne vymazané. Táto akcia je NEVRATNÁ. Chcete pokračovať?"
       )
     ) {
       try {
@@ -143,13 +143,13 @@ export function SystemConfig({
     <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">SYSTEM CONFIG // NASTAVENIA</h1>
+        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">NASTAVENIA ÚČTU</h1>
         <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON v0.9</span>
       </div>
 
       {/* Hardware Protocols */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">HARDVÉROVÉ PROTOKOLY (ZARIADENIA & LOKÁCIA)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">POVOLENIA A POLOHA</p>
 
         <div className="space-y-3 font-mono text-xs">
           {/* Permission indicators */}
@@ -169,11 +169,11 @@ export function SystemConfig({
 
           {/* Coordinate status */}
           <div className="flex justify-between items-center border-b border-foreground/5 pb-2">
-            <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Compass className="size-3.5" /> GPS Súradnice</span>
+            <span className="text-foreground/45 uppercase flex items-center gap-1.5"><Compass className="size-3.5" /> Poloha GPS</span>
             <span className="text-[10px] text-foreground/80 font-mono">
               {gpsCoords 
                 ? `[${gpsCoords.lat.toFixed(4)}, ${gpsCoords.lon.toFixed(4)}]` 
-                : "[ VYŽADUJE SA PING ]"}
+                : "[ NEZISTENÁ ]"}
             </span>
           </div>
 
@@ -183,34 +183,34 @@ export function SystemConfig({
             disabled={isGpsLoading}
             className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none bg-card flex justify-center items-center gap-2"
           >
-            {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ OBNOVIŤ SÚRADNICE ]"}
+            {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ AKTUALIZOVAŤ POLOHU ]"}
           </button>
         </div>
       </div>
 
       {/* Alert System (Anti-Ghosting Penalty Warning highlights) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">SYSTÉMOVÉ UPOZORNENIA (NOTIFIKÁCIE)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">NOTIFIKÁCIE A UPOZORNENIA</p>
 
         <div className="space-y-4 font-mono text-xs">
           {/* CRITICAL WARNING MANDATORY ALERTS */}
           <div className="border border-red-500/35 bg-red-500/[0.02] p-4 rounded-none space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-red-500 font-bold uppercase flex items-center gap-1.5">
-                <AlertTriangle className="size-3.5" /> KRITICKÉ UPOZORNENIA
+                <AlertTriangle className="size-3.5" /> DÔLEŽITÉ UPOZORNENIA
               </span>
               <span className="bg-red-500/20 text-red-500 text-[8px] font-bold px-2 py-0.5 rounded-none uppercase">
                 POVINNÉ
               </span>
             </div>
             <p className="text-[9px] text-red-500/70 normal-case leading-relaxed font-sans">
-              Varovania pred penalizáciou za útek z konverzácie (Anti-Ghosting Penalty) a upozornenia na vypršanie časového limitu 180s v hlasových komorách. Tieto notifikácie nemožno zablokovať.
+              Varovania pred neaktívnosťou v konverzáciách a limit 180 sekúnd v hlasovom chate. Tieto správy sú dôležité a nie je možné ich vypnúť.
             </p>
           </div>
 
           {/* Standard alert toggles */}
           <div className="flex justify-between items-center pt-2">
-            <span className="text-foreground/60 uppercase">Nové správy a matches</span>
+            <span className="text-foreground/60 uppercase">Nové správy a spojenia</span>
             <button
               onClick={() => { haptic("tap"); setMessageAlerts(!messageAlerts); }}
               className="border border-foreground/20 px-3 py-1 text-[10px] rounded-none font-bold"
@@ -223,7 +223,7 @@ export function SystemConfig({
 
       {/* Theme Settings */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">VZHĽAD SYSTÉMU</p>
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">Vzhľad aplikácie</p>
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => { haptic("tap"); onTheme("dark"); }}
@@ -261,7 +261,7 @@ export function SystemConfig({
 
       {/* Account Liquidity & Wiping Actions */}
       <div className="border border-red-500/25 bg-red-500/5 p-5 rounded-none space-y-3">
-        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">LIKVIDITA A BEZPEČNOSŤ ÚČTU</p>
+        <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">SPRAVOVANIE ÚČTU</p>
 
         <div className="grid grid-cols-3 gap-2">
           {/* MARKET FREEZE */}
@@ -274,7 +274,7 @@ export function SystemConfig({
             }`}
           >
             <Snowflake className="size-4 mb-1" />
-            {isFrozen ? "[ ROZMRAZENÝ ]" : "[ ZMRAZIŤ ]"}
+            {isFrozen ? "[ ROZBALIŤ ]" : "[ SKRYŤ PROFIL ]"}
           </button>
 
           {/* SIGN OUT */}
@@ -292,7 +292,7 @@ export function SystemConfig({
             className="flex flex-col items-center justify-center border border-red-500/40 hover:border-red-500/60 py-2.5 font-mono text-[8px] font-bold tracking-wider text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all"
           >
             <Trash2 className="size-4 mb-1" />
-            [ ZMAZAŤ DÁTA ]
+            [ ZMAZAŤ ÚČET ]
           </button>
         </div>
       </div>

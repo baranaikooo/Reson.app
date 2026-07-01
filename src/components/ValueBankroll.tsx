@@ -83,8 +83,8 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
       {/* Top Header */}
       <div className="flex items-center justify-between text-xs tracking-widest text-foreground/50 uppercase font-mono mb-4">
-        <span>Hodnotový Bankroll</span>
-        <span>Alokácia Priorít</span>
+        <span>Kvíz osobnosti (2. časť)</span>
+        <span>Životné hodnoty</span>
       </div>
 
       {/* Utilitarian Chips Box Indicator */}
@@ -94,13 +94,13 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
             <Coins className="size-6" />
           </div>
           <div>
-            <h4 className="font-sans font-bold text-foreground text-base uppercase">Tvoj rozpočet</h4>
-            <p className="text-xs text-foreground/50 font-mono">// Rozdeľ presne 100 žetónov</p>
+            <h4 className="font-sans font-bold text-foreground text-base uppercase">Tvoje body</h4>
+            <p className="text-xs text-foreground/50 font-mono">// Rozdeľ presne 100 bodov</p>
           </div>
         </div>
         <div className="text-right">
           <span className="font-mono text-4xl font-black text-foreground">{remainingChips}</span>
-          <span className="text-xs text-foreground/50 uppercase font-mono block">voľných</span>
+          <span className="text-xs text-foreground/50 uppercase font-mono block">zostáva</span>
         </div>
       </div>
 
@@ -147,10 +147,10 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
           {allocatedSum === totalChips ? (
             <>
               <Check className="size-4" />
-              <span>UZAMKNÚŤ PRIORITNÝ PROFIL</span>
+              <span>ULOŽIŤ PRIORITNÝ PROFIL</span>
             </>
           ) : (
-            <span className="font-mono">ALOKUJ EŠTE {remainingChips} ŽETÓNOV</span>
+            <span className="font-mono">ROZDEĽ EŠTE {remainingChips} BODOV</span>
           )}
         </button>
       </div>
