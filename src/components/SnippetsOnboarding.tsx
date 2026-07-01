@@ -30,7 +30,15 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
 
     let stream: MediaStream;
     try {
-      stream = await openCamera();
+      stream = await openCamera({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 24 }
+        },
+        audio: false
+      });
       setCameraStream(stream);
     } catch (err) {
       console.error("[onboarding-snippets] openCamera failed:", err);

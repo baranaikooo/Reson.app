@@ -124,6 +124,8 @@ function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
 }
 
 function ResonApp() {
+  const [theme, setTheme] = useTheme();
+  const themeLoadedRef = useRef(false);
   const [screen, setScreen] = useState<Screen>("landing");
   const [phone, setPhone] = useState("");
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile | null>(null);
@@ -172,6 +174,19 @@ function ResonApp() {
       if (event === 'SIGNED_IN' && session?.user) {
         const user = session.user;
         const metadata = user.user_metadata;
+        
+        // Sync theme from Supabase metadata if exists, otherwise upload current theme
+        const savedTheme = metadata?.theme;
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          setTheme(savedTheme);
+          themeLoadedRef.current = true;
+        } else {
+          themeLoadedRef.current = true;
+          supabase.auth.updateUser({
+            data: { theme: theme }
+          }).catch(err => console.warn('[theme] failed to sync to Supabase:', err));
+        }
+
         const profileData: GoogleProfile = {
           name: metadata?.name || metadata?.full_name || user.email?.split('@')[0] || 'Používateľ',
           email: user.email || '',
@@ -183,6 +198,7 @@ function ResonApp() {
       } else if (event === 'SIGNED_OUT') {
         setGoogleProfile(null);
         setScreen('landing');
+        themeLoadedRef.current = false;
       }
     });
 
@@ -190,6 +206,19 @@ function ResonApp() {
     getCurrentUser().then(user => {
       if (user) {
         const metadata = user.user_metadata;
+
+        // Sync theme from Supabase metadata if exists, otherwise upload current theme
+        const savedTheme = metadata?.theme;
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          setTheme(savedTheme);
+          themeLoadedRef.current = true;
+        } else {
+          themeLoadedRef.current = true;
+          supabase.auth.updateUser({
+            data: { theme: theme }
+          }).catch(err => console.warn('[theme] failed to sync to Supabase on mount:', err));
+        }
+
         const profileData: GoogleProfile = {
           name: metadata?.name || metadata?.full_name || user.email?.split('@')[0] || 'Používateľ',
           email: user.email || '',
@@ -201,7 +230,23 @@ function ResonApp() {
     });
 
     return () => subscription.unsubscribe();
-  }, [haptic]);
+  }, [haptic, theme]);
+
+  // Synchronize theme changes to Supabase user metadata when selected by user
+  useEffect(() => {
+    if (!themeLoadedRef.current) return;
+    getCurrentUser().then(user => {
+      if (user && user.user_metadata?.theme !== theme) {
+        supabase.auth.updateUser({
+          data: { theme: theme }
+        }).then(() => {
+          console.log('[theme] synced to Supabase metadata:', theme);
+        }).catch(err => {
+          console.warn('[theme] failed to sync to Supabase:', err);
+        });
+      }
+    });
+  }, [theme]);
 
   const rankedMatches = useMemo(() => {
     if (!profile) return [];
@@ -275,7 +320,6 @@ function ResonApp() {
   const focusScreens: Screen[] = ["test", "chamber", "thread"];
   const showNav = profile !== null && !onboardingScreens.includes(screen) && !focusScreens.includes(screen);
   const unreadCount = conversations.filter(c => c.unread).length;
-  const [theme, setTheme] = useTheme();
 
   // Removed proactive mic priming on startup to support Just-in-Time (JIT) permissions
 
@@ -852,7 +896,15 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     setPhase("countdown");
 
     try {
-      const s = await openCamera({ video: { facingMode: "user" }, audio: false });
+      const s = await openCamera({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 24 }
+        },
+        audio: false
+      });
       streamRef.current = s;
       setStream(s);
       await new Promise(r => setTimeout(r, 150));
