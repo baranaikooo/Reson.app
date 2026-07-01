@@ -33,9 +33,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       stream = await openCamera({
         video: {
           facingMode: "user",
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 24 }
+          width: { ideal: 1080 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 0.5625 } // 9:16 portrait
         },
         audio: false
       });
@@ -176,7 +176,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         {Array.from({ length: 4 }).map((_, idx) => {
           const url = snippets[idx];
           return (
-            <div key={idx} className="relative aspect-video w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
+            <div key={idx} className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
               {url ? (
                 <>
                   <video
@@ -271,7 +271,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
               [ CCTV CAMERA RECORDER INTERFACE ]
             </div>
             
-            <div className="relative aspect-video w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
+            <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
               <video ref={videoRef} playsInline muted className="size-full object-cover scale-110" style={{ transform: "scaleX(-1)" }} />
               
               {recordingState === "countdown" && (

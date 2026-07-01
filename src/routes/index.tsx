@@ -899,9 +899,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
       const s = await openCamera({
         video: {
           facingMode: "user",
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 24 }
+          width: { ideal: 1080 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 0.5625 } // 9:16 portrait
         },
         audio: false
       });
@@ -979,7 +979,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         </p>
 
         <div className="relative my-6 grid place-items-center">
-          <div className="relative size-56 overflow-hidden border border-foreground/25">
+          <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25">
             {phase !== "ready" && stream && (
               <video ref={videoRef} playsInline muted className="size-full object-cover" style={{ transform: "scaleX(-1)" }} />
             )}

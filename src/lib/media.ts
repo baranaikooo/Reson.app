@@ -152,15 +152,21 @@ export async function blobToPlayableAudioUrl(blob: Blob, fallbackSeconds: number
   }
 }
 
-export function createMediaRecorder(stream: MediaStream, mime: string): MediaRecorder {
-  if (mime) {
+export function createMediaRecorder(stream: MediaStream, mime: string, kind?: "audio" | "video"): MediaRecorder {
+  const options: MediaRecorderOptions = {};
+  if (mime) options.mimeType = mime;
+  if (kind === "video") {
+    options.videoBitsPerSecond = 8000000; // 8 Mbps high quality
+  }
+  try {
+    return new MediaRecorder(stream, options);
+  } catch {
     try {
-      return new MediaRecorder(stream, { mimeType: mime });
-    } catch {
-      /* fall through */
+      return new MediaRecorder(stream);
+    } catch (err) {
+      throw err;
     }
   }
-  return new MediaRecorder(stream);
 }
 
 /** Record from an existing stream for a fixed duration; resolves when recorder stops. */
@@ -171,7 +177,7 @@ export function recordStreamForMs(
   timesliceMs = 250,
 ): Promise<{ blob: Blob; mimeType: string }> {
   const preferred = kind === "audio" ? pickAudioMime() : pickVideoMime();
-  const rec = createMediaRecorder(stream, preferred);
+  const rec = createMediaRecorder(stream, preferred, kind);
   const mimeType = rec.mimeType || preferred || (kind === "audio" ? "audio/webm" : "video/webm");
   const chunks: Blob[] = [];
 
