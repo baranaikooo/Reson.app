@@ -532,22 +532,27 @@ function ResonApp() {
               
               // Backend Sync: Batch Upload Videos
               let publicVideoUrls: string[] = [];
-              if (updated.videoUrls && updated.videoUrls.length > 0) {
-                const uploadPromises = updated.videoUrls.map(async (url, idx) => {
-                  if (!url || !url.startsWith("blob:")) return url;
-                  const res = await fetch(url);
-                  const blob = await res.blob();
-                  return await uploadSnippetVideo(updated.id, idx + 1, blob);
-                });
-                publicVideoUrls = await Promise.all(uploadPromises);
-                
-                // Update local profile with public URLs so they don't break on reload
-                updated.videoUrls = publicVideoUrls;
-                setProfile(updated);
-              }
+              
+              if (updated.id !== "00000000-0000-0000-0000-000000000001") {
+                if (updated.videoUrls && updated.videoUrls.length > 0) {
+                  const uploadPromises = updated.videoUrls.map(async (url, idx) => {
+                    if (!url || !url.startsWith("blob:")) return url;
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    return await uploadSnippetVideo(updated.id, idx + 1, blob);
+                  });
+                  publicVideoUrls = await Promise.all(uploadPromises);
+                  
+                  // Update local profile with public URLs so they don't break on reload
+                  updated.videoUrls = publicVideoUrls;
+                  setProfile(updated);
+                }
 
-              // Backend Sync: Save Profile
-              await saveUserProfile(updated.id, updated, publicVideoUrls);
+                // Backend Sync: Save Profile
+                await saveUserProfile(updated.id, updated, publicVideoUrls);
+              } else {
+                console.warn("[Demo Mode] Skipping backend upload because user is not signed in.");
+              }
 
               // Generate mock legacy answers for the orb seed
               const derivedAnswers: FullAnswers = {
