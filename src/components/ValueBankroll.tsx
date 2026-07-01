@@ -12,7 +12,7 @@ const CATEGORIES = [
   { id: "kariera", label: "Kariéra & Rozvoj", desc: "Ambície, úspech, financie a vzdelanie" },
   { id: "stabilita", label: "Bezpečie & Stabilita", desc: "Plánovanie, istota, dlhodobý poriadok" },
   { id: "kreativita", label: "Kreativita & Zvedavosť", desc: "Umenie, nové myšlienky, bádanie" },
-  { id: "sloboda", label: "Sloboda & Dobrodružstvo", desc: "Cestovanie, nezávislosť, spontánnosť" }
+  { id: "sloboda", label: "Sloboda & Dobrodružstvo", desc: "Cestovanie, nezávislosť, spontánnosť" },
 ];
 
 export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
@@ -22,7 +22,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
     kariera: 0,
     stabilita: 0,
     kreativita: 0,
-    sloboda: 0
+    sloboda: 0,
   });
 
   const totalChips = 100;
@@ -39,7 +39,8 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
     const conscientiousness = (career + stability + (20 - freedom / 5)) / 220;
     const clampedC = Math.max(0.1, Math.min(0.99, conscientiousness));
 
-    const extraversion = (0.8 * freedom + 0.6 * rodina + 0.5 * career + 0.4 * kreativita + 0.2 * stability) / 100;
+    const extraversion =
+      (0.8 * freedom + 0.6 * rodina + 0.5 * career + 0.4 * kreativita + 0.2 * stability) / 100;
     const clampedE = Math.max(0.1, Math.min(0.99, extraversion));
 
     return { c: clampedC, e: clampedE };
@@ -48,12 +49,12 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
   const handleSliderChange = (id: string, val: number) => {
     const currentVal = allocations[id] || 0;
     const diff = val - currentVal;
-    
+
     if (diff > remainingChips) {
       const maxPossible = currentVal + remainingChips;
       if (maxPossible !== currentVal) {
         haptic("tap");
-        setAllocations(prev => {
+        setAllocations((prev) => {
           const next = { ...prev, [id]: maxPossible };
           const { c, e } = getDerivedMetrics(next);
           onSliderChange?.(c, e);
@@ -62,7 +63,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
       }
     } else {
       haptic("tap");
-      setAllocations(prev => {
+      setAllocations((prev) => {
         const next = { ...prev, [id]: val };
         const { c, e } = getDerivedMetrics(next);
         onSliderChange?.(c, e);
@@ -74,7 +75,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
   const handleConfirm = () => {
     if (allocatedSum !== totalChips) return;
     haptic("success");
-    
+
     const { c } = getDerivedMetrics(allocations);
     onDone(c, allocations);
   };
@@ -106,20 +107,22 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
 
       {/* Sliders Container */}
       <div className="space-y-6">
-        {CATEGORIES.map(cat => {
+        {CATEGORIES.map((cat) => {
           const val = allocations[cat.id] || 0;
           return (
             <div key={cat.id} className="border border-foreground/10 bg-card p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div className="space-y-0.5 pr-2">
-                  <h5 className="text-sm font-semibold text-foreground/90 uppercase">{cat.label}</h5>
+                  <h5 className="text-sm font-semibold text-foreground/90 uppercase">
+                    {cat.label}
+                  </h5>
                   <p className="text-xs text-foreground/50 leading-relaxed font-mono">{cat.desc}</p>
                 </div>
                 <div className="bg-foreground/10 px-2.5 py-1 font-mono text-sm font-bold text-foreground">
                   {val}
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <input
                   type="range"

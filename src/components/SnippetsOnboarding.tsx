@@ -14,9 +14,11 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
   const [snippets, setSnippets] = useState<string[]>([]);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
-  const [recordingState, setRecordingState] = useState<"idle" | "countdown" | "recording" | "saving">("idle");
+  const [recordingState, setRecordingState] = useState<
+    "idle" | "countdown" | "recording" | "saving"
+  >("idle");
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
@@ -32,7 +34,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
     try {
       stream = await openCamera({
         video: { facingMode: "user" },
-        audio: false
+        audio: false,
       });
       setCameraStream(stream);
     } catch (err) {
@@ -67,7 +69,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
     try {
       const { blob } = await recordStreamForMs(stream, 3000, "video");
       setRecordingState("saving");
-      
+
       const videoUrl = URL.createObjectURL(blob);
       setSnippets((prev) => {
         const next = [...prev];
@@ -124,7 +126,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
     tempVideo.src = videoUrl;
     tempVideo.onloadedmetadata = () => {
       if (tempVideo.duration > 3.2) {
-        alert("Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.");
+        alert(
+          "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
+        );
       }
       setSnippets((prev) => {
         const next = [...prev];
@@ -162,7 +166,8 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
           Doplňte 3 vizuálne CCTV slučky
         </h2>
         <p className="text-xs text-foreground/60 leading-relaxed font-sans">
-          Základné informácie boli kalibrované. Systém vyžaduje nahratie celkovo až 4 krátkych 3-sekundových video slučiek pre overenie identity a algoritmický náhľad na trhu.
+          Základné informácie boli kalibrované. Systém vyžaduje nahratie celkovo až 4 krátkych
+          3-sekundových video slučiek pre overenie identity a algoritmický náhľad na trhu.
         </p>
       </div>
 
@@ -171,7 +176,10 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         {Array.from({ length: 4 }).map((_, idx) => {
           const url = snippets[idx];
           return (
-            <div key={idx} className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
+            <div
+              key={idx}
+              className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group"
+            >
               {url ? (
                 <>
                   <video
@@ -189,10 +197,14 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
                   />
                   <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
                     <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="font-mono text-[7px] text-white tracking-widest uppercase">LIVE</span>
+                    <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                      LIVE
+                    </span>
                   </div>
                   <div className="absolute bottom-1.5 left-1.5 bg-black/70 px-1.5 py-0.5 rounded-none">
-                    <span className="font-mono text-[7px] text-white tracking-widest uppercase">00:03:00</span>
+                    <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                      00:03:00
+                    </span>
                   </div>
                   {/* Delete button only if url exists */}
                   <button
@@ -220,7 +232,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
                       <Upload className="size-4" />
                     </button>
                   </div>
-                  <span className="mt-1.5 font-mono text-[7px] text-foreground/35 uppercase">SLOT {idx + 1} (MAX 3s)</span>
+                  <span className="mt-1.5 font-mono text-[7px] text-foreground/35 uppercase">
+                    SLOT {idx + 1} (MAX 3s)
+                  </span>
                 </div>
               )}
             </div>
@@ -265,14 +279,22 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
             <div className="mb-4 text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
               [ CCTV CAMERA RECORDER INTERFACE ]
             </div>
-            
+
             <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
-              <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
-              
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                className="size-full object-contain bg-black"
+                style={{ transform: "scaleX(-1)" }}
+              />
+
               {recordingState === "countdown" && (
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
                   <span className="text-4xl text-white font-bold animate-ping">{countdown}</span>
-                  <span className="text-[9px] text-white/50 tracking-widest uppercase mt-2">Príprava...</span>
+                  <span className="text-[9px] text-white/50 tracking-widest uppercase mt-2">
+                    Príprava...
+                  </span>
                 </div>
               )}
 

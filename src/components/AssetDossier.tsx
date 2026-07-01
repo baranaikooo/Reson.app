@@ -21,9 +21,11 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const [snippets, setSnippets] = useState<string[]>(user.videoUrls ?? []);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
-  const [recordingState, setRecordingState] = useState<"idle" | "countdown" | "recording" | "saving">("idle");
+  const [recordingState, setRecordingState] = useState<
+    "idle" | "countdown" | "recording" | "saving"
+  >("idle");
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
@@ -34,10 +36,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
   // Local settings states
   const [distance, setDistance] = useState(user.radiusKm || 200);
-  const [isGlobalMode, setIsGlobalMode] = useState(user.radiusKm === undefined || user.radiusKm >= 500);
+  const [isGlobalMode, setIsGlobalMode] = useState(
+    user.radiusKm === undefined || user.radiusKm >= 500,
+  );
   const [orientation, setOrientation] = useState(user.orientation || "hetero");
 
-  function saveFilterChange(key: string, value: any) {
+  function saveFilterChange(key: string, value: unknown) {
     onUpdateUser((prev) => {
       if (!prev) return null;
       return {
@@ -53,7 +57,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       return { ...prev, videoUrls: urls };
     });
   }
-
 
   // Save directives changes back to profile
   function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
@@ -77,7 +80,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     try {
       stream = await openCamera({
         video: { facingMode: "user" },
-        audio: false
+        audio: false,
       });
       setCameraStream(stream);
     } catch (err) {
@@ -112,7 +115,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     try {
       const { blob } = await recordStreamForMs(stream, 3000, "video");
       setRecordingState("saving");
-      
+
       // Enforce max upload limit of 5 MB
       const maxLimit = 5 * 1024 * 1024;
       if (blob.size > maxLimit) {
@@ -124,13 +127,11 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       const userId = user.id || "00000000-0000-0000-0000-000000000001";
       const filename = `snippets/${userId}/slot_${index + 1}_${Date.now()}.mp4`;
 
-      const { data, error } = await supabase.storage
-        .from("media_snippets")
-        .upload(filename, blob, {
-          contentType: blob.type || "video/mp4",
-          cacheControl: "3600",
-          upsert: true
-        });
+      const { data, error } = await supabase.storage.from("media_snippets").upload(filename, blob, {
+        contentType: blob.type || "video/mp4",
+        cacheControl: "3600",
+        upsert: true,
+      });
 
       if (error) {
         console.error("[dossier] upload error:", error);
@@ -139,9 +140,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       }
 
       // Retrieve public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from("media_snippets")
-        .getPublicUrl(filename);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("media_snippets").getPublicUrl(filename);
 
       setSnippets((prev) => {
         const next = [...prev];
@@ -199,7 +200,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     tempVideo.src = videoUrl;
     tempVideo.onloadedmetadata = () => {
       if (tempVideo.duration > 3.2) {
-        alert("Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.");
+        alert(
+          "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
+        );
       }
       setSnippets((prev) => {
         const next = [...prev];
@@ -223,7 +226,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   }
 
   // Algorithmic Age Bracket Calculations (Half-your-age-plus-seven reciprocity)
-  const minBracketAge = Math.max(18, Math.floor((user.age / 2) + 7));
+  const minBracketAge = Math.max(18, Math.floor(user.age / 2 + 7));
   const maxBracketAge = Math.floor((user.age - 7) * 2);
   const calculatedBracket = `[${minBracketAge} - ${maxBracketAge < minBracketAge ? minBracketAge : maxBracketAge}]`;
 
@@ -232,7 +235,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     Secure: "BEZPEČNÝ",
     Anxious: "ÚZKOSTNÝ",
     Avoidant: "VYHÝBAVÝ",
-    Fearful: "DEZORGANIZOVANÝ"
+    Fearful: "DEZORGANIZOVANÝ",
   };
   const attachmentStyleSlovak = styleMap[user.attachmentStyle || "Secure"] || "BEZPEČNÝ";
 
@@ -241,26 +244,35 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const redemptionQuota = `${user.redemptionQuota ?? 0}`;
   const closureRate = "85%";
   const cognitiveDepth = `${(user.cognitiveDepth || 0.55).toFixed(2)}`;
-  const conscientiousness = `${(user.conscientiousness || 0.50).toFixed(2)}`;
-  const extraversion = `${(user.extraversion || 0.50).toFixed(2)}`;
+  const conscientiousness = `${(user.conscientiousness || 0.5).toFixed(2)}`;
+  const extraversion = `${(user.extraversion || 0.5).toFixed(2)}`;
   const hesitationFlag = user.hesitated ? "[ÁNO]" : "[NIE]";
 
   return (
     <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">MÔJ PROFIL // OSOBNOSŤ</h1>
-        <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{user.name}</span>
+        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">
+          MÔJ PROFIL // OSOBNOSŤ
+        </h1>
+        <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+          {user.name}
+        </span>
       </div>
 
       {/* Blur Preview Toggle */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none flex items-center justify-between">
-        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Ukážka pre ostatných</span>
+        <span className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+          Ukážka pre ostatných
+        </span>
         <button
-          onClick={() => { haptic("tap"); setIsPreviewBlurred(!isPreviewBlurred); }}
+          onClick={() => {
+            haptic("tap");
+            setIsPreviewBlurred(!isPreviewBlurred);
+          }}
           className={`flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[9px] tracking-widest uppercase transition-all rounded-none font-bold ${
-            isPreviewBlurred 
-              ? "border-amber-500 bg-amber-500/10 text-amber-500" 
+            isPreviewBlurred
+              ? "border-amber-500 bg-amber-500/10 text-amber-500"
               : "border-foreground bg-foreground text-background"
           }`}
         >
@@ -271,12 +283,17 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* CCTV Live Snippets Grid (respects preview blur toggle) */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Moje videá (3-sekundové slučky)</p>
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+          Moje videá (3-sekundové slučky)
+        </p>
         <div className="grid grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, idx) => {
             const url = snippets[idx];
             return (
-              <div key={idx} className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group">
+              <div
+                key={idx}
+                className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden group"
+              >
                 {url ? (
                   <>
                     <video
@@ -296,10 +313,14 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                     />
                     <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
                       <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">LIVE</span>
+                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                        LIVE
+                      </span>
                     </div>
                     <div className="absolute bottom-1.5 left-1.5 bg-black/70 px-1.5 py-0.5 rounded-none">
-                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">00:03:00</span>
+                      <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                        00:03:00
+                      </span>
                     </div>
                     <button
                       onClick={() => deleteSnippet(idx)}
@@ -326,14 +347,16 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                         <Upload className="size-4" />
                       </button>
                     </div>
-                    <span className="mt-1.5 font-mono text-[7px] text-foreground/35 uppercase">SLOT {idx + 1} (MAX 3s)</span>
+                    <span className="mt-1.5 font-mono text-[7px] text-foreground/35 uppercase">
+                      SLOT {idx + 1} (MAX 3s)
+                    </span>
                   </div>
                 )}
               </div>
             );
           })}
         </div>
-        
+
         <input
           type="file"
           ref={fileInputRef}
@@ -345,7 +368,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Market Parameters (Moved from settings to DNA section) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">PARAMETRE TRHU (TRHOVÉ FILTRE)</p>
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+          PARAMETRE TRHU (TRHOVÉ FILTRE)
+        </p>
 
         <div className="space-y-4 font-mono text-xs">
           {/* Global vs National Toggle */}
@@ -384,7 +409,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           </div>
 
           {/* Distance Filter */}
-          <div className={isGlobalMode ? "opacity-30 pointer-events-none transition-opacity" : "transition-opacity"}>
+          <div
+            className={
+              isGlobalMode
+                ? "opacity-30 pointer-events-none transition-opacity"
+                : "transition-opacity"
+            }
+          >
             <div className="flex justify-between mb-1">
               <span className="text-foreground/45 uppercase text-[9px]">MAXIMÁLNA VZDIALENOSŤ</span>
               <span className="font-bold text-foreground">{distance} km</span>
@@ -407,7 +438,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
           {/* Target Demographic Orientation Dropdown */}
           <div>
-            <label className="block text-[8px] text-muted-foreground uppercase mb-1">Koho hľadáš (Sexuálna orientácia)</label>
+            <label className="block text-[8px] text-muted-foreground uppercase mb-1">
+              Koho hľadáš (Sexuálna orientácia)
+            </label>
             <select
               value={orientation}
               onChange={(e) => {
@@ -428,8 +461,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Brutalist Directives Form Fields */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">Moje životné smernice</p>
-        
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+          Moje životné smernice
+        </p>
+
         {/* NON-NEGOTIABLE */}
         <div className="space-y-1">
           <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
@@ -473,7 +508,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Pure Data Algorithmic Diagnostics */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">OSOBNOSTNÝ PROFIL // METRIKY</p>
+        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+          OSOBNOSTNÝ PROFIL // METRIKY
+        </p>
         <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Typ_osobnosti</span>
@@ -507,7 +544,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <span className="text-foreground/45 uppercase">Váhavosť_pri_teste</span>
             <span className="font-bold text-foreground">{hesitationFlag}</span>
           </div>
-          
+
           {/* HARDCODED ALGORITHMIC BRACKET */}
           <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
             <span className="text-amber-500 font-bold uppercase">Hľadaný_vek_partnera</span>
@@ -517,9 +554,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
             <span className="text-foreground/45 uppercase">Biometric_Liveness</span>
             {user.livenessVerified ? (
-              <span className="font-mono font-bold text-green-500 uppercase">[ VERIFIED_TIER_1 ]</span>
+              <span className="font-mono font-bold text-green-500 uppercase">
+                [ VERIFIED_TIER_1 ]
+              </span>
             ) : (
-              <span className="font-mono font-bold text-red-500 uppercase animate-pulse">[ UNVERIFIED - HIGH RISK ]</span>
+              <span className="font-mono font-bold text-red-500 uppercase animate-pulse">
+                [ UNVERIFIED - HIGH RISK ]
+              </span>
             )}
           </div>
 
@@ -537,21 +578,33 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <div className="mb-4 font-mono text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
               [ ROZHRANIE CCTV KAMERY ]
             </div>
-            
+
             <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
-              <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
-              
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                className="size-full object-contain bg-black"
+                style={{ transform: "scaleX(-1)" }}
+              />
+
               {recordingState === "countdown" && (
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
-                  <span className="font-mono text-4xl text-white font-bold animate-ping">{countdown}</span>
-                  <span className="font-mono text-[9px] text-white/50 tracking-widest uppercase mt-2">Príprava...</span>
+                  <span className="font-mono text-4xl text-white font-bold animate-ping">
+                    {countdown}
+                  </span>
+                  <span className="font-mono text-[9px] text-white/50 tracking-widest uppercase mt-2">
+                    Príprava...
+                  </span>
                 </div>
               )}
 
               {recordingState === "recording" && (
                 <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/70 px-2 py-0.5 border border-red-500">
                   <span className="size-1.5 rounded-full bg-red-500 animate-ping" />
-                  <span className="font-mono text-[7px] text-white tracking-widest uppercase">ZÁZNAM (3s)</span>
+                  <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                    ZÁZNAM (3s)
+                  </span>
                 </div>
               )}
             </div>

@@ -1,13 +1,57 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Mic, Send, Phone, ChevronRight, Sparkles, Play, Pause, Check, X, Camera, MessageCircle, MapPin, ArrowLeft, Home, Brain, Trash2, Settings as SettingsIcon, Sun, Moon, Shield, FileText, Cookie, Mail, Trash, Paperclip, Image as ImageIcon, User, MoreVertical, AlertTriangle } from "lucide-react";
 import {
-  pickScenarios, calcResonance, resonanceBreakdown, catalystFor,
-  orbSeedFor, rankMatches, partnerContinueDecision, mockReply, archetypeOf,
+  Mic,
+  Send,
+  Phone,
+  ChevronRight,
+  Sparkles,
+  Play,
+  Pause,
+  Check,
+  X,
+  Camera,
+  MessageCircle,
+  MapPin,
+  ArrowLeft,
+  Home,
+  Brain,
+  Trash2,
+  Settings as SettingsIcon,
+  Sun,
+  Moon,
+  Shield,
+  FileText,
+  Cookie,
+  Mail,
+  Trash,
+  Paperclip,
+  Image as ImageIcon,
+  User,
+  MoreVertical,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  pickScenarios,
+  calcResonance,
+  resonanceBreakdown,
+  catalystFor,
+  orbSeedFor,
+  rankMatches,
+  partnerContinueDecision,
+  mockReply,
+  archetypeOf,
   type Scenario,
-  type Answer, type Answers, type FullAnswers,
-  type UserProfile, type Gender, type Orientation, type RankedMatch,
-  type Conversation, type ChatMessage, type Archetype,
+  type Answer,
+  type Answers,
+  type FullAnswers,
+  type UserProfile,
+  type Gender,
+  type Orientation,
+  type RankedMatch,
+  type Conversation,
+  type ChatMessage,
+  type Archetype,
 } from "@/lib/resonance";
 
 import { SonarScan } from "@/components/SonarScan";
@@ -43,7 +87,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Reson — Nájdi svoju kognitívnu rezonanciu" },
-      { name: "description", content: "Zoznamovacia aplikácia bez swipovania. Overenie tváre a telefónom, párovanie cez 6-otázkový psychologický test, komunikácia výhradne cez hlasovky." },
+      {
+        name: "description",
+        content:
+          "Zoznamovacia aplikácia bez swipovania. Overenie tváre a telefónom, párovanie cez 6-otázkový psychologický test, komunikácia výhradne cez hlasovky.",
+      },
       { property: "og:title", content: "Reson — Nájdi svoju kognitívnu rezonanciu" },
       { property: "og:description", content: "Žiadne swipovanie. Iba psychológia." },
     ],
@@ -54,13 +102,33 @@ export const Route = createFileRoute("/")({
 // ============ Shared UI ============
 function Wave({ size = 280, intense = false }: { size?: number; intense?: boolean }) {
   return (
-    <div className="relative grid place-items-center animate-fade-in" style={{ width: size, height: size }}>
+    <div
+      className="relative grid place-items-center animate-fade-in"
+      style={{ width: size, height: size }}
+    >
       {[0, 0.6, 1.2].map((d, i) => (
-        <span key={i} className="absolute rounded-full border animate-wave"
-          style={{ width: size * 0.5, height: size * 0.5, borderColor: "currentColor", borderWidth: 1, animationDelay: `${d}s`, opacity: intense ? 0.8 : 0.4 }} />
+        <span
+          key={i}
+          className="absolute rounded-full border animate-wave"
+          style={{
+            width: size * 0.5,
+            height: size * 0.5,
+            borderColor: "currentColor",
+            borderWidth: 1,
+            animationDelay: `${d}s`,
+            opacity: intense ? 0.8 : 0.4,
+          }}
+        />
       ))}
-      <span className="absolute rounded-full animate-resonance"
-        style={{ width: size * 0.32, height: size * 0.32, background: "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)" }} />
+      <span
+        className="absolute rounded-full animate-resonance"
+        style={{
+          width: size * 0.32,
+          height: size * 0.32,
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)",
+        }}
+      />
       <span className="absolute rounded-full bg-foreground" style={{ width: 12, height: 12 }} />
     </div>
   );
@@ -69,7 +137,9 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-[100dvh] w-full overflow-hidden">
-      <div className="mx-auto h-full max-w-2xl overflow-y-auto overscroll-contain px-5 pb-28 pt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{children}</div>
+      <div className="mx-auto h-full max-w-2xl overflow-y-auto overscroll-contain px-5 pb-28 pt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {children}
+      </div>
     </div>
   );
 }
@@ -99,13 +169,29 @@ function primeMicPermission(): Promise<void> {
   return micPrimed;
 }
 
-
 // ============ Screens ============
 type Screen =
-  | "landing" | "verify" | "liveness" | "profile" | "snippets-onboarding" | "briefing" | "mirror" | "bankroll" | "pressure"
-  | "test" | "processing" | "autoMatch" | "chamber" | "noOne"
-  | "messages" | "thread"
-  | "settings" | "legal-terms" | "legal-privacy" | "legal-cookies" | "legal-contact"
+  | "landing"
+  | "verify"
+  | "liveness"
+  | "profile"
+  | "snippets-onboarding"
+  | "briefing"
+  | "mirror"
+  | "bankroll"
+  | "pressure"
+  | "test"
+  | "processing"
+  | "autoMatch"
+  | "chamber"
+  | "noOne"
+  | "messages"
+  | "thread"
+  | "settings"
+  | "legal-terms"
+  | "legal-privacy"
+  | "legal-cookies"
+  | "legal-contact"
   | "profile-dossier";
 
 type ThemeMode = "dark" | "light";
@@ -118,7 +204,11 @@ function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
     if (typeof document === "undefined") return;
     document.documentElement.classList.remove("dark", "light");
     document.documentElement.classList.add(mode);
-    try { localStorage.setItem("reson:theme", mode); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("reson:theme", mode);
+    } catch {
+      /* ignore */
+    }
   }, [mode]);
   return [mode, setMode];
 }
@@ -143,7 +233,7 @@ function ResonApp() {
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"ev" | "distance">("ev");
-  
+
   // Psychometric EV variables
   const [cognitiveDepth, setCognitiveDepth] = useState<number>(0.5);
   const [conscientiousness, setConscientiousness] = useState<number>(0.5);
@@ -157,12 +247,12 @@ function ResonApp() {
   const [redemptionQuota, setRedemptionQuota] = useState<number>(0);
 
   const reduceRedemptionQuota = () => {
-    setRedemptionQuota(prev => {
+    setRedemptionQuota((prev) => {
       const next = Math.max(0, prev - 1);
       if (profile) {
         setProfile({
           ...profile,
-          redemptionQuota: next
+          redemptionQuota: next,
         });
       }
       return next;
@@ -174,60 +264,66 @@ function ResonApp() {
 
   // Handle Supabase auth state changes
   useEffect(() => {
-    const { data: { subscription } } = onAuthStateChange(async (event, session) => {
-      console.log('[auth] auth state changed:', event, session?.user?.email);
+    const {
+      data: { subscription },
+    } = onAuthStateChange(async (event, session) => {
+      console.log("[auth] auth state changed:", event, session?.user?.email);
 
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event === "SIGNED_IN" && session?.user) {
         const user = session.user;
         const metadata = user.user_metadata;
-        
+
         // Sync theme from Supabase metadata if exists, otherwise upload current theme
         const savedTheme = metadata?.theme;
-        if (savedTheme === 'light' || savedTheme === 'dark') {
+        if (savedTheme === "light" || savedTheme === "dark") {
           setTheme(savedTheme);
           themeLoadedRef.current = true;
         } else {
           themeLoadedRef.current = true;
-          supabase.auth.updateUser({
-            data: { theme: themeRef.current }
-          }).catch(err => console.warn('[theme] failed to sync to Supabase:', err));
+          supabase.auth
+            .updateUser({
+              data: { theme: themeRef.current },
+            })
+            .catch((err) => console.warn("[theme] failed to sync to Supabase:", err));
         }
 
         const profileData: GoogleProfile = {
-          name: metadata?.name || metadata?.full_name || user.email?.split('@')[0] || 'Používateľ',
-          email: user.email || '',
+          name: metadata?.name || metadata?.full_name || user.email?.split("@")[0] || "Používateľ",
+          email: user.email || "",
           picture: metadata?.avatar_url || metadata?.picture,
         };
         setGoogleProfile(profileData);
-        haptic('success');
-        setScreen('liveness');
-      } else if (event === 'SIGNED_OUT') {
+        haptic("success");
+        setScreen("liveness");
+      } else if (event === "SIGNED_OUT") {
         setGoogleProfile(null);
-        setScreen('landing');
+        setScreen("landing");
         themeLoadedRef.current = false;
       }
     });
 
     // Check for existing session on mount
-    getCurrentUser().then(user => {
+    getCurrentUser().then((user) => {
       if (user) {
         const metadata = user.user_metadata;
 
         // Sync theme from Supabase metadata if exists, otherwise upload current theme
         const savedTheme = metadata?.theme;
-        if (savedTheme === 'light' || savedTheme === 'dark') {
+        if (savedTheme === "light" || savedTheme === "dark") {
           setTheme(savedTheme);
           themeLoadedRef.current = true;
         } else {
           themeLoadedRef.current = true;
-          supabase.auth.updateUser({
-            data: { theme: themeRef.current }
-          }).catch(err => console.warn('[theme] failed to sync to Supabase on mount:', err));
+          supabase.auth
+            .updateUser({
+              data: { theme: themeRef.current },
+            })
+            .catch((err) => console.warn("[theme] failed to sync to Supabase on mount:", err));
         }
 
         const profileData: GoogleProfile = {
-          name: metadata?.name || metadata?.full_name || user.email?.split('@')[0] || 'Používateľ',
-          email: user.email || '',
+          name: metadata?.name || metadata?.full_name || user.email?.split("@")[0] || "Používateľ",
+          email: user.email || "",
           picture: metadata?.avatar_url || metadata?.picture,
         };
         setGoogleProfile(profileData);
@@ -236,20 +332,23 @@ function ResonApp() {
     });
 
     return () => subscription.unsubscribe();
-  }, [haptic]);
+  }, [haptic, setTheme]);
 
   // Synchronize theme changes to Supabase user metadata when selected by user
   useEffect(() => {
     if (!themeLoadedRef.current) return;
-    getCurrentUser().then(user => {
+    getCurrentUser().then((user) => {
       if (user && user.user_metadata?.theme !== theme) {
-        supabase.auth.updateUser({
-          data: { theme: theme }
-        }).then(() => {
-          console.log('[theme] synced to Supabase metadata:', theme);
-        }).catch(err => {
-          console.warn('[theme] failed to sync to Supabase:', err);
-        });
+        supabase.auth
+          .updateUser({
+            data: { theme: theme },
+          })
+          .then(() => {
+            console.log("[theme] synced to Supabase metadata:", theme);
+          })
+          .catch((err) => {
+            console.warn("[theme] failed to sync to Supabase:", err);
+          });
       }
     });
   }, [theme]);
@@ -259,46 +358,46 @@ function ResonApp() {
 
   useEffect(() => {
     if (!profile) return;
-    
+
     // CACHE FLUSH FOR THIS DEPLOYMENT
-    if (!localStorage.getItem('reson_cache_flushed_v3')) {
+    if (!localStorage.getItem("reson_cache_flushed_v3")) {
       localStorage.clear();
-      localStorage.setItem('reson_cache_flushed_v3', 'true');
+      localStorage.setItem("reson_cache_flushed_v3", "true");
     }
 
     async function fetchLiveMarket() {
       setIsLoadingMarket(true);
       try {
-        const { data, error } = await supabase.rpc('get_recommended_matches', {
+        const { data, error } = await supabase.rpc("get_recommended_matches", {
           caller_id: profile.id,
-          caller_gender: profile.gender || 'other',
-          caller_orientation: profile.orientation || 'bi',
+          caller_gender: profile.gender || "other",
+          caller_orientation: profile.orientation || "bi",
           caller_vector: `[${profile.cognitiveDepth || 0.5},${profile.conscientiousness || 0.5}]`,
-          max_limit: 100
+          max_limit: 100,
         });
 
         if (error) throw error;
-        
+
         // Map Supabase rows to MockMatch interface
-        const mapped: MockMatch[] = (data || []).map((row: any) => ({
-          id: row.id,
-          name: row.name,
-          age: row.age,
-          city: row.city,
+        const mapped: MockMatch[] = (data || []).map((row: Record<string, unknown>) => ({
+          id: row.id as string,
+          name: row.name as string,
+          age: row.age as number,
+          city: row.city as string,
           gender: row.gender as Gender,
           orientation: row.orientation as Orientation,
           bio: "",
           img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80",
           answers: { q1: "A", q2: "A", q3: "A", q4: "A", q5: "A", q6: "A" },
-          cognitive_depth: row.cognitive_depth,
-          conscientiousness: row.conscientiousness,
-          extraversion: row.extraversion,
-          attachment_style: row.attachment_style || "Secure",
-          avg_response_time: row.avg_response_time || 3.0,
-          top_priority: row.top_priority || "",
-          distanceKm: row.distance ? Math.round(row.distance * 100) : undefined
+          cognitive_depth: row.cognitive_depth as number,
+          conscientiousness: row.conscientiousness as number,
+          extraversion: row.extraversion as number,
+          attachment_style: (row.attachment_style as string) || "Secure",
+          avg_response_time: (row.avg_response_time as number) || 3.0,
+          top_priority: (row.top_priority as string) || "",
+          distanceKm: typeof row.distance === "number" ? Math.round(row.distance * 100) : undefined,
         }));
-        
+
         setLiveCandidates(mapped);
       } catch (err) {
         console.error("Market fetch failed:", err);
@@ -322,10 +421,13 @@ function ResonApp() {
     return baseMatches;
   }, [profile, sortBy, liveCandidates]);
 
-  const inConversation = useMemo(() => new Set(conversations.map(c => c.matchId)), [conversations]);
+  const inConversation = useMemo(
+    () => new Set(conversations.map((c) => c.matchId)),
+    [conversations],
+  );
 
   function pickNextMatch(): RankedMatch | null {
-    return rankedMatches.find(m => !excluded.has(m.id) && !inConversation.has(m.id)) ?? null;
+    return rankedMatches.find((m) => !excluded.has(m.id) && !inConversation.has(m.id)) ?? null;
   }
 
   function goToNextMatch() {
@@ -341,46 +443,63 @@ function ResonApp() {
       unread: false,
       createdAt: Date.now(),
     };
-    setConversations(cs => [conv, ...cs]);
+    setConversations((cs) => [conv, ...cs]);
     setActiveConversationId(conv.id);
     setScreen("thread");
   }
 
   function onChamberDiscard(matchId: string) {
-    setExcluded(s => new Set(s).add(matchId));
+    setExcluded((s) => new Set(s).add(matchId));
     setActiveMatchId(null);
     setScreen("noOne");
     setRedemptionQuota(3);
     if (profile) {
       setProfile({
         ...profile,
-        redemptionQuota: 3
+        redemptionQuota: 3,
       });
     }
     haptic("warning");
   }
 
   function updateConversation(id: string, patch: (c: Conversation) => Conversation) {
-    setConversations(cs => cs.map(c => c.id === id ? patch(c) : c));
+    setConversations((cs) => cs.map((c) => (c.id === id ? patch(c) : c)));
   }
 
   function endConversation(id: string) {
-    const c = conversations.find(x => x.id === id);
-    if (c) setExcluded(s => new Set(s).add(c.matchId));
-    setConversations(cs => cs.filter(x => x.id !== id));
+    const c = conversations.find((x) => x.id === id);
+    if (c) setExcluded((s) => new Set(s).add(c.matchId));
+    setConversations((cs) => cs.filter((x) => x.id !== id));
     setActiveConversationId(null);
     setScreen("messages");
   }
 
-  const activeMatch = activeMatchId ? rankedMatches.find(m => m.id === activeMatchId) ?? null : null;
-  const activeConversation = activeConversationId ? conversations.find(c => c.id === activeConversationId) ?? null : null;
-  const activeConversationMatch = activeConversation ? liveCandidates.find(m => m.id === activeConversation.matchId) ?? null : null;
+  const activeMatch = activeMatchId
+    ? (rankedMatches.find((m) => m.id === activeMatchId) ?? null)
+    : null;
+  const activeConversation = activeConversationId
+    ? (conversations.find((c) => c.id === activeConversationId) ?? null)
+    : null;
+  const activeConversationMatch = activeConversation
+    ? (liveCandidates.find((m) => m.id === activeConversation.matchId) ?? null)
+    : null;
 
   const hasAnswers = profile?.cognitiveDepth !== undefined;
-  const onboardingScreens: Screen[] = ["landing", "verify", "liveness", "profile", "snippets-onboarding", "briefing", "mirror", "bankroll", "pressure"];
+  const onboardingScreens: Screen[] = [
+    "landing",
+    "verify",
+    "liveness",
+    "profile",
+    "snippets-onboarding",
+    "briefing",
+    "mirror",
+    "bankroll",
+    "pressure",
+  ];
   const focusScreens: Screen[] = ["test", "chamber", "thread"];
-  const showNav = profile !== null && !onboardingScreens.includes(screen) && !focusScreens.includes(screen);
-  const unreadCount = conversations.filter(c => c.unread).length;
+  const showNav =
+    profile !== null && !onboardingScreens.includes(screen) && !focusScreens.includes(screen);
+  const unreadCount = conversations.filter((c) => c.unread).length;
 
   // Removed proactive mic priming on startup to support Just-in-Time (JIT) permissions
 
@@ -396,7 +515,10 @@ function ResonApp() {
   }
   function goTest() {
     haptic("tap");
-    if (!profile) { setScreen("landing"); return; }
+    if (!profile) {
+      setScreen("landing");
+      return;
+    }
     // Once the cognitive test is complete, lock re-entry — the user keeps
     // their original Cognitive DNA and the Test icon is hidden from the nav.
     if (hasAnswers) {
@@ -406,15 +528,35 @@ function ResonApp() {
     setAnswers({});
     setScreen("briefing");
   }
-  function goMessages() { haptic("tap"); setScreen("messages"); }
-  function goSettings() { haptic("tap"); setScreen("settings"); }
-  function goProfile() { haptic("tap"); setScreen("profile-dossier"); }
+  function goMessages() {
+    haptic("tap");
+    setScreen("messages");
+  }
+  function goSettings() {
+    haptic("tap");
+    setScreen("settings");
+  }
+  function goProfile() {
+    haptic("tap");
+    setScreen("profile-dossier");
+  }
 
   const navActive: "home" | "test" | "messages" | "settings" | "profile" =
-    screen === "messages" ? "messages"
-    : screen === "profile-dossier" ? "profile"
-    : (["settings","legal-terms","legal-privacy","legal-cookies","legal-contact"] as Screen[]).includes(screen) ? "settings"
-    : "home";
+    screen === "messages"
+      ? "messages"
+      : screen === "profile-dossier"
+        ? "profile"
+        : (
+              [
+                "settings",
+                "legal-terms",
+                "legal-privacy",
+                "legal-cookies",
+                "legal-contact",
+              ] as Screen[]
+            ).includes(screen)
+          ? "settings"
+          : "home";
 
   return (
     <Shell>
@@ -424,22 +566,49 @@ function ResonApp() {
           setPhone={setPhone}
           theme={theme}
           onTheme={setTheme}
-          onNext={() => { haptic("tap"); setGoogleProfile(null); setScreen("verify"); }}
-          onGoogle={(profile) => { haptic("success"); setGoogleProfile(profile); setScreen("liveness"); }}
+          onNext={() => {
+            haptic("tap");
+            setGoogleProfile(null);
+            setScreen("verify");
+          }}
+          onGoogle={(profile) => {
+            haptic("success");
+            setGoogleProfile(profile);
+            setScreen("liveness");
+          }}
         />
       )}
-      {screen === "verify" && <Verify phone={phone} onBack={() => setScreen("landing")} onVerified={() => { haptic("success"); setScreen("liveness"); }} />}
-      {screen === "liveness" && <Liveness onDone={(url) => { haptic("success"); setLivenessVideoUrl(url); setScreen("profile"); }} />}
+      {screen === "verify" && (
+        <Verify
+          phone={phone}
+          onBack={() => setScreen("landing")}
+          onVerified={() => {
+            haptic("success");
+            setScreen("liveness");
+          }}
+        />
+      )}
+      {screen === "liveness" && (
+        <Liveness
+          onDone={(url) => {
+            haptic("success");
+            setLivenessVideoUrl(url);
+            setScreen("profile");
+          }}
+        />
+      )}
       {screen === "profile" && (
         <ProfileForm
           initialName={googleProfile?.name.split(/\s+/)[0] ?? ""}
           onSubmit={(p) => {
             haptic("success");
-            getCurrentUser().then(user => {
-              setProfile({ ...p, id: user?.id || "00000000-0000-0000-0000-000000000001" });
-            }).catch(() => {
-              setProfile({ ...p, id: "00000000-0000-0000-0000-000000000001" });
-            });
+            getCurrentUser()
+              .then((user) => {
+                setProfile({ ...p, id: user?.id || "00000000-0000-0000-0000-000000000001" });
+              })
+              .catch(() => {
+                setProfile({ ...p, id: "00000000-0000-0000-0000-000000000001" });
+              });
             setScreen("snippets-onboarding");
           }}
         />
@@ -447,7 +616,7 @@ function ResonApp() {
       {screen === "snippets-onboarding" && (
         <SnippetsOnboarding
           onDone={(urls) => {
-            setProfile(prev => {
+            setProfile((prev) => {
               if (!prev) return null;
               return { ...prev, videoUrls: urls };
             });
@@ -455,14 +624,21 @@ function ResonApp() {
           }}
         />
       )}
-      {screen === "briefing" && <Briefing onBegin={() => { haptic("tap"); setScreen("mirror"); }} />}
-      
+      {screen === "briefing" && (
+        <Briefing
+          onBegin={() => {
+            haptic("tap");
+            setScreen("mirror");
+          }}
+        />
+      )}
+
       {screen === "mirror" && (
-        <SemanticMirror 
+        <SemanticMirror
           onDone={(depth) => {
             setCognitiveDepth(depth);
             setScreen("bankroll");
-          }} 
+          }}
         />
       )}
 
@@ -471,7 +647,7 @@ function ResonApp() {
           <div className="mt-6 flex justify-center h-40 items-center">
             <RadarChart conscientiousness={previewC} extraversion={previewE} size={165} />
           </div>
-          <ValueBankroll 
+          <ValueBankroll
             onSliderChange={(c, e) => {
               setPreviewC(c);
               setPreviewE(e);
@@ -480,16 +656,22 @@ function ResonApp() {
               try {
                 setConscientiousness(c);
                 setPriorities(pList);
-                
+
                 const sloboda = pList?.sloboda ?? 0;
                 const rodina = pList?.rodina ?? 0;
                 const kariera = pList?.kariera ?? 0;
                 const kreativita = pList?.kreativita ?? 0;
                 const stabilita = pList?.stabilita ?? 0;
 
-                const derivedExtraversion = (sloboda * 0.8 + rodina * 0.6 + kariera * 0.5 + kreativita * 0.4 + stabilita * 0.2) / 100;
+                const derivedExtraversion =
+                  (sloboda * 0.8 +
+                    rodina * 0.6 +
+                    kariera * 0.5 +
+                    kreativita * 0.4 +
+                    stabilita * 0.2) /
+                  100;
                 setExtraversion(Math.max(0.1, Math.min(0.9, derivedExtraversion || 0.5)));
-                
+
                 let maxVal = -1;
                 let topKey = "rodina";
                 Object.entries(pList || {}).forEach(([k, v]) => {
@@ -511,14 +693,14 @@ function ResonApp() {
       )}
 
       {screen === "pressure" && (
-        <PressureChat 
+        <PressureChat
           isOnboarding={true}
           onDone={(style, rt, isHesitated, scenarioId) => {
             try {
               setAttachmentStyle(style);
               setAvgResponseTime(rt);
               setHesitated(isHesitated);
-              
+
               // Build the final UserProfile
               if (profile) {
                 const updated: UserProfile = {
@@ -530,11 +712,11 @@ function ResonApp() {
                   avgResponseTime: rt,
                   topPriority: topPriority || "rodina",
                   hesitated: isHesitated,
-                  completedPressureScenarios: [scenarioId]
+                  completedPressureScenarios: [scenarioId],
                 };
                 setProfile(updated);
               }
-              
+
               // Generate mock legacy answers for the orb seed
               const derivedAnswers: FullAnswers = {
                 q1: rt < 2.5 ? "A" : "B",
@@ -542,7 +724,7 @@ function ResonApp() {
                 q3: (priorities?.stabilita ?? 0) > (priorities?.sloboda ?? 0) ? "A" : "B",
                 q4: (priorities?.rodina ?? 0) > (priorities?.kariera ?? 0) ? "A" : "B",
                 q5: (cognitiveDepth || 0.5) > 0.8 ? "A" : "B",
-                q6: (conscientiousness || 0.5) > 0.6 ? "A" : "B"
+                q6: (conscientiousness || 0.5) > 0.6 ? "A" : "B",
               };
               setAnswers(derivedAnswers);
               setScreen("processing");
@@ -556,10 +738,20 @@ function ResonApp() {
       )}
 
       {screen === "processing" && (
-        <Processing seed={orbSeedFor(userAnswers)} archetype={archetypeOf(userAnswers)} onDone={() => { setScreen("noOne"); }} />
+        <Processing
+          seed={orbSeedFor(userAnswers)}
+          archetype={archetypeOf(userAnswers)}
+          onDone={() => {
+            setScreen("noOne");
+          }}
+        />
       )}
       {screen === "autoMatch" && (
-        <AutoMatch nextName={pickNextMatch()?.name ?? null} hasNext={pickNextMatch() !== null} onReady={() => goToNextMatch()} />
+        <AutoMatch
+          nextName={pickNextMatch()?.name ?? null}
+          hasNext={pickNextMatch() !== null}
+          onReady={() => goToNextMatch()}
+        />
       )}
       {screen === "chamber" && activeMatch && (
         <Chamber
@@ -577,7 +769,10 @@ function ResonApp() {
           matches={rankedMatches}
           sortBy={sortBy}
           onSortChange={setSortBy}
-          onSelectMatch={(id) => { setActiveMatchId(id); setScreen("chamber"); }}
+          onSelectMatch={(id) => {
+            setActiveMatchId(id);
+            setScreen("chamber");
+          }}
           onMessages={() => setScreen("messages")}
           hasMessages={conversations.length > 0}
         />
@@ -585,8 +780,16 @@ function ResonApp() {
       {screen === "messages" && (
         <MessagesList
           conversations={conversations}
-          onOpen={(id) => { haptic("tap"); setActiveConversationId(id); setConversations(cs => cs.map(c => c.id === id ? { ...c, unread: false } : c)); setScreen("thread"); }}
-          onFindNew={() => { haptic("tap"); goToNextMatch(); }}
+          onOpen={(id) => {
+            haptic("tap");
+            setActiveConversationId(id);
+            setConversations((cs) => cs.map((c) => (c.id === id ? { ...c, unread: false } : c)));
+            setScreen("thread");
+          }}
+          onFindNew={() => {
+            haptic("tap");
+            goToNextMatch();
+          }}
         />
       )}
       {screen === "thread" && activeConversation && activeConversationMatch && profile && (
@@ -607,17 +810,36 @@ function ResonApp() {
           user={profile}
           onUpdateUser={setProfile}
           theme={theme}
-          onTheme={(m) => { haptic("tap"); setTheme(m); }}
+          onTheme={(m) => {
+            haptic("tap");
+            setTheme(m);
+          }}
           onOpenTerms={() => setScreen("legal-terms")}
           onOpenPrivacy={() => setScreen("legal-privacy")}
           onOpenCookies={() => setScreen("legal-cookies")}
           onOpenContact={() => setScreen("legal-contact")}
         />
       )}
-      {screen === "legal-terms" && <LegalPage title="Podmienky používania" onBack={() => setScreen("settings")} body={TERMS_BODY} />}
-      {screen === "legal-privacy" && <LegalPage title="Ochrana súkromia (GDPR)" onBack={() => setScreen("settings")} body={PRIVACY_BODY} />}
-      {screen === "legal-cookies" && <LegalPage title="Cookies" onBack={() => setScreen("settings")} body={COOKIES_BODY} />}
-      {screen === "legal-contact" && <LegalPage title="Kontakt" onBack={() => setScreen("settings")} body={CONTACT_BODY} />}
+      {screen === "legal-terms" && (
+        <LegalPage
+          title="Podmienky používania"
+          onBack={() => setScreen("settings")}
+          body={TERMS_BODY}
+        />
+      )}
+      {screen === "legal-privacy" && (
+        <LegalPage
+          title="Ochrana súkromia (GDPR)"
+          onBack={() => setScreen("settings")}
+          body={PRIVACY_BODY}
+        />
+      )}
+      {screen === "legal-cookies" && (
+        <LegalPage title="Cookies" onBack={() => setScreen("settings")} body={COOKIES_BODY} />
+      )}
+      {screen === "legal-contact" && (
+        <LegalPage title="Kontakt" onBack={() => setScreen("settings")} body={CONTACT_BODY} />
+      )}
       {screen === "profile-dossier" && profile && (
         <AssetDossier
           user={profile}
@@ -642,7 +864,16 @@ function ResonApp() {
   );
 }
 
-function BottomNav({ active, unread, testDone, onHome, onTest, onMessages, onSettings, onProfile }: {
+function BottomNav({
+  active,
+  unread,
+  testDone,
+  onHome,
+  onTest,
+  onMessages,
+  onSettings,
+  onProfile,
+}: {
   active: "home" | "test" | "messages" | "settings" | "profile";
   unread: number;
   testDone: boolean;
@@ -652,16 +883,39 @@ function BottomNav({ active, unread, testDone, onHome, onTest, onMessages, onSet
   onSettings: () => void;
   onProfile: () => void;
 }) {
-  const Item = ({ id, icon, label, onClick, badge }: { id: string; icon: React.ReactNode; label: string; onClick: () => void; badge?: number }) => {
+  const Item = ({
+    id,
+    icon,
+    label,
+    onClick,
+    badge,
+  }: {
+    id: string;
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+    badge?: number;
+  }) => {
     const is = id === active;
     return (
-      <button onClick={onClick} className="relative flex flex-1 flex-col items-center gap-0.5 py-1.5 transition-all active:scale-90">
-        <span className={`relative grid size-11 place-items-center transition-all ${is ? "bg-foreground" : ""}`}>
+      <button
+        onClick={onClick}
+        className="relative flex flex-1 flex-col items-center gap-0.5 py-1.5 transition-all active:scale-90"
+      >
+        <span
+          className={`relative grid size-11 place-items-center transition-all ${is ? "bg-foreground" : ""}`}
+        >
           <span className={is ? "text-background" : "text-foreground/55"}>{icon}</span>
         </span>
-        <span className={`font-mono text-[9px] font-bold tracking-widest uppercase ${is ? "text-foreground" : "text-foreground/45"}`}>{label}</span>
+        <span
+          className={`font-mono text-[9px] font-bold tracking-widest uppercase ${is ? "text-foreground" : "text-foreground/45"}`}
+        >
+          {label}
+        </span>
         {!!badge && badge > 0 && (
-          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[9px] font-bold text-background bg-foreground ring-2 ring-card font-mono">{badge}</span>
+          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[9px] font-bold text-background bg-foreground ring-2 ring-card font-mono">
+            {badge}
+          </span>
         )}
       </button>
     );
@@ -669,21 +923,44 @@ function BottomNav({ active, unread, testDone, onHome, onTest, onMessages, onSet
   return (
     <nav className="fixed inset-x-0 bottom-3 z-40 px-4">
       <div className="mx-auto flex max-w-md items-stretch border border-border bg-card px-2 py-2">
-        <Item id="home" icon={<Home className="size-5" />} label={testDone ? "Matche" : "Domov"} onClick={onHome} />
-        {!testDone && <Item id="test" icon={<Brain className="size-5" />} label="Test" onClick={onTest} />}
-        <Item id="messages" icon={<MessageCircle className="size-5" />} label="Správy" onClick={onMessages} badge={unread} />
-        
+        <Item
+          id="home"
+          icon={<Home className="size-5" />}
+          label={testDone ? "Matche" : "Domov"}
+          onClick={onHome}
+        />
+        {!testDone && (
+          <Item id="test" icon={<Brain className="size-5" />} label="Test" onClick={onTest} />
+        )}
+        <Item
+          id="messages"
+          icon={<MessageCircle className="size-5" />}
+          label="Správy"
+          onClick={onMessages}
+          badge={unread}
+        />
+
         {testDone && (
           <>
             <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
             <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
-            <Item id="settings" icon={<SettingsIcon className="size-5" />} label="Nastav." onClick={onSettings} />
+            <Item
+              id="settings"
+              icon={<SettingsIcon className="size-5" />}
+              label="Nastav."
+              onClick={onSettings}
+            />
           </>
         )}
         {!testDone && (
           <>
             <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
-            <Item id="settings" icon={<SettingsIcon className="size-5" />} label="Nastav." onClick={onSettings} />
+            <Item
+              id="settings"
+              icon={<SettingsIcon className="size-5" />}
+              label="Nastav."
+              onClick={onSettings}
+            />
           </>
         )}
       </div>
@@ -691,26 +968,49 @@ function BottomNav({ active, unread, testDone, onHome, onTest, onMessages, onSet
   );
 }
 
-
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid place-items-center"><Wave size={48} /></div>
+      <div className="grid place-items-center">
+        <Wave size={48} />
+      </div>
       <span className="text-2xl font-light tracking-[0.3em]">RESON</span>
     </div>
   );
 }
 
-function PrimaryButton({ children, onClick, disabled, className }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; className?: string }) {
+function PrimaryButton({
+  children,
+  onClick,
+  disabled,
+  className,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+}) {
   return (
-    <button disabled={disabled} onClick={onClick}
-      className={`cta-gradient cta-gradient-hover py-4 text-xs tracking-widest uppercase font-mono font-bold active:scale-[0.97] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed ${className ?? ""}`}>
-      <span className="relative z-10 inline-flex items-center justify-center gap-2">{children}</span>
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={`cta-gradient cta-gradient-hover py-4 text-xs tracking-widest uppercase font-mono font-bold active:scale-[0.97] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed ${className ?? ""}`}
+    >
+      <span className="relative z-10 inline-flex items-center justify-center gap-2">
+        {children}
+      </span>
     </button>
   );
 }
 
-function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
+function Landing({
+  phone,
+  setPhone,
+  theme,
+  onTheme,
+  onNext,
+  onGoogle,
+}: {
   phone: string;
   setPhone: (v: string) => void;
   theme: ThemeMode;
@@ -723,7 +1023,6 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
   return (
     <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
       <div className="relative z-10 flex flex-col items-center max-w-sm w-full">
-        
         {/* Terminal Header */}
         <div className="border border-foreground/20 px-4 py-2 font-mono text-[10px] tracking-widest text-foreground/50 mb-4 uppercase">
           RESON // SECURE COGNITIVE
@@ -732,20 +1031,26 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
         {/* Theme Toggle option */}
         <div className="mb-6 flex items-center justify-center gap-2">
           <button
-            onClick={() => { haptic("tap"); onTheme("light"); }}
+            onClick={() => {
+              haptic("tap");
+              onTheme("light");
+            }}
             className={`px-3 py-1 font-mono text-[9px] tracking-wider uppercase border transition-all ${
-              theme === "light" 
-                ? "bg-foreground text-background border-foreground font-bold" 
+              theme === "light"
+                ? "bg-foreground text-background border-foreground font-bold"
                 : "border-foreground/10 text-foreground/45 hover:text-foreground"
             }`}
           >
             LIGHT
           </button>
           <button
-            onClick={() => { haptic("tap"); onTheme("dark"); }}
+            onClick={() => {
+              haptic("tap");
+              onTheme("dark");
+            }}
             className={`px-3 py-1 font-mono text-[9px] tracking-wider uppercase border transition-all ${
-              theme === "dark" 
-                ? "bg-foreground text-background border-foreground font-bold" 
+              theme === "dark"
+                ? "bg-foreground text-background border-foreground font-bold"
                 : "border-foreground/10 text-foreground/45 hover:text-foreground"
             }`}
           >
@@ -760,21 +1065,26 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
           SPOZNAJ DRUHÝCH SKÔR, NEŽ ICH UVIDÍŠ.
           <span className="block mt-1 text-foreground/50">ŽIADNE SWIPOVANIE. IBA HLAS.</span>
           <span className="block mt-3 text-[9px] text-foreground/35 uppercase tracking-wider">
-            // EV(Compatibility) = 0.6 * Similarity(depth, conscientiousness) + 0.4 * Complementarity(extraversion)
+            // EV(Compatibility) = 0.6 * Similarity(depth, conscientiousness) + 0.4 *
+            Complementarity(extraversion)
           </span>
         </p>
 
         <div className="mt-10 w-full">
           <div className="flex items-center gap-3 border border-foreground/20 bg-card px-4 py-3.5">
             <span className="text-xs font-mono text-foreground/40">TEL //</span>
-            <input inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+            <input
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               placeholder="+421 900 000 000"
-              className="w-full bg-transparent text-sm font-mono outline-none placeholder:text-foreground/30 text-foreground" />
+              className="w-full bg-transparent text-sm font-mono outline-none placeholder:text-foreground/30 text-foreground"
+            />
           </div>
-          
-          <button 
-            onClick={onNext} 
-            disabled={!valid} 
+
+          <button
+            onClick={onNext}
+            disabled={!valid}
             className="mt-4 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all"
           >
             POKRAČOVAŤ
@@ -797,39 +1107,71 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
   );
 }
 
-function Verify({ phone, onBack, onVerified }: { phone: string; onBack: () => void; onVerified: () => void }) {
+function Verify({
+  phone,
+  onBack,
+  onVerified,
+}: {
+  phone: string;
+  onBack: () => void;
+  onVerified: () => void;
+}) {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const haptic = useHaptic();
-  const ok = code.every(c => c !== "");
+  const ok = code.every((c) => c !== "");
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center text-center animate-fade-up">
       <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card">
-        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">AUTENTIKÁCIA</h2>
-        <p className="text-xs text-foreground/50 leading-relaxed mb-8">Kód bol odoslaný na <span className="font-mono text-foreground/90">{phone || "tvoj telefón"}</span></p>
-        
+        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">
+          AUTENTIKÁCIA
+        </h2>
+        <p className="text-xs text-foreground/50 leading-relaxed mb-8">
+          Kód bol odoslaný na{" "}
+          <span className="font-mono text-foreground/90">{phone || "tvoj telefón"}</span>
+        </p>
+
         <div className="flex justify-between gap-2 mb-6">
           {code.map((c, i) => (
-            <input key={i} value={c} maxLength={1} id={`otp-${i}`}
+            <input
+              key={i}
+              value={c}
+              maxLength={1}
+              id={`otp-${i}`}
               onChange={(e) => {
                 haptic("tap");
-                const next = [...code]; next[i] = e.target.value.replace(/\D/g, ""); setCode(next);
-                const el = document.getElementById(`otp-${i+1}`);
+                const next = [...code];
+                next[i] = e.target.value.replace(/\D/g, "");
+                setCode(next);
+                const el = document.getElementById(`otp-${i + 1}`);
                 if (next[i] && el) (el as HTMLInputElement).focus();
               }}
-              className="h-12 w-10 border border-foreground/20 bg-foreground/5 text-center text-lg font-mono outline-none text-foreground focus:border-foreground" />
+              className="h-12 w-10 border border-foreground/20 bg-foreground/5 text-center text-lg font-mono outline-none text-foreground focus:border-foreground"
+            />
           ))}
         </div>
 
-        <button onClick={() => { haptic("tap"); setCode(["1","2","3","4","5","6"]); }}
-          className="text-[10px] font-mono text-foreground/45 tracking-wider hover:text-foreground mb-8 block mx-auto uppercase">
+        <button
+          onClick={() => {
+            haptic("tap");
+            setCode(["1", "2", "3", "4", "5", "6"]);
+          }}
+          className="text-[10px] font-mono text-foreground/45 tracking-wider hover:text-foreground mb-8 block mx-auto uppercase"
+        >
           // DOPLNIŤ DEMO KÓD [123456]
         </button>
 
         <div className="flex gap-2">
-          <button onClick={onBack} className="flex-1 border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase">
+          <button
+            onClick={onBack}
+            className="flex-1 border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase"
+          >
             SPÄŤ
           </button>
-          <button onClick={onVerified} disabled={!ok} className="flex-1 bg-foreground text-background py-3 text-xs tracking-widest hover:bg-foreground/90 disabled:opacity-20 font-bold font-mono uppercase">
+          <button
+            onClick={onVerified}
+            disabled={!ok}
+            className="flex-1 bg-foreground text-background py-3 text-xs tracking-widest hover:bg-foreground/90 disabled:opacity-20 font-bold font-mono uppercase"
+          >
             OVERIŤ
           </button>
         </div>
@@ -859,11 +1201,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
   const previewRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [phase, setPhase] = useState<"idle" | "countdown" | "recording" | "verifying" | "ready" | "error">("idle");
+  const [phase, setPhase] = useState<
+    "idle" | "countdown" | "recording" | "verifying" | "ready" | "error"
+  >("idle");
   const [countdown, setCountdown] = useState(3);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const [errMsg, setErrMsg] = useState("");
-  const [faceModel, setFaceModel] = useState<any>(null);
+  const [faceModel, setFaceModel] = useState<unknown>(null);
   const [modelLoading, setModelLoading] = useState(true);
 
   useEffect(() => {
@@ -872,9 +1216,11 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     async function initModel() {
       try {
         await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js");
-        await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js");
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js",
+        );
 
-        // @ts-ignore
+        // @ts-expect-error window.blazeface exists after loadScript
         const model = await window.blazeface.load();
         if (active) {
           setFaceModel(model);
@@ -889,7 +1235,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
       }
     }
     initModel();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -903,7 +1251,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     const el = previewRef.current;
     if (!el) return;
     el.load();
-    el.play().catch(() => { /* autoplay policy */ });
+    el.play().catch(() => {
+      /* autoplay policy */
+    });
   }, [phase, recordedUrl]);
 
   function checkCameraFeedQuality(video: HTMLVideoElement): boolean {
@@ -920,8 +1270,8 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
       let sum = 0;
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
+        const g = data[i + 1];
+        const b = data[i + 2];
         const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
         sum += brightness;
       }
@@ -936,8 +1286,8 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
       const pixelCount = data.length / 4;
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
+        const g = data[i + 1];
+        const b = data[i + 2];
         const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
         varianceSum += Math.abs(brightness - avgBrightness);
       }
@@ -959,15 +1309,15 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     try {
       const s = await openCamera({
         video: { facingMode: "user" },
-        audio: false
+        audio: false,
       });
       streamRef.current = s;
       setStream(s);
-      await new Promise(r => setTimeout(r, 150));
+      await new Promise((r) => setTimeout(r, 150));
 
       for (let n = 3; n >= 1; n--) {
         setCountdown(n);
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise((r) => setTimeout(r, 800));
         haptic("tap");
       }
 
@@ -979,10 +1329,10 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         const url = URL.createObjectURL(blob);
         setRecordedUrl(url);
         setPhase("verifying");
-        await new Promise(r => setTimeout(r, 1800));
+        await new Promise((r) => setTimeout(r, 1800));
 
         let faceDetected = false;
-        
+
         if (faceModel && videoRef.current) {
           try {
             const predictions = await faceModel.estimateFaces(videoRef.current, false);
@@ -1003,7 +1353,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           haptic("success");
           setPhase("ready");
         } else {
-          setErrMsg("Overenie zlyhalo. Na videu sa nepodarilo nájsť reálnu ľudskú tvár. Uisti sa, že tvoj objektív nie je zakrytý, je v miestnosti dostatok svetla a tvoju tvár je jasne vidieť.");
+          setErrMsg(
+            "Overenie zlyhalo. Na videu sa nepodarilo nájsť reálnu ľudskú tvár. Uisti sa, že tvoj objektív nie je zakrytý, je v miestnosti dostatok svetla a tvoju tvár je jasne vidieť.",
+          );
           setPhase("error");
         }
       } else {
@@ -1029,7 +1381,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center text-center animate-fade-up">
       <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card flex flex-col items-center">
-        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">LIVE SNIPPET</h2>
+        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">
+          LIVE SNIPPET
+        </h2>
         <p className="text-xs text-foreground/50 leading-relaxed mb-6">
           Krátky 3-sekundový video-snippet, ktorý slúži ako verifikácia vašej reálnej identity.
         </p>
@@ -1037,14 +1391,22 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         <div className="relative my-6 grid place-items-center">
           <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25 bg-black">
             {phase !== "ready" && stream && (
-              <video ref={videoRef} playsInline muted className="w-full h-full object-contain" style={{ transform: "scaleX(-1)" }} />
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                className="w-full h-full object-contain"
+                style={{ transform: "scaleX(-1)" }}
+              />
             )}
             {phase !== "ready" && !stream && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/5 text-foreground/20">
                 {modelLoading ? (
                   <div className="flex flex-col items-center gap-3">
                     <div className="size-6 animate-spin border border-foreground border-t-transparent" />
-                    <span className="text-[9px] tracking-wider text-foreground/80 font-mono uppercase">ANALYZÁTOR...</span>
+                    <span className="text-[9px] tracking-wider text-foreground/80 font-mono uppercase">
+                      ANALYZÁTOR...
+                    </span>
                   </div>
                 ) : (
                   <User className="size-16 animate-pulse" />
@@ -1052,8 +1414,16 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
               </div>
             )}
             {phase === "ready" && recordedUrl && (
-              <video ref={previewRef} src={recordedUrl} autoPlay loop muted playsInline
-                className="w-full h-full object-contain" style={{ transform: "scaleX(-1)" }} />
+              <video
+                ref={previewRef}
+                src={recordedUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-contain"
+                style={{ transform: "scaleX(-1)" }}
+              />
             )}
             {phase === "countdown" && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/10 backdrop-blur-sm">
@@ -1067,7 +1437,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             )}
             {phase === "verifying" && (
               <div className="absolute inset-0 bg-foreground/10 pointer-events-none grid place-items-center">
-                <span className="text-[9px] font-mono tracking-widest text-foreground animate-pulse font-bold">OVERUJEM...</span>
+                <span className="text-[9px] font-mono tracking-widest text-foreground animate-pulse font-bold">
+                  OVERUJEM...
+                </span>
               </div>
             )}
           </div>
@@ -1086,19 +1458,30 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
 
         <div className="w-full space-y-2">
           {(phase === "idle" || phase === "error") && (
-            <button 
+            <button
               disabled={modelLoading}
-              onClick={() => { if (phase === "error") retake(); else runScan(); }} 
+              onClick={() => {
+                if (phase === "error") retake();
+                else runScan();
+              }}
               className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
             >
-              <Camera className="size-4" /> 
-              {modelLoading ? "ČAKAJTE..." : (phase === "error" ? "SKÚSIŤ ZNOVU" : "NAHRAŤ SNIPPET")}
+              <Camera className="size-4" />
+              {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "NAHRAŤ SNIPPET"}
             </button>
           )}
           {phase === "ready" && (
             <>
-              <button onClick={() => onDone(recordedUrl)} className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all">POKRAČOVAŤ</button>
-              <button onClick={retake} className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase">
+              <button
+                onClick={() => onDone(recordedUrl)}
+                className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all"
+              >
+                POKRAČOVAŤ
+              </button>
+              <button
+                onClick={retake}
+                className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase"
+              >
                 ZRUŠIŤ
               </button>
             </>
@@ -1120,12 +1503,14 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
           Kalibrácia profilu
         </h2>
         <p className="text-xs leading-relaxed text-foreground/70 mb-6">
-          Prejdi 3 zážitkovými testami: dopĺňanie metafor, alokácia životných hodnôt a reakcia na náhlu konfliktnú situáciu.
+          Prejdi 3 zážitkovými testami: dopĺňanie metafor, alokácia životných hodnôt a reakcia na
+          náhlu konfliktnú situáciu.
         </p>
         <p className="text-[10px] text-foreground/40 leading-relaxed font-mono mb-8 uppercase">
-          Tento proces vypočíta tvoju rezonančnú kompatibilitu na základe psychologického očakávania.
+          Tento proces vypočíta tvoju rezonančnú kompatibilitu na základe psychologického
+          očakávania.
         </p>
-        <button 
+        <button
           onClick={onBegin}
           className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all"
         >
@@ -1143,7 +1528,7 @@ function Dashboard({
   onSortChange,
   onSelectMatch,
   onMessages,
-  hasMessages
+  hasMessages,
 }: {
   profile: UserProfile;
   matches: RankedMatch[];
@@ -1154,10 +1539,9 @@ function Dashboard({
   hasMessages: boolean;
 }) {
   const haptic = useHaptic();
-  
+
   // Filter matches that are active/available
   const availableMatches = matches.slice(0, 3); // limit to 3 curated daily matches
-
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
@@ -1174,7 +1558,9 @@ function Dashboard({
             <span>Máte aktívnu penalizáciu za predčasný odchod</span>
           </div>
           <p className="text-xs text-foreground/80 leading-relaxed font-mono">
-            Uff, to bolo rýchle. V reálnom živote tlačidlo na reštart konfliktu nie je. Systém zaznamenal váš útek a dočasne vám znížil skóre dôveryhodnosti. Môžete si ho však odpracovať späť – stačí, ak zvládnete ďalšie interakcie bez toho, aby ste ušli.
+            Uff, to bolo rýchle. V reálnom živote tlačidlo na reštart konfliktu nie je. Systém
+            zaznamenal váš útek a dočasne vám znížil skóre dôveryhodnosti. Môžete si ho však
+            odpracovať späť – stačí, ak zvládnete ďalšie interakcie bez toho, aby ste ušli.
           </p>
           <div className="mt-3 flex items-center justify-between text-[9px] tracking-widest text-red-500/80 uppercase font-mono border-t border-red-500/10 pt-3">
             <span>Zostávajúce čestné interakcie:</span>
@@ -1190,7 +1576,10 @@ function Dashboard({
         <span>Zoradiť podľa:</span>
         <div className="flex gap-2">
           <button
-            onClick={() => { haptic("tap"); onSortChange("ev"); }}
+            onClick={() => {
+              haptic("tap");
+              onSortChange("ev");
+            }}
             className={`px-2 py-1 border transition-all rounded-none font-bold ${
               sortBy === "ev"
                 ? "border-foreground bg-foreground text-background"
@@ -1200,7 +1589,10 @@ function Dashboard({
             DNA ZHODA
           </button>
           <button
-            onClick={() => { haptic("tap"); onSortChange("distance"); }}
+            onClick={() => {
+              haptic("tap");
+              onSortChange("distance");
+            }}
             className={`px-2 py-1 border transition-all rounded-none font-bold ${
               sortBy === "distance"
                 ? "border-foreground bg-foreground text-background"
@@ -1213,32 +1605,40 @@ function Dashboard({
       </div>
 
       <div className="space-y-2 mb-8">
-        <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase">// Tvoje dnešné spojenia</p>
+        <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase">
+          // Tvoje dnešné spojenia
+        </p>
         <h2 className="font-sans text-3xl font-black tracking-tight text-foreground leading-tight uppercase">
           Algoritmus pre teba vybral
         </h2>
         <p className="text-xs text-foreground/50 leading-relaxed font-mono">
-          Uzavretý trh s maximálnou kompatibilitou. Žiadne nekonečné swajpovanie, iba vybrané profily s najvyššou EV na základe tvojej kognitívnej DNA.
+          Uzavretý trh s maximálnou kompatibilitou. Žiadne nekonečné swajpovanie, iba vybrané
+          profily s najvyššou EV na základe tvojej kognitívnej DNA.
         </p>
       </div>
-
 
       {availableMatches.length === 0 ? (
         <div className="border border-foreground/10 bg-card p-10 text-center space-y-4">
           <Brain className="mx-auto size-12 text-foreground/30 animate-pulse" />
-          <h4 className="text-base font-semibold text-foreground/90 uppercase">Žiadne nové matches</h4>
+          <h4 className="text-base font-semibold text-foreground/90 uppercase">
+            Žiadne nové matches
+          </h4>
           <p className="text-xs text-foreground/50 leading-relaxed font-mono">
-            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne psychometrické kritériá. Skús to neskôr alebo zmeň nastavenia okruhu.
+            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne psychometrické kritériá.
+            Skús to neskôr alebo zmeň nastavenia okruhu.
           </p>
         </div>
       ) : (
         <div className="space-y-6">
-          {availableMatches.map(match => {
+          {availableMatches.map((match) => {
             const similarityPct = Math.round(
-              (1.0 - Math.sqrt(
-                Math.pow((profile.cognitiveDepth ?? 0.5) - match.cognitive_depth, 2) + 
-                Math.pow((profile.conscientiousness ?? 0.5) - match.conscientiousness, 2)
-              ) / Math.sqrt(2.0)) * 100
+              (1.0 -
+                Math.sqrt(
+                  Math.pow((profile.cognitiveDepth ?? 0.5) - match.cognitive_depth, 2) +
+                    Math.pow((profile.conscientiousness ?? 0.5) - match.conscientiousness, 2),
+                ) /
+                  Math.sqrt(2.0)) *
+                100,
             );
 
             const extSum = (profile.extraversion ?? 0.5) + match.extraversion;
@@ -1246,7 +1646,8 @@ function Dashboard({
             if (extSum < 0.6) extLabel = "Tichá harmónia (Introvert + Introvert)";
             else if (extSum > 1.4) extLabel = "Dynamická energia (Extrovert + Extrovert)";
 
-            const isSecureMatch = profile.attachmentStyle === "Secure" && match.attachment_style === "Secure";
+            const isSecureMatch =
+              profile.attachmentStyle === "Secure" && match.attachment_style === "Secure";
             const attachmentLabel = isSecureMatch ? "Maximálne bezpečné" : "Štandardné spojenie";
 
             return (
@@ -1286,7 +1687,8 @@ function Dashboard({
                   </div>
                   <div className="min-w-0 pr-16">
                     <h3 className="text-lg font-bold text-foreground leading-tight">
-                      {match.name}, <span className="text-foreground/60 font-light">{match.age}</span>
+                      {match.name},{" "}
+                      <span className="text-foreground/60 font-light">{match.age}</span>
                     </h3>
                     <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
                       <span>{match.city}</span>
@@ -1319,7 +1721,10 @@ function Dashboard({
                       <span className="text-foreground font-bold">{similarityPct}%</span>
                     </div>
                     <div className="h-[3px] w-full bg-foreground/10 overflow-hidden">
-                      <div className="h-full bg-foreground transition-all duration-500" style={{ width: `${similarityPct}%` }} />
+                      <div
+                        className="h-full bg-foreground transition-all duration-500"
+                        style={{ width: `${similarityPct}%` }}
+                      />
                     </div>
                   </div>
 
@@ -1336,7 +1741,9 @@ function Dashboard({
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
                       <span>Citové Bezpečie</span>
-                      <span className={`${isSecureMatch ? "text-foreground" : "text-foreground/70"} font-bold`}>
+                      <span
+                        className={`${isSecureMatch ? "text-foreground" : "text-foreground/70"} font-bold`}
+                      >
                         {isSecureMatch ? "BEZPEČNÉ" : "STABILNÉ"}
                       </span>
                     </div>
@@ -1347,7 +1754,10 @@ function Dashboard({
                 {/* Action button */}
                 <button
                   type="button"
-                  onClick={() => { haptic("medium"); onSelectMatch(match.id); }}
+                  onClick={() => {
+                    haptic("medium");
+                    onSelectMatch(match.id);
+                  }}
                   className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-3.5 active:scale-[0.99] transition-all text-xs tracking-widest uppercase hover:bg-foreground/90"
                 >
                   <MessageCircle className="size-4" />
@@ -1358,7 +1768,6 @@ function Dashboard({
           })}
         </div>
       )}
-
 
       {hasMessages && (
         <button
@@ -1372,7 +1781,6 @@ function Dashboard({
     </div>
   );
 }
-
 
 // ============ Test ============
 // Each question runs as a two-phase staggered timer:
@@ -1429,7 +1837,7 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
       });
     }, 1000);
     return () => clearInterval(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, phase]);
 
   function pick(choice: Answer) {
@@ -1444,28 +1852,41 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
   return (
     <div className="animate-screen-in">
       <div className="mb-5 flex items-center justify-between">
-        <span className="font-mono text-xs tracking-widest text-foreground/45">{String(idx + 1).padStart(2, "0")} / 06</span>
+        <span className="font-mono text-xs tracking-widest text-foreground/45">
+          {String(idx + 1).padStart(2, "0")} / 06
+        </span>
         <span className="font-mono text-[10px] tracking-widest text-foreground/45">
           {phase === "read" ? "ČÍTAJ · DILEMA" : "VYBER · A alebo B"}
         </span>
-        <span className={`font-mono text-xs tracking-widest font-bold ${danger ? "text-red-500" : "text-foreground"}`}>
+        <span
+          className={`font-mono text-xs tracking-widest font-bold ${danger ? "text-red-500" : "text-foreground"}`}
+        >
           {timeLeft}s
         </span>
       </div>
 
       <div className="mb-3 h-[3px] w-full overflow-hidden bg-foreground/10">
-        <div className="h-full transition-all duration-500 bg-foreground"
-          style={{ width: `${((idx + 1) / scenarios.length) * 100}%` }} />
+        <div
+          className="h-full transition-all duration-500 bg-foreground"
+          style={{ width: `${((idx + 1) / scenarios.length) * 100}%` }}
+        />
       </div>
 
       {/* Phase countdown bar */}
       <div className="mb-6 h-[6px] w-full overflow-hidden bg-foreground/10">
-        <div className={`h-full transition-all duration-1000 ease-linear ${danger ? "bg-red-500" : "bg-foreground"}`}
-          style={{ width: `${pct * 100}%` }} />
+        <div
+          className={`h-full transition-all duration-1000 ease-linear ${danger ? "bg-red-500" : "bg-foreground"}`}
+          style={{ width: `${pct * 100}%` }}
+        />
       </div>
 
       <div className="bento-card-glow p-7">
-        <p className="font-sans text-xl leading-relaxed text-foreground/95 uppercase" style={{ letterSpacing: "-0.005em" }}>{s.text}</p>
+        <p
+          className="font-sans text-xl leading-relaxed text-foreground/95 uppercase"
+          style={{ letterSpacing: "-0.005em" }}
+        >
+          {s.text}
+        </p>
       </div>
 
       {phase === "read" ? (
@@ -1474,8 +1895,9 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
         </p>
       ) : (
         <div className="mt-5 grid gap-3 animate-fade-up">
-          {(["a","b"] as const).map((k) => (
-            <button key={k}
+          {(["a", "b"] as const).map((k) => (
+            <button
+              key={k}
               onClick={() => pick(k.toUpperCase() as Answer)}
               className="group border border-foreground/10 bg-foreground/[0.02] p-5 text-left transition-all active:scale-[0.98] hover:border-foreground/30 hover:bg-foreground/5 cursor-pointer"
             >
@@ -1485,7 +1907,9 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
                 </span>
                 <div className="h-px flex-1 bg-foreground/10" />
               </div>
-              <p className="text-sm font-medium leading-relaxed text-foreground/80 group-hover:text-foreground">{s[k]}</p>
+              <p className="text-sm font-medium leading-relaxed text-foreground/80 group-hover:text-foreground">
+                {s[k]}
+              </p>
             </button>
           ))}
         </div>
@@ -1494,34 +1918,56 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
   );
 }
 
-
 // ============ Processing ============
-function Processing({ seed, archetype, onDone }: { seed: ReturnType<typeof orbSeedFor>; archetype: Archetype; onDone: () => void }) {
+function Processing({
+  seed,
+  archetype,
+  onDone,
+}: {
+  seed: ReturnType<typeof orbSeedFor>;
+  archetype: Archetype;
+  onDone: () => void;
+}) {
   void archetype;
   const isMobile = useIsMobile();
   const scanSize = isMobile ? 240 : 360;
   const seedNum = useMemo(() => {
     const s = JSON.stringify(seed);
     let h = 2166136261 >>> 0;
-    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
     return h >>> 0;
   }, [seed]);
-  useEffect(() => { const t = setTimeout(onDone, 3600); return () => clearTimeout(t); }, [onDone]);
+  useEffect(() => {
+    const t = setTimeout(onDone, 3600);
+    return () => clearTimeout(t);
+  }, [onDone]);
 
   return (
     <div className="flex min-h-[72vh] flex-col items-center justify-center px-4 text-center sm:min-h-[80vh]">
       <SonarScan size={scanSize} seed={seedNum} period={2200} />
-      <p className="mt-7 font-mono text-[10px] tracking-[0.32em] text-foreground/45 sm:mt-10">SKENUJEM REZONANČNÉ POLE</p>
-      <p className="mt-2 font-mono text-[10px] tracking-[0.28em] text-foreground/30">HĽADÁM KOGNITÍVNE PROFILY</p>
+      <p className="mt-7 font-mono text-[10px] tracking-[0.32em] text-foreground/45 sm:mt-10">
+        SKENUJEM REZONANČNÉ POLE
+      </p>
+      <p className="mt-2 font-mono text-[10px] tracking-[0.28em] text-foreground/30">
+        HĽADÁM KOGNITÍVNE PROFILY
+      </p>
     </div>
   );
 }
 
-
 // ============ Profile form ============
 type LocStatus = "idle" | "loading" | "ok" | "denied" | "error";
 
-function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile) => void; initialName?: string }) {
+function ProfileForm({
+  onSubmit,
+  initialName = "",
+}: {
+  onSubmit: (p: UserProfile) => void;
+  initialName?: string;
+}) {
   const haptic = useHaptic();
   const [name, setName] = useState(initialName);
   const [age, setAge] = useState<string>("");
@@ -1534,13 +1980,20 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
   const ageNum = Number(age);
   const nameTrim = name.trim();
   const valid =
-    nameTrim.length >= 2 && nameTrim.length <= 30 &&
-    ageNum >= 16 && ageNum <= 99 &&
-    city.trim().length > 1 && city.length <= 60 &&
-    gender && orientation;
+    nameTrim.length >= 2 &&
+    nameTrim.length <= 30 &&
+    ageNum >= 16 &&
+    ageNum <= 99 &&
+    city.trim().length > 1 &&
+    city.length <= 60 &&
+    gender &&
+    orientation;
 
   async function useMyLocation() {
-    if (!("geolocation" in navigator)) { setLoc("error"); return; }
+    if (!("geolocation" in navigator)) {
+      setLoc("error");
+      return;
+    }
     haptic("tap");
     setLoc("loading");
     navigator.geolocation.getCurrentPosition(
@@ -1590,24 +2043,39 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
     );
   }
 
-  const Pill = ({ active, label, sub, onClick }: { active: boolean; label: string; sub?: string; onClick: () => void }) => (
-    <button onClick={() => { haptic("tap"); onClick(); }}
+  const Pill = ({
+    active,
+    label,
+    sub,
+    onClick,
+  }: {
+    active: boolean;
+    label: string;
+    sub?: string;
+    onClick: () => void;
+  }) => (
+    <button
+      onClick={() => {
+        haptic("tap");
+        onClick();
+      }}
       className={`flex flex-col items-center justify-center border px-3 py-3 text-center transition-all active:scale-[0.97] ${
         active
           ? "border-foreground bg-foreground/10 text-foreground font-bold"
           : "border-foreground/10 bg-foreground/[0.02] text-foreground/75 hover:bg-foreground/5"
-      }`}>
+      }`}
+    >
       <span className="text-sm font-semibold tracking-wide">{label}</span>
       {sub && <span className="mt-0.5 text-[9px] font-mono text-foreground/50">{sub}</span>}
     </button>
   );
 
   const locText: Record<LocStatus, string> = {
-    idle:    "Použiť moju polohu",
+    idle: "Použiť moju polohu",
     loading: "Zisťujem polohu…",
-    ok:      "Doplnené z polohy ✓",
-    denied:  "Povoľ prístup k polohe v prehliadači",
-    error:   "Nepodarilo sa — napíš mesto ručne",
+    ok: "Doplnené z polohy ✓",
+    denied: "Povoľ prístup k polohe v prehliadači",
+    error: "Nepodarilo sa — napíš mesto ručne",
   };
 
   return (
@@ -1629,60 +2097,107 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
           <div className="space-y-5">
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Meno <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Ako ťa majú oslovovať</span>
+                Meno{" "}
+                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                  // Ako ťa majú oslovovať
+                </span>
               </label>
-              <input value={name}
+              <input
+                value={name}
                 onChange={(e) => setName(e.target.value.slice(0, 30))}
                 placeholder="ako ti hovoria"
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono" />
+                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
+              />
             </div>
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Vek <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Tvoj skutočný vek</span>
+                Vek{" "}
+                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                  // Tvoj skutočný vek
+                </span>
               </label>
-              <input inputMode="numeric" value={age}
+              <input
+                inputMode="numeric"
+                value={age}
                 onChange={(e) => setAge(e.target.value.replace(/\D/g, "").slice(0, 2))}
                 placeholder="napr. 27"
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono" />
+                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
+              />
             </div>
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Mesto <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Kde sa práve nachádzaš</span>
+                Mesto{" "}
+                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                  // Kde sa práve nachádzaš
+                </span>
               </label>
               <div className="flex items-center gap-3 border border-foreground/10 bg-foreground/5 px-4 py-3">
                 <MapPin className="size-4 text-foreground/50" />
-                <input value={city}
-                  onChange={(e) => { setCity(e.target.value.slice(0, 60)); if (loc !== "idle") setLoc("idle"); }}
+                <input
+                  value={city}
+                  onChange={(e) => {
+                    setCity(e.target.value.slice(0, 60));
+                    if (loc !== "idle") setLoc("idle");
+                  }}
                   placeholder="napr. Bratislava"
-                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30 font-mono" />
+                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30 font-mono"
+                />
               </div>
-              <button onClick={useMyLocation} disabled={loc === "loading"}
-                className="mt-2 inline-flex items-center gap-2 border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-[9px] font-bold text-foreground hover:bg-foreground/10 disabled:opacity-60 font-mono uppercase tracking-wider">
+              <button
+                onClick={useMyLocation}
+                disabled={loc === "loading"}
+                className="mt-2 inline-flex items-center gap-2 border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-[9px] font-bold text-foreground hover:bg-foreground/10 disabled:opacity-60 font-mono uppercase tracking-wider"
+              >
                 <MapPin className="size-3" /> {locText[loc]}
               </button>
             </div>
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Identita <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Rodová polarizácia</span>
+                Identita{" "}
+                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                  // Rodová polarizácia
+                </span>
               </label>
               <div className="grid grid-cols-3 gap-2">
-                <Pill active={gender === "male"}   label="Muž"  onClick={() => setGender("male")} />
-                <Pill active={gender === "female"} label="Žena" onClick={() => setGender("female")} />
-                <Pill active={gender === "other"}  label="Iné"  onClick={() => setGender("other")} />
+                <Pill active={gender === "male"} label="Muž" onClick={() => setGender("male")} />
+                <Pill
+                  active={gender === "female"}
+                  label="Žena"
+                  onClick={() => setGender("female")}
+                />
+                <Pill active={gender === "other"} label="Iné" onClick={() => setGender("other")} />
               </div>
             </div>
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Orientácia <span className="text-[9px] text-foreground/35 font-normal ml-1.5">// Sexuálna komplementarita</span>
+                Orientácia{" "}
+                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                  // Sexuálna komplementarita
+                </span>
               </label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <Pill active={orientation === "hetero"} label="Hetero" sub="opačné" onClick={() => setOrientation("hetero")} />
-                <Pill active={orientation === "homo"}   label="Homo"   sub="rovnaké" onClick={() => setOrientation("homo")} />
-                <Pill active={orientation === "bi"}     label="Bi"     sub="obe"     onClick={() => setOrientation("bi")} />
+                <Pill
+                  active={orientation === "hetero"}
+                  label="Hetero"
+                  sub="opačné"
+                  onClick={() => setOrientation("hetero")}
+                />
+                <Pill
+                  active={orientation === "homo"}
+                  label="Homo"
+                  sub="rovnaké"
+                  onClick={() => setOrientation("homo")}
+                />
+                <Pill
+                  active={orientation === "bi"}
+                  label="Bi"
+                  sub="obe"
+                  onClick={() => setOrientation("bi")}
+                />
               </div>
             </div>
           </div>
@@ -1690,7 +2205,18 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
 
         <button
           disabled={!valid}
-          onClick={() => valid && onSubmit({ name: nameTrim, age: ageNum, city: city.trim(), gender: gender as Gender, orientation: orientation as Orientation, coords: coordsRef.current ?? undefined, radiusKm: 250 })}
+          onClick={() =>
+            valid &&
+            onSubmit({
+              name: nameTrim,
+              age: ageNum,
+              city: city.trim(),
+              gender: gender as Gender,
+              orientation: orientation as Orientation,
+              coords: coordsRef.current ?? undefined,
+              radiusKm: 250,
+            })
+          }
           className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all"
         >
           POKRAČOVAŤ
@@ -1700,9 +2226,16 @@ function ProfileForm({ onSubmit, initialName = "" }: { onSubmit: (p: UserProfile
   );
 }
 
-
 // ============ AutoMatch (algoritmus vyberá) ============
-function AutoMatch({ nextName, hasNext, onReady }: { nextName: string | null; hasNext: boolean; onReady: () => void }) {
+function AutoMatch({
+  nextName,
+  hasNext,
+  onReady,
+}: {
+  nextName: string | null;
+  hasNext: boolean;
+  onReady: () => void;
+}) {
   const haptic = useHaptic();
   useEffect(() => {
     haptic("phase");
@@ -1712,8 +2245,12 @@ function AutoMatch({ nextName, hasNext, onReady }: { nextName: string | null; ha
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center text-center animate-fade-up">
       <Wave size={220} intense />
-      <p className="mt-8 font-mono text-xs tracking-widest text-foreground/70 uppercase">ALGORITMUS HĽADÁ TVOJU REZONANCIU</p>
-      <p className="mt-4 text-sm font-light text-foreground/60 font-mono">{hasNext ? `Pripravujem priestor s ${nextName ?? "tvojím partnerom"}…` : "Hľadám ďalej…"}</p>
+      <p className="mt-8 font-mono text-xs tracking-widest text-foreground/70 uppercase">
+        ALGORITMUS HĽADÁ TVOJU REZONANCIU
+      </p>
+      <p className="mt-4 text-sm font-light text-foreground/60 font-mono">
+        {hasNext ? `Pripravujem priestor s ${nextName ?? "tvojím partnerom"}…` : "Hľadám ďalej…"}
+      </p>
     </div>
   );
 }
@@ -1729,12 +2266,14 @@ function NoOne({ onMessages }: { onMessages: (() => void) | null }) {
           Zatiaľ tu pre teba nikto nie je
         </h3>
         <p className="mt-3 max-w-md text-sm text-muted-foreground">
-          Algoritmus zvažuje vek, pohlavie aj orientáciu. Nikto nový momentálne nesadol —
-          skús sa stavit o chvíľu, ľudia pribúdajú celý deň.
+          Algoritmus zvažuje vek, pohlavie aj orientáciu. Nikto nový momentálne nesadol — skús sa
+          stavit o chvíľu, ľudia pribúdajú celý deň.
         </p>
         {onMessages && (
           <div className="mt-7 w-full max-w-xs">
-            <PillButton onClick={onMessages} variant="ghost">Otvoriť správy 💬</PillButton>
+            <PillButton onClick={onMessages} variant="ghost">
+              Otvoriť správy 💬
+            </PillButton>
           </div>
         )}
         <HandNote className="mt-4">občas nás prekvapí, kto sa zjaví ✨</HandNote>
@@ -1743,7 +2282,6 @@ function NoOne({ onMessages }: { onMessages: (() => void) | null }) {
   );
 }
 
-
 // ============ Chamber (voice 5 min → ContinueGate) ============
 type VoiceMsg = { id: string; from: "me" | "them"; duration: number; audioUrl?: string };
 
@@ -1751,8 +2289,17 @@ const BLUR_START = 24;
 const BLUR_STEP = 3;
 const MAX_REC_SECONDS = 60;
 
-function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteraction }: {
-  user: UserProfile; match: RankedMatch; myVideoUrl: string | null;
+function Chamber({
+  user,
+  match,
+  myVideoUrl,
+  onSuccess,
+  onDiscard,
+  onFairInteraction,
+}: {
+  user: UserProfile;
+  match: RankedMatch;
+  myVideoUrl: string | null;
   onSuccess: (blurLevel: number) => void;
   onDiscard: () => void;
   onFairInteraction: () => void;
@@ -1784,7 +2331,7 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
   const progressPct = Math.min(100, Math.round((totalVoiceDuration / 180) * 100));
 
   // Clamped progressive blur: reduces from 40px down to minimum 15px before Unlock
-  const blurPx = Math.max(15, 40 * (1.0 - (totalVoiceDuration / 180)));
+  const blurPx = Math.max(15, 40 * (1.0 - totalVoiceDuration / 180));
 
   // Check if cumulative voice limit of 180s is reached
   useEffect(() => {
@@ -1798,14 +2345,21 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
   useEffect(() => {
     return () => {
       if (tickRef.current) clearInterval(tickRef.current);
-      try { mediaRecRef.current?.state !== "inactive" && mediaRecRef.current?.stop(); } catch { /* ignore */ }
+      try {
+        if (mediaRecRef.current?.state !== "inactive") {
+          mediaRecRef.current?.stop();
+        }
+      } catch {
+        /* ignore */
+      }
       micStreamRef.current?.getTracks().forEach((t) => t.stop());
       setMessages((m) => {
-        m.forEach((x) => { if (x.audioUrl) URL.revokeObjectURL(x.audioUrl); });
+        m.forEach((x) => {
+          if (x.audioUrl) URL.revokeObjectURL(x.audioUrl);
+        });
         return m;
       });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function pickMime(): string {
@@ -1840,12 +2394,16 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
         const status = await perms.query({ name: "microphone" as PermissionName });
         if (status.state === "denied") {
           console.warn("[voice] microphone permission denied");
-          setMicError("Mikrofón je zablokovaný. Klikni na ikonu zámku v adresnom riadku a povoľ mikrofón.");
+          setMicError(
+            "Mikrofón je zablokovaný. Klikni na ikonu zámku v adresnom riadku a povoľ mikrofón.",
+          );
           setRecording(false);
           return;
         }
       }
-    } catch { /* Safari throws for unknown name — ignore */ }
+    } catch {
+      /* Safari throws for unknown name — ignore */
+    }
 
     let stream: MediaStream;
     try {
@@ -1875,7 +2433,9 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
 
     chunksRef.current = [];
 
-    rec.onstart = () => { console.info("[voice] recording started", rec.mimeType || mime || "browser-default"); };
+    rec.onstart = () => {
+      console.info("[voice] recording started", rec.mimeType || mime || "browser-default");
+    };
     rec.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
     };
@@ -1886,7 +2446,10 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
       micStreamRef.current = null;
       mediaRecRef.current = null;
       chunksRef.current = [];
-      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+      if (tickRef.current) {
+        clearInterval(tickRef.current);
+        tickRef.current = null;
+      }
       setRecording(false);
       setRecLen(0);
     };
@@ -1907,7 +2470,12 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           chunksRef.current = [];
           const blob = parts.length ? new Blob(parts, { type }) : new Blob([], { type });
 
-          console.info("[voice] recording stopped", { elapsed, size: blob.size, type, chunks: parts.length });
+          console.info("[voice] recording stopped", {
+            elapsed,
+            size: blob.size,
+            type,
+            chunks: parts.length,
+          });
 
           if (blob.size <= 32) {
             console.warn("[voice] empty recording detected, using fallback");
@@ -1916,23 +2484,31 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           const url = await blobToPlayableAudioUrl(blob, elapsed);
 
           haptic("send");
-          const msg: VoiceMsg = { id: `m${Date.now()}`, from: "me", duration: elapsed, audioUrl: url };
+          const msg: VoiceMsg = {
+            id: `m${Date.now()}`,
+            from: "me",
+            duration: elapsed,
+            audioUrl: url,
+          };
           onFairInteraction();
-          
+
           setMessages((m) => {
             const next = [...m, msg];
             const nextSum = next.reduce((sum, x) => sum + x.duration, 0);
-            
+
             // Simulating reply only if total voice duration is less than 180 seconds
             if (nextSum < 180) {
               setTimeout(() => {
                 const dur = Math.floor(Math.random() * 25) + 15;
-                setMessages((prev) => [...prev, {
-                  id: `r${Date.now()}`,
-                  from: "them",
-                  duration: dur,
-                  audioUrl: makeMockToneWavUrl(dur),
-                }]);
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: `r${Date.now()}`,
+                    from: "them",
+                    duration: dur,
+                    audioUrl: makeMockToneWavUrl(dur),
+                  },
+                ]);
               }, 1400);
             }
             return next;
@@ -1965,7 +2541,10 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
     tickRef.current = setInterval(() => {
       setRecLen((v) => {
         const next = v + 1;
-        if (next >= MAX_REC_SECONDS) { stopRec(true); return MAX_REC_SECONDS; }
+        if (next >= MAX_REC_SECONDS) {
+          stopRec(true);
+          return MAX_REC_SECONDS;
+        }
         return next;
       });
     }, 1000);
@@ -1982,7 +2561,10 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
       pendingStopRef.current = { send };
       return;
     }
-    if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+    if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
     const rec = mediaRecRef.current;
     if (!rec) {
       setRecording(false);
@@ -1990,8 +2572,16 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
       return;
     }
     cancelledRef.current = !send;
-    try { if (rec.state === "recording") rec.requestData(); } catch (err) { console.warn("[voice] requestData error:", err); }
-    try { if (rec.state !== "inactive") rec.stop(); } catch (err) { console.warn("[voice] stop error:", err); }
+    try {
+      if (rec.state === "recording") rec.requestData();
+    } catch (err) {
+      console.warn("[voice] requestData error:", err);
+    }
+    try {
+      if (rec.state !== "inactive") rec.stop();
+    } catch (err) {
+      console.warn("[voice] stop error:", err);
+    }
     mediaRecRef.current = null;
   }
 
@@ -2002,16 +2592,21 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
         <span className="text-xs tracking-widest text-foreground/70">
           {match.name.toUpperCase()} <span className="text-foreground/40">· {match.age}</span>
         </span>
-        <span className="text-xs tracking-widest text-foreground/40 font-mono">HLASOVÁ KOMUNIKÁCIA</span>
+        <span className="text-xs tracking-widest text-foreground/40 font-mono">
+          HLASOVÁ KOMUNIKÁCIA
+        </span>
       </div>
 
       {/* Progress & Blurry Profile Frame */}
       <div className="mb-6 border border-foreground/10 bg-foreground/[0.02] p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[10px] tracking-widest text-foreground/40">SPOLOČNÁ REZONANCIA</p>
+            <p className="font-mono text-[10px] tracking-widest text-foreground/40">
+              SPOLOČNÁ REZONANCIA
+            </p>
             <p className="mt-1 text-sm font-light text-foreground/80">
-              Nahrajte {180 - totalVoiceDuration > 0 ? `${180 - totalVoiceDuration}s` : "0s"} audia pre odomknutie a voľbu.
+              Nahrajte {180 - totalVoiceDuration > 0 ? `${180 - totalVoiceDuration}s` : "0s"} audia
+              pre odomknutie a voľbu.
             </p>
           </div>
           <span className="font-mono text-[10px] tracking-widest text-foreground shrink-0 font-bold">
@@ -2022,9 +2617,22 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           {/* Heavy blur for profiles initially */}
           <div className="relative size-14 shrink-0 overflow-hidden border border-foreground/20 rounded-none bg-black">
             {match.videoUrls && match.videoUrls.length > 0 ? (
-              <video src={match.videoUrls[0]} autoPlay loop muted playsInline className="size-full object-contain bg-black" style={{ filter: `blur(${blurPx}px)` }} />
+              <video
+                src={match.videoUrls[0]}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="size-full object-contain bg-black"
+                style={{ filter: `blur(${blurPx}px)` }}
+              />
             ) : (
-              <img src={match.img} alt={match.name} className="size-full object-cover scale-125" style={{ filter: `blur(${blurPx}px)` }} />
+              <img
+                src={match.img}
+                alt={match.name}
+                className="size-full object-cover scale-125"
+                style={{ filter: `blur(${blurPx}px)` }}
+              />
             )}
             <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
               <span className="size-1 animate-pulse rounded-full bg-red-500" />
@@ -2033,8 +2641,18 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
           </div>
           {myVideoUrl && (
             <div className="relative size-14 shrink-0 overflow-hidden border border-foreground/20 rounded-none bg-black">
-              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)` }} />
-              <span className="absolute bottom-0.5 right-0.5 bg-background/60 px-1 font-mono text-[6px] tracking-widest text-foreground/70 uppercase">TY</span>
+              <video
+                src={myVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="size-full object-contain bg-black"
+                style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)` }}
+              />
+              <span className="absolute bottom-0.5 right-0.5 bg-background/60 px-1 font-mono text-[6px] tracking-widest text-foreground/70 uppercase">
+                TY
+              </span>
               <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
                 <span className="size-1 animate-pulse rounded-full bg-red-500" />
                 <span className="font-mono text-[5px] tracking-tighter text-white">LIVE</span>
@@ -2042,17 +2660,38 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
             </div>
           )}
           <div className="ml-auto h-[4px] flex-1 overflow-hidden bg-foreground/5">
-            <div className="h-full transition-all duration-500 bg-foreground"
-              style={{ width: `${progressPct}%` }} />
+            <div
+              className="h-full transition-all duration-500 bg-foreground"
+              style={{ width: `${progressPct}%` }}
+            />
           </div>
         </div>
       </div>
 
       {/* Icebreaker Dilemma Card */}
       <div className="mb-6">
-        <IcebreakerDilemma 
-          similarity={1.0 - Math.sqrt(Math.pow((user.cognitiveDepth ?? 0.5) - match.cognitive_depth, 2) + Math.pow((user.conscientiousness ?? 0.5) - match.conscientiousness, 2)) / Math.sqrt(2.0)}
-          complementarity={Math.max(0, 1.0 - Math.min(1.0, Math.max(0.0, ((user.extraversion ?? 0.5) + match.extraversion) < 1.0 ? 0.5 * (1.0 - ((user.extraversion ?? 0.5) + match.extraversion)) : 1.0 * (((user.extraversion ?? 0.5) + match.extraversion) - 1.0))))}
+        <IcebreakerDilemma
+          similarity={
+            1.0 -
+            Math.sqrt(
+              Math.pow((user.cognitiveDepth ?? 0.5) - match.cognitive_depth, 2) +
+                Math.pow((user.conscientiousness ?? 0.5) - match.conscientiousness, 2),
+            ) /
+              Math.sqrt(2.0)
+          }
+          complementarity={Math.max(
+            0,
+            1.0 -
+              Math.min(
+                1.0,
+                Math.max(
+                  0.0,
+                  (user.extraversion ?? 0.5) + match.extraversion < 1.0
+                    ? 0.5 * (1.0 - ((user.extraversion ?? 0.5) + match.extraversion))
+                    : 1.0 * ((user.extraversion ?? 0.5) + match.extraversion - 1.0),
+                ),
+              ),
+          )}
           userStyle={user.attachmentStyle ?? "Secure"}
           matchStyle={match.attachment_style}
           userTopPriority={user.topPriority ?? "rodina"}
@@ -2068,41 +2707,59 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
       {micError && (
         <div className="mb-3 border border-foreground/30 bg-foreground/[0.06] px-4 py-3 text-xs text-foreground">
           {micError}
-          <button onClick={() => setMicError(null)} className="ml-2 underline opacity-70 hover:opacity-100">zavrieť</button>
+          <button
+            onClick={() => setMicError(null)}
+            className="ml-2 underline opacity-70 hover:opacity-100"
+          >
+            zavrieť
+          </button>
         </div>
       )}
 
       {/* Voice Messages Bubbles */}
       <div className="space-y-3 py-2">
         {messages.map((m) => (
-          <VoiceBubble key={m.id} msg={m} playing={playing === m.id}
-            onToggle={() => { haptic("tap"); setPlaying(playing === m.id ? null : m.id); }}
-            onEnded={() => setPlaying(null)} />
+          <VoiceBubble
+            key={m.id}
+            msg={m}
+            playing={playing === m.id}
+            onToggle={() => {
+              haptic("tap");
+              setPlaying(playing === m.id ? null : m.id);
+            }}
+            onEnded={() => setPlaying(null)}
+          />
         ))}
       </div>
 
       {stage === "voice" && (
         <>
           <div className="h-40" aria-hidden />
-          <RecordButton recording={recording} recLen={recLen} disabled={false}
-            onStart={startRec} onCommit={() => stopRec(true)} onCancel={() => stopRec(false)} />
+          <RecordButton
+            recording={recording}
+            recLen={recLen}
+            disabled={false}
+            onStart={startRec}
+            onCommit={() => stopRec(true)}
+            onCancel={() => stopRec(false)}
+          />
         </>
       )}
 
       {stage === "blindVote" && (
-        <BlindVote 
+        <BlindVote
           onVote={(vote) => {
             haptic(vote === "unlock" ? "success" : "warning");
             setMyChoice(vote);
             setStage("waiting");
             onFairInteraction();
-            
+
             // Simulating game theory partner choice
             setTimeout(() => {
               const partnerCooperates = Math.random() < (match.score > 70 ? 0.9 : 0.6);
               const partnerChoice = partnerCooperates ? "unlock" : "cancel";
               setTheirChoice(partnerChoice);
-              
+
               if (vote === "unlock" && partnerChoice === "unlock") {
                 haptic("success");
                 onSuccess(0); // transition to normal text thread with blur = 0!
@@ -2119,9 +2776,14 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/90 backdrop-blur-md p-6">
           <div className="w-full max-w-md border border-foreground/10 bg-card p-10 text-center animate-fade-up">
             <Wave size={140} intense />
-            <h3 className="mt-6 text-xl font-light tracking-wider uppercase">Vyhodnocovanie voľby</h3>
+            <h3 className="mt-6 text-xl font-light tracking-wider uppercase">
+              Vyhodnocovanie voľby
+            </h3>
             <p className="mt-3 text-sm text-foreground/60 font-light">
-              Tvoj hlas: <span className="text-foreground font-bold">{myChoice === "unlock" ? "ODOMKNÚŤ" : "ZRUŠIŤ"}</span>
+              Tvoj hlas:{" "}
+              <span className="text-foreground font-bold">
+                {myChoice === "unlock" ? "ODOMKNÚŤ" : "ZRUŠIŤ"}
+              </span>
             </p>
             <p className="mt-2 text-xs text-foreground/40 font-light">
               Čaká sa na rozhodnutie od {match.name}…
@@ -2134,10 +2796,12 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/95 backdrop-blur-md p-6">
           <div className="w-full max-w-md border border-foreground/10 bg-card p-10 text-center animate-fade-up">
             <X className="mx-auto size-12 text-foreground mb-4" />
-            <h3 className="text-2xl font-light tracking-wider text-foreground">SPÁROVANIE ZLYHALO</h3>
+            <h3 className="text-2xl font-light tracking-wider text-foreground">
+              SPÁROVANIE ZLYHALO
+            </h3>
             <p className="mt-4 text-sm text-foreground/60 font-light leading-relaxed">
-              {myChoice === "cancel" 
-                ? "Rozhodol/a si sa nepokračovať a match zrušiť." 
+              {myChoice === "cancel"
+                ? "Rozhodol/a si sa nepokračovať a match zrušiť."
                 : `${match.name} sa rozhodol/a nepokračovať v komunikácii.`}
             </p>
             <p className="mt-2 text-xs text-foreground/45 font-light">
@@ -2157,7 +2821,11 @@ function Chamber({ user, match, myVideoUrl, onSuccess, onDiscard, onFairInteract
 }
 
 // ============ Messages list ============
-function MessagesList({ conversations, onOpen, onFindNew }: {
+function MessagesList({
+  conversations,
+  onOpen,
+  onFindNew,
+}: {
   conversations: Conversation[];
   onOpen: (id: string) => void;
   onFindNew: () => void;
@@ -2172,32 +2840,53 @@ function MessagesList({ conversations, onOpen, onFindNew }: {
       {conversations.length === 0 ? (
         <div className="border border-foreground/10 bg-foreground/[0.02] p-10 text-center">
           <MessageCircle className="mx-auto size-10 text-foreground/30" />
-          <p className="mt-4 text-sm font-light text-foreground/60">Zatiaľ žiadne uložené konverzácie.</p>
-          <p className="mt-2 text-xs text-foreground/40">Po úspešnom hlasovom priestore sa tu objaví textový dialóg.</p>
+          <p className="mt-4 text-sm font-light text-foreground/60">
+            Zatiaľ žiadne uložené konverzácie.
+          </p>
+          <p className="mt-2 text-xs text-foreground/40">
+            Po úspešnom hlasovom priestore sa tu objaví textový dialóg.
+          </p>
         </div>
       ) : (
         <div className="grid gap-3">
           {conversations.map((c) => {
-            const m = liveCandidates.find(x => x.id === c.matchId);
+            const m = liveCandidates.find((x) => x.id === c.matchId);
             if (!m) return null;
             const last = c.messages[c.messages.length - 1];
             const blurPx = Math.round((c.blurLevel / 100) * BLUR_START);
             return (
-              <button key={c.id} onClick={() => onOpen(c.id)}
-                className="group flex items-center gap-4 border border-foreground/10 bg-foreground/[0.02] p-4 text-left transition-all hover:border-foreground/40 hover:bg-foreground/[0.04]">
+              <button
+                key={c.id}
+                onClick={() => onOpen(c.id)}
+                className="group flex items-center gap-4 border border-foreground/10 bg-foreground/[0.02] p-4 text-left transition-all hover:border-foreground/40 hover:bg-foreground/[0.04]"
+              >
                 <div className="relative size-14 shrink-0 overflow-hidden">
-                  <img src={m.img} alt={m.name} className="size-full object-cover"
-                    style={{ filter: `blur(${blurPx}px) saturate(0.9)`, transform: "scale(1.15)", transition: "filter 500ms ease" }} />
+                  <img
+                    src={m.img}
+                    alt={m.name}
+                    className="size-full object-cover"
+                    style={{
+                      filter: `blur(${blurPx}px) saturate(0.9)`,
+                      transform: "scale(1.15)",
+                      transition: "filter 500ms ease",
+                    }}
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className={`truncate text-base ${c.unread ? "font-medium text-foreground" : "font-light text-foreground/90"}`}>{m.name}</h3>
+                    <h3
+                      className={`truncate text-base ${c.unread ? "font-medium text-foreground" : "font-light text-foreground/90"}`}
+                    >
+                      {m.name}
+                    </h3>
                     <span className="font-mono text-[10px] text-foreground/40">{m.age}</span>
                     <span className="text-[10px] text-foreground/40">· {m.city}</span>
                     {c.unread && <span className="size-2 rounded-full bg-foreground" />}
                   </div>
                   <p className="mt-1 truncate text-sm font-light text-foreground/60">
-                    {last ? (last.from === "me" ? "Ty: " : "") + last.text : "Nový dialóg — napíš prvú správu."}
+                    {last
+                      ? (last.from === "me" ? "Ty: " : "") + last.text
+                      : "Nový dialóg — napíš prvú správu."}
                   </p>
                 </div>
                 <ChevronRight className="size-5 shrink-0 text-foreground/30 group-hover:text-foreground" />
@@ -2207,7 +2896,10 @@ function MessagesList({ conversations, onOpen, onFindNew }: {
         </div>
       )}
 
-      <button onClick={onFindNew} className="mt-8 w-full border border-foreground/30 bg-foreground/[0.05] py-4 text-xs tracking-[0.3em] text-foreground hover:bg-foreground/[0.1]">
+      <button
+        onClick={onFindNew}
+        className="mt-8 w-full border border-foreground/30 bg-foreground/[0.05] py-4 text-xs tracking-[0.3em] text-foreground hover:bg-foreground/[0.1]"
+      >
         NÁJSŤ ĎALŠIU REZONANCIU
       </button>
     </div>
@@ -2216,7 +2908,6 @@ function MessagesList({ conversations, onOpen, onFindNew }: {
 
 // ============ Message thread (1-na-1 textový chat) ============
 const THREAD_BLUR_STEP = 8; // 100 → 0 v ~13 vlastných správach
-
 
 // Mock GIF search results — small, loopable preview GIFs hosted on a CDN.
 const MOCK_GIFS: string[] = [
@@ -2229,7 +2920,16 @@ const MOCK_GIFS: string[] = [
 ];
 const REPLY_TYPING_MS = 1400;
 
-function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, onBack, onEnd, onUpdate }: {
+function MessageThread({
+  conversation,
+  match,
+  myVideoUrl,
+  user,
+  onUpdateUser,
+  onBack,
+  onEnd,
+  onUpdate,
+}: {
   conversation: Conversation;
   match: MockMatch;
   myVideoUrl: string | null;
@@ -2247,33 +2947,33 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
   const [menuOpen, setMenuOpen] = useState(false);
   const [closureOpen, setClosureOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  
+
   // In-Chat Pressure Trigger (Landmines) states
   const [pressureTriggerAt] = useState(() => Math.floor(Math.random() * 6) + 10); // Between 10 and 15 messages
   const [pressureActive, setPressureActive] = useState(false);
   const [pressureCompleted, setPressureCompleted] = useState(false);
   const [waitingForPartner, setWaitingForPartner] = useState(false);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const blurPx = Math.round((conversation.blurLevel / 100) * BLUR_START);
 
   function handleClosure(reason: string) {
     haptic("success");
-    onUpdate(c => ({
+    onUpdate((c) => ({
       ...c,
       status: "closed",
       closureReason: reason,
       messages: [
         ...c.messages,
-        { 
-          id: `sys-${Date.now()}`, 
-          from: "them", 
-          text: `Systémová správa: Používateľ uzavrel toto spojenie. Dôvod: ${reason}.`, 
-          ts: Date.now() 
-        }
-      ]
+        {
+          id: `sys-${Date.now()}`,
+          from: "them",
+          text: `Systémová správa: Používateľ uzavrel toto spojenie. Dôvod: ${reason}.`,
+          ts: Date.now(),
+        },
+      ],
     }));
     setClosureOpen(false);
   }
@@ -2291,7 +2991,11 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
 
   // Monitor message count for In-Chat Pressure triggers
   useEffect(() => {
-    if (!pressureCompleted && !pressureActive && conversation.messages.length >= pressureTriggerAt) {
+    if (
+      !pressureCompleted &&
+      !pressureActive &&
+      conversation.messages.length >= pressureTriggerAt
+    ) {
       haptic("warning");
       setPressureActive(true);
     }
@@ -2299,8 +3003,18 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
 
   function sendMedia(media: { kind: "image" | "gif"; url: string }) {
     haptic("send");
-    const myMsg: ChatMessage = { id: `mt-${Date.now()}`, from: "me", text: "", ts: Date.now(), media };
-    onUpdate(c => ({ ...c, messages: [...c.messages, myMsg], blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP) }));
+    const myMsg: ChatMessage = {
+      id: `mt-${Date.now()}`,
+      from: "me",
+      text: "",
+      ts: Date.now(),
+      media,
+    };
+    onUpdate((c) => ({
+      ...c,
+      messages: [...c.messages, myMsg],
+      blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
+    }));
     setMediaOpen(false);
     setGifPickerOpen(false);
   }
@@ -2318,56 +3032,80 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
     if (!text) return;
     haptic("send");
     const myMsg: ChatMessage = { id: `mt-${Date.now()}`, from: "me", text, ts: Date.now() };
-    onUpdate(c => ({
+    onUpdate((c) => ({
       ...c,
       messages: [...c.messages, myMsg],
       blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
     }));
     setInput("");
     setTyping(true);
-    setTimeout(() => {
-      const reply: ChatMessage = {
-        id: `tt-${Date.now()}`,
-        from: "them",
-        text: mockReply(match.id, text),
-        ts: Date.now(),
-      };
-      setTyping(false);
-      haptic("reveal");
-      onUpdate(c => ({ ...c, messages: [...c.messages, reply] }));
-    }, REPLY_TYPING_MS + Math.random() * 1200);
+    setTimeout(
+      () => {
+        const reply: ChatMessage = {
+          id: `tt-${Date.now()}`,
+          from: "them",
+          text: mockReply(match.id, text),
+          ts: Date.now(),
+        };
+        setTyping(false);
+        haptic("reveal");
+        onUpdate((c) => ({ ...c, messages: [...c.messages, reply] }));
+      },
+      REPLY_TYPING_MS + Math.random() * 1200,
+    );
   }
 
   return (
     <div className="animate-fade-up">
       <div className="mb-6 flex items-center justify-between gap-3">
-        <button onClick={onBack} className="flex items-center gap-1 text-xs tracking-widest text-foreground/40 hover:text-foreground">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-xs tracking-widest text-foreground/40 hover:text-foreground"
+        >
           <ArrowLeft className="size-4" /> SPRÁVY
         </button>
         <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
           <div className="relative size-10 shrink-0 overflow-hidden rounded-full">
-            <img src={match.img} alt={match.name} className="size-full object-cover"
-              style={{ filter: `blur(${blurPx}px) saturate(0.9)`, transform: "scale(1.2)", transition: "filter 500ms ease" }} />
+            <img
+              src={match.img}
+              alt={match.name}
+              className="size-full object-cover"
+              style={{
+                filter: `blur(${blurPx}px) saturate(0.9)`,
+                transform: "scale(1.2)",
+                transition: "filter 500ms ease",
+              }}
+            />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-light text-foreground">{match.name} <span className="text-foreground/40">· {match.age}</span></p>
-            <p className="font-mono text-[10px] tracking-widest text-foreground/40">{match.city.toUpperCase()}</p>
+            <p className="truncate text-sm font-light text-foreground">
+              {match.name} <span className="text-foreground/40">· {match.age}</span>
+            </p>
+            <p className="font-mono text-[10px] tracking-widest text-foreground/40">
+              {match.city.toUpperCase()}
+            </p>
           </div>
         </div>
-        
+
         <div className="relative flex items-center gap-1.5">
           {conversation.status !== "closed" && (
-            <button 
-              onClick={() => { haptic("tap"); setClosureOpen(true); }}
+            <button
+              onClick={() => {
+                haptic("tap");
+                setClosureOpen(true);
+              }}
               className="rounded-full border border-foreground/30 bg-foreground/10 px-3 py-1 text-[10px] tracking-widest text-foreground hover:bg-foreground/20 transition-all font-semibold"
             >
               UZAVRIEŤ
             </button>
           )}
-          
+
           <div className="relative">
-            <button 
-              onClick={() => { haptic("tap"); setMenuOpen(!menuOpen); }}
+            <button
+              onClick={() => {
+                haptic("tap");
+                setMenuOpen(!menuOpen);
+              }}
               className="rounded-full border border-foreground/10 p-1.5 text-foreground/60 hover:bg-foreground/5 transition-all"
             >
               <MoreVertical className="size-3.5" />
@@ -2376,7 +3114,11 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
             {menuOpen && (
               <div className="absolute right-0 mt-2 w-48 border border-foreground/10 bg-card p-1.5 z-50">
                 <button
-                  onClick={() => { haptic("warning"); setMenuOpen(false); setReportOpen(true); }}
+                  onClick={() => {
+                    haptic("warning");
+                    setMenuOpen(false);
+                    setReportOpen(true);
+                  }}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all"
                 >
                   <AlertTriangle className="size-3" /> Nahlásiť a Zablokovať
@@ -2391,22 +3133,45 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
         <div className="flex -space-x-3">
           {myVideoUrl && (
             <div className="relative size-12 overflow-hidden rounded-full ring-2 ring-[#11151B]">
-              <video src={myVideoUrl} autoPlay loop muted playsInline className="size-full object-contain bg-black"
-                style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)`, transition: "filter 500ms ease" }} />
+              <video
+                src={myVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="size-full object-contain bg-black"
+                style={{
+                  transform: "scaleX(-1)",
+                  filter: `blur(${blurPx}px)`,
+                  transition: "filter 500ms ease",
+                }}
+              />
             </div>
           )}
           <div className="relative size-12 overflow-hidden rounded-full ring-2 ring-[#11151B]">
-            <img src={match.img} alt={match.name} className="size-full object-cover"
-              style={{ filter: `blur(${blurPx}px) saturate(0.9)`, transform: "scale(1.2)", transition: "filter 500ms ease" }} />
+            <img
+              src={match.img}
+              alt={match.name}
+              className="size-full object-cover"
+              style={{
+                filter: `blur(${blurPx}px) saturate(0.9)`,
+                transform: "scale(1.2)",
+                transition: "filter 500ms ease",
+              }}
+            />
           </div>
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] tracking-widest text-foreground/40">ODHAĽOVANIE</p>
           <div className="mt-1 h-[2px] w-full overflow-hidden bg-foreground/5">
-            <div className="h-full transition-all duration-500 bg-foreground"
-              style={{ width: `${100 - conversation.blurLevel}%` }} />
+            <div
+              className="h-full transition-all duration-500 bg-foreground"
+              style={{ width: `${100 - conversation.blurLevel}%` }}
+            />
           </div>
-          <p className="mt-1 text-[10px] text-foreground/40">Každá tvoja správa odhalí o niečo viac.</p>
+          <p className="mt-1 text-[10px] text-foreground/40">
+            Každá tvoja správa odhalí o niečo viac.
+          </p>
         </div>
       </div>
 
@@ -2421,16 +3186,22 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
             <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
               {m.media ? (
                 <div className="max-w-[78%] overflow-hidden border border-foreground/30">
-                  <img src={m.media.url} alt={m.media.kind} className="block max-h-72 w-full object-cover" />
+                  <img
+                    src={m.media.url}
+                    alt={m.media.kind}
+                    className="block max-h-72 w-full object-cover"
+                  />
                 </div>
               ) : (
-                <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                  m.id.startsWith("sys-")
-                    ? "bg-foreground/[0.02] border border-foreground/5 text-center text-foreground/40 text-xs italic w-full mx-auto"
-                    : m.from === "me"
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                      : "text-foreground/90"
-                }`}>
+                <div
+                  className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    m.id.startsWith("sys-")
+                      ? "bg-foreground/[0.02] border border-foreground/5 text-center text-foreground/40 text-xs italic w-full mx-auto"
+                      : m.from === "me"
+                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                        : "text-foreground/90"
+                  }`}
+                >
                   {m.text}
                 </div>
               )}
@@ -2451,9 +3222,18 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
           {typing && (
             <div className="flex justify-start">
               <div className="flex items-center gap-1.5 px-3 py-2 text-foreground/50">
-                <span className="size-1.5 animate-pulse rounded-full bg-foreground/60" style={{ animationDelay: "0ms" }} />
-                <span className="size-1.5 animate-pulse rounded-full bg-foreground/60" style={{ animationDelay: "200ms" }} />
-                <span className="size-1.5 animate-pulse rounded-full bg-foreground/60" style={{ animationDelay: "400ms" }} />
+                <span
+                  className="size-1.5 animate-pulse rounded-full bg-foreground/60"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="size-1.5 animate-pulse rounded-full bg-foreground/60"
+                  style={{ animationDelay: "200ms" }}
+                />
+                <span
+                  className="size-1.5 animate-pulse rounded-full bg-foreground/60"
+                  style={{ animationDelay: "400ms" }}
+                />
               </div>
             </div>
           )}
@@ -2464,12 +3244,20 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
           <div className="border-t border-foreground/5 bg-background/40 p-3 animate-fade-up">
             <div className="mb-2 flex items-center justify-between">
               <p className="font-mono text-[10px] tracking-widest text-foreground/50">VYBER GIF</p>
-              <button onClick={() => setGifPickerOpen(false)} className="text-[10px] tracking-widest text-foreground/40 hover:text-foreground">ZAVRIEŤ</button>
+              <button
+                onClick={() => setGifPickerOpen(false)}
+                className="text-[10px] tracking-widest text-foreground/40 hover:text-foreground"
+              >
+                ZAVRIEŤ
+              </button>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {MOCK_GIFS.map((g) => (
-                <button key={g} onClick={() => sendMedia({ kind: "gif", url: g })}
-                  className="overflow-hidden rounded-xl border border-foreground/10 transition-all hover:border-foreground/60 active:scale-95">
+                <button
+                  key={g}
+                  onClick={() => sendMedia({ kind: "gif", url: g })}
+                  className="overflow-hidden rounded-xl border border-foreground/10 transition-all hover:border-foreground/60 active:scale-95"
+                >
                   <img src={g} alt="gif" className="aspect-square w-full object-cover" />
                 </button>
               ))}
@@ -2481,20 +3269,35 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
           <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={onPickImage} />
           <div className="relative">
             <button
-              onClick={() => { haptic("tap"); setMediaOpen((v) => !v); setGifPickerOpen(false); }}
+              onClick={() => {
+                haptic("tap");
+                setMediaOpen((v) => !v);
+                setGifPickerOpen(false);
+              }}
               disabled={pressureActive || conversation.status === "closed"}
               aria-label="Pripojiť"
-              className="grid size-10 shrink-0 place-items-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground/70 hover:bg-foreground/10 disabled:opacity-50">
+              className="grid size-10 shrink-0 place-items-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground/70 hover:bg-foreground/10 disabled:opacity-50"
+            >
               <Paperclip className="size-4" />
             </button>
             {mediaOpen && (
               <div className="absolute bottom-12 left-0 z-20 w-48 overflow-hidden border border-foreground/10 bg-card animate-fade-up">
-                <button onClick={() => { setMediaOpen(false); fileInputRef.current?.click(); }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-foreground hover:bg-foreground/5">
+                <button
+                  onClick={() => {
+                    setMediaOpen(false);
+                    fileInputRef.current?.click();
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-foreground hover:bg-foreground/5"
+                >
                   <ImageIcon className="size-4 text-foreground" /> Poslať obrázok
                 </button>
-                <button onClick={() => { setMediaOpen(false); setGifPickerOpen(true); }}
-                  className="flex w-full items-center gap-3 border-t border-foreground/5 px-4 py-3 text-left text-sm text-foreground hover:bg-foreground/5">
+                <button
+                  onClick={() => {
+                    setMediaOpen(false);
+                    setGifPickerOpen(true);
+                  }}
+                  className="flex w-full items-center gap-3 border-t border-foreground/5 px-4 py-3 text-left text-sm text-foreground hover:bg-foreground/5"
+                >
                   <Sparkles className="size-4 text-foreground" /> Poslať GIF
                 </button>
               </div>
@@ -2504,13 +3307,27 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
             value={input}
             disabled={pressureActive || conversation.status === "closed"}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
             rows={1}
-            placeholder={pressureActive ? "Tlakový test je aktívny..." : conversation.status === "closed" ? "Táto konverzácia je uzavretá." : "Napíš správu…"}
+            placeholder={
+              pressureActive
+                ? "Tlakový test je aktívny..."
+                : conversation.status === "closed"
+                  ? "Táto konverzácia je uzavretá."
+                  : "Napíš správu…"
+            }
             className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50 disabled:pointer-events-none"
           />
-          <button onClick={send} disabled={pressureActive || !input.trim() || conversation.status === "closed"}
-            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40">
+          <button
+            onClick={send}
+            disabled={pressureActive || !input.trim() || conversation.status === "closed"}
+            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40"
+          >
             <Send className="size-4" />
           </button>
         </div>
@@ -2524,13 +3341,16 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
               <span>⚠️ NÁŠĽAPNÁ MÍNA DETEKOVANÁ · KRITICKÁ SITUÁCIA</span>
               <span>TLAKOVÝ TEST</span>
             </div>
-            
+
             {waitingForPartner ? (
               <div className="text-center py-12 space-y-4">
                 <div className="size-8 mx-auto border-2 border-foreground border-t-transparent animate-spin" />
-                <h4 className="font-mono text-xs tracking-widest text-foreground font-bold uppercase">ČAKÁM NA ODPOVEĎ PARTNERA...</h4>
+                <h4 className="font-mono text-xs tracking-widest text-foreground font-bold uppercase">
+                  ČAKÁM NA ODPOVEĎ PARTNERA...
+                </h4>
                 <p className="text-[11px] text-foreground/50 leading-relaxed font-mono">
-                  Odoslal si svoju odpoveď. Druhá strana má 5 sekúnd na reakciu. Čet sa následne prepočíta a odomkne.
+                  Odoslal si svoju odpoveď. Druhá strana má 5 sekúnd na reakciu. Čet sa následne
+                  prepočíta a odomkne.
                 </p>
               </div>
             ) : (
@@ -2541,16 +3361,18 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
                   haptic("success");
                   setSelectedScenarioId(scenarioId);
                   setWaitingForPartner(true);
-                  
+
                   // Update user profile completed pressure list locally
                   const oldScenarios = user.completedPressureScenarios || [];
-                  const nextScenarios = oldScenarios.includes(scenarioId) ? oldScenarios : [...oldScenarios, scenarioId];
+                  const nextScenarios = oldScenarios.includes(scenarioId)
+                    ? oldScenarios
+                    : [...oldScenarios, scenarioId];
                   onUpdateUser({
                     ...user,
                     attachmentStyle: style,
-                    avgResponseTime: ( (user.avgResponseTime || 3.0) + rt ) / 2.0,
+                    avgResponseTime: ((user.avgResponseTime || 3.0) + rt) / 2.0,
                     hesitated: isHesitated,
-                    completedPressureScenarios: nextScenarios
+                    completedPressureScenarios: nextScenarios,
                   });
 
                   // Try to call backend FastAPI server if active, otherwise bypass safely (robust hybrid approach)
@@ -2564,11 +3386,13 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
                         scenario_id: scenarioId,
                         style: style,
                         response_time: rt,
-                        hesitated: isHesitated
-                      })
+                        hesitated: isHesitated,
+                      }),
                     });
                   } catch (e) {
-                    console.info("[pressure-chat] Backend offline or skipped, running client mock logic.");
+                    console.info(
+                      "[pressure-chat] Backend offline or skipped, running client mock logic.",
+                    );
                   }
 
                   // Simulate partner response after a short random delay
@@ -2580,46 +3404,50 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
 
                     // Recalculate compatibility score
                     const partnerStyles = ["Secure", "Anxious", "Avoidant"];
-                    const partnerStyle = partnerStyles[Math.floor(Math.random() * partnerStyles.length)];
-                    
+                    const partnerStyle =
+                      partnerStyles[Math.floor(Math.random() * partnerStyles.length)];
+
                     const userCDepth = user.cognitiveDepth ?? 0.5;
                     const userCons = user.conscientiousness ?? 0.5;
                     const userExt = user.extraversion ?? 0.5;
-                    
+
                     const partnerCDepth = match.cognitive_depth;
                     const partnerCons = match.conscientiousness;
                     const partnerExt = match.extraversion;
-                    
-                    const dist = Math.sqrt(Math.pow(userCDepth - partnerCDepth, 2) + Math.pow(userCons - partnerCons, 2));
-                    const sim = 1.0 - (dist / Math.sqrt(2.0));
-                    const comp = 1.0 - Math.min(1.0, Math.max(0.0, Math.abs(userExt + partnerExt - 1.0)));
-                    
+
+                    const dist = Math.sqrt(
+                      Math.pow(userCDepth - partnerCDepth, 2) + Math.pow(userCons - partnerCons, 2),
+                    );
+                    const sim = 1.0 - dist / Math.sqrt(2.0);
+                    const comp =
+                      1.0 - Math.min(1.0, Math.max(0.0, Math.abs(userExt + partnerExt - 1.0)));
+
                     const matrix: Record<string, Record<string, number>> = {
-                      sec: { sec: 0.0, anx: -0.15, avo: -0.20, fea: -0.25 },
-                      anx: { sec: -0.15, anx: -0.40, avo: -1.00, fea: -0.60 },
-                      avo: { sec: -0.20, anx: -1.00, avo: -0.50, fea: -0.60 },
-                      fea: { sec: -0.25, anx: -0.60, avo: -0.60, fea: -0.70 }
+                      sec: { sec: 0.0, anx: -0.15, avo: -0.2, fea: -0.25 },
+                      anx: { sec: -0.15, anx: -0.4, avo: -1.0, fea: -0.6 },
+                      avo: { sec: -0.2, anx: -1.0, avo: -0.5, fea: -0.6 },
+                      fea: { sec: -0.25, anx: -0.6, avo: -0.6, fea: -0.7 },
                     };
                     const pNorm = style.substring(0, 3).toLowerCase();
                     const qNorm = partnerStyle.substring(0, 3).toLowerCase();
                     const penalty = (matrix[pNorm] ? matrix[pNorm][qNorm] : 0.0) || 0.0;
                     const tox_mult = Math.max(0.0, 1.0 + penalty);
-                    
-                    const newScoreRaw = ((0.6 * sim) + (0.4 * comp)) * tox_mult;
+
+                    const newScoreRaw = (0.6 * sim + 0.4 * comp) * tox_mult;
                     const newScore = Math.min(100, Math.round(newScoreRaw * 1000) / 10);
-                    
+
                     match.score = newScore;
 
                     const systemMsg: ChatMessage = {
                       id: `sys-pressure-${Date.now()}`,
                       from: "them",
                       text: `Systémová správa: Tlakový test ukončený. Vaša reakcia: ${style}. Partnerova reakcia: ${partnerStyle}. Vzájomná Expected Value (EV) kompatibilita prehodnotená na: ${newScore}%. Čet je opäť odomknutý.`,
-                      ts: Date.now()
+                      ts: Date.now(),
                     };
 
-                    onUpdate(c => ({
+                    onUpdate((c) => ({
                       ...c,
-                      messages: [...c.messages, systemMsg]
+                      messages: [...c.messages, systemMsg],
                     }));
                   }, 3000);
                 }}
@@ -2633,16 +3461,19 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
       {closureOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] grid place-items-center p-4">
           <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 animate-fade-up">
-            <h3 className="font-sans font-black text-lg text-foreground mb-2 uppercase">Uzavrieť spojenie</h3>
+            <h3 className="font-sans font-black text-lg text-foreground mb-2 uppercase">
+              Uzavrieť spojenie
+            </h3>
             <p className="text-xs text-foreground/50 leading-relaxed mb-6 font-mono">
-              Vyberte čestný a slušný dôvod uzavretia konverzácie. Druhej strane sa odošle systémová správa a čet sa bezpečne uzamkne. Nenesie to žiadnu penalizáciu.
+              Vyberte čestný a slušný dôvod uzavretia konverzácie. Druhej strane sa odošle systémová
+              správa a čet sa bezpečne uzamkne. Nenesie to žiadnu penalizáciu.
             </p>
             <div className="space-y-2 mb-6">
               {[
                 "Necítim romantickú chémiu",
                 "Hľadám niečo iné",
                 "Nenašli sme spoločnú reč",
-                "Výrazný hodnotový nesúlad"
+                "Výrazný hodnotový nesúlad",
               ].map((reason, idx) => (
                 <button
                   key={idx}
@@ -2671,16 +3502,18 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
               <AlertTriangle className="size-5" />
               <span>Nahlásiť a Zablokovať</span>
             </div>
-            
+
             <div className="mb-5 border border-red-500/25 bg-red-500/5 p-4 text-xs text-red-400 leading-relaxed font-mono">
-              ⚠️ Varovanie: Zneužitie tohto tlačidla na zrušenie matchu namiesto &ldquo;Uzavrieť&rdquo; vedie k trvalému zablokovaniu vášho účtu. Nahlásenia slúžia výhradne pre prípady spamu, zneužívania alebo obťažovania.
+              ⚠️ Varovanie: Zneužitie tohto tlačidla na zrušenie matchu namiesto
+              &ldquo;Uzavrieť&rdquo; vedie k trvalému zablokovaniu vášho účtu. Nahlásenia slúžia
+              výhradne pre prípady spamu, zneužívania alebo obťažovania.
             </div>
 
             <div className="space-y-2 mb-6">
               {[
                 "Obťažovanie / Nevhodné správanie",
                 "Spam / Falošný profil",
-                "Propagácia / Reklama"
+                "Propagácia / Reklama",
               ].map((reason, idx) => (
                 <button
                   key={idx}
@@ -2707,8 +3540,21 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
 // ============ Voice helpers ============
 // Mobile-friendly: tap once to record, tap again to send, trash to cancel.
 
-function RecordButton({ recording, recLen, disabled, onStart, onCommit, onCancel }:
-  { recording: boolean; recLen: number; disabled: boolean; onStart: () => void; onCommit: () => void; onCancel: () => void }) {
+function RecordButton({
+  recording,
+  recLen,
+  disabled,
+  onStart,
+  onCommit,
+  onCancel,
+}: {
+  recording: boolean;
+  recLen: number;
+  disabled: boolean;
+  onStart: () => void;
+  onCommit: () => void;
+  onCancel: () => void;
+}) {
   const progress = Math.min(1, recLen / 60);
 
   function handleMainAction() {
@@ -2726,17 +3572,23 @@ function RecordButton({ recording, recLen, disabled, onStart, onCommit, onCancel
               NAHRÁVAM · {recLen}s / 60s · KLEPNI PRE ODOSLANIE
             </p>
           ) : (
-            <p className="font-mono text-[10px] tracking-widest text-foreground/45">KLEPNI PRE NAHRÁVANIE · MAX 60s</p>
+            <p className="font-mono text-[10px] tracking-widest text-foreground/45">
+              KLEPNI PRE NAHRÁVANIE · MAX 60s
+            </p>
           )}
         </div>
 
-        <div className="relative grid w-full grid-cols-[64px_1fr_64px] items-center" style={{ minHeight: 72 }}>
+        <div
+          className="relative grid w-full grid-cols-[64px_1fr_64px] items-center"
+          style={{ minHeight: 72 }}
+        >
           {recording && (
             <button
               type="button"
               onClick={() => onCancel()}
               aria-label="Zrušiť hlasovku"
-              className="grid size-12 place-items-center border border-red-500/30 bg-red-500/10 text-red-500 active:scale-95">
+              className="grid size-12 place-items-center border border-red-500/30 bg-red-500/10 text-red-500 active:scale-95"
+            >
               <Trash2 className="size-5" />
             </button>
           )}
@@ -2746,14 +3598,30 @@ function RecordButton({ recording, recLen, disabled, onStart, onCommit, onCancel
             disabled={disabled}
             aria-label={recording ? "Klepnutím odošleš hlasovku" : "Klepnutím začneš nahrávanie"}
             className={`relative col-start-2 mx-auto grid size-16 place-items-center disabled:opacity-30 active:scale-95 ${recording ? "bg-red-500" : "bg-foreground"}`}
-            style={{ touchAction: "manipulation" }}>
+            style={{ touchAction: "manipulation" }}
+          >
             <svg className="absolute inset-0 -rotate-90" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.18" />
+              <circle
+                cx="40"
+                cy="40"
+                r="36"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                opacity="0.18"
+              />
               {recording && (
-                <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="3"
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
                   strokeDasharray={2 * Math.PI * 36}
                   strokeDashoffset={2 * Math.PI * 36 * (1 - progress)}
-                  className="transition-all duration-1000 ease-linear" />
+                  className="transition-all duration-1000 ease-linear"
+                />
               )}
             </svg>
             {recording ? (
@@ -2769,10 +3637,20 @@ function RecordButton({ recording, recLen, disabled, onStart, onCommit, onCancel
   );
 }
 
-
-function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playing: boolean; onToggle: () => void; onEnded: () => void }) {
+function VoiceBubble({
+  msg,
+  playing,
+  onToggle,
+  onEnded,
+}: {
+  msg: VoiceMsg;
+  playing: boolean;
+  onToggle: () => void;
+  onEnded: () => void;
+}) {
   const mine = msg.from === "me";
-  void calcResonance; void resonanceBreakdown;
+  void calcResonance;
+  void resonanceBreakdown;
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
@@ -2801,9 +3679,11 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
 
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-      <div className={`flex max-w-[80%] items-center gap-3 rounded-none px-4 py-3 border border-foreground/10 ${
-        mine ? "bg-foreground/10" : "bg-card"
-      }`}>
+      <div
+        className={`flex max-w-[80%] items-center gap-3 rounded-none px-4 py-3 border border-foreground/10 ${
+          mine ? "bg-foreground/10" : "bg-card"
+        }`}
+      >
         <button
           onClick={handleToggle}
           disabled={!canPlay}
@@ -2816,14 +3696,17 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
         </button>
         <div className="flex items-end gap-[2px]">
           {Array.from({ length: 22 }).map((_, i) => {
-            const lit = playing ? (i / 22) <= progress : false;
+            const lit = playing ? i / 22 <= progress : false;
             return (
-              <span key={i} className="w-[2px]"
+              <span
+                key={i}
+                className="w-[2px]"
                 style={{
                   height: 6 + Math.abs(Math.sin(i * 0.6 + msg.duration)) * 18,
                   background: lit ? "currentColor" : "rgba(128,128,128,0.4)",
                   opacity: playing || lit ? 1 : 0.5,
-                }} />
+                }}
+              />
             );
           })}
         </div>
@@ -2836,9 +3719,13 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
             playsInline
             onTimeUpdate={(e) => {
               const a = e.currentTarget;
-              if (a.duration && Number.isFinite(a.duration)) setProgress(a.currentTime / a.duration);
+              if (a.duration && Number.isFinite(a.duration))
+                setProgress(a.currentTime / a.duration);
             }}
-            onEnded={() => { setProgress(0); onEndedRef.current(); }}
+            onEnded={() => {
+              setProgress(0);
+              onEndedRef.current();
+            }}
             onError={() => onEndedRef.current()}
           />
         )}
@@ -2849,18 +3736,31 @@ function VoiceBubble({ msg, playing, onToggle, onEnded }: { msg: VoiceMsg; playi
 
 // ============ Settings + Legal ============
 
-
-
-function LegalPage({ title, onBack, body }: { title: string; onBack: () => void; body: Array<{ h: string; p: string[] }> }) {
+function LegalPage({
+  title,
+  onBack,
+  body,
+}: {
+  title: string;
+  onBack: () => void;
+  body: Array<{ h: string; p: string[] }>;
+}) {
   return (
     <div className="animate-fade-up">
       <div className="mb-6 flex items-center gap-3">
-        <button onClick={onBack} className="flex items-center gap-1 text-xs tracking-widest text-muted-foreground hover:text-foreground">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-xs tracking-widest text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="size-4" /> NASTAVENIA
         </button>
       </div>
-      <h1 className="mb-2 font-sans text-2xl tracking-tight text-foreground font-black uppercase">{title}</h1>
-      <p className="mb-6 font-mono text-[10px] tracking-widest text-muted-foreground">POSLEDNÁ AKTUALIZÁCIA · JÚN 2026</p>
+      <h1 className="mb-2 font-sans text-2xl tracking-tight text-foreground font-black uppercase">
+        {title}
+      </h1>
+      <p className="mb-6 font-mono text-[10px] tracking-widest text-muted-foreground">
+        POSLEDNÁ AKTUALIZÁCIA · JÚN 2026
+      </p>
 
       <div className="space-y-5">
         {body.map((s, i) => (
@@ -2868,7 +3768,9 @@ function LegalPage({ title, onBack, body }: { title: string; onBack: () => void;
             <h2 className="mb-3 font-sans text-base text-foreground font-bold uppercase">{s.h}</h2>
             <div className="space-y-3">
               {s.p.map((line, j) => (
-                <p key={j} className="text-sm leading-relaxed text-muted-foreground">{line}</p>
+                <p key={j} className="text-sm leading-relaxed text-muted-foreground">
+                  {line}
+                </p>
               ))}
             </div>
           </section>
@@ -2876,86 +3778,132 @@ function LegalPage({ title, onBack, body }: { title: string; onBack: () => void;
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Toto je informatívne zhrnutie pravidiel. V prípade nejasností nás kontaktuj cez sekciu <span className="text-foreground">Kontakt</span>.
+        Toto je informatívne zhrnutie pravidiel. V prípade nejasností nás kontaktuj cez sekciu{" "}
+        <span className="text-foreground">Kontakt</span>.
       </p>
     </div>
   );
 }
 
 const TERMS_BODY: Array<{ h: string; p: string[] }> = [
-  { h: "1. O službe", p: [
-    "Reson je aplikácia na zoznamovanie založené na psychologickej rezonancii. Namiesto swipovania ťa páruje cez krátky test a hlasovú konverzáciu.",
-    "Používaním aplikácie potvrdzuješ, že máš aspoň 16 rokov a že údaje o sebe poskytuješ pravdivo.",
-  ]},
-  { h: "2. Tvoje povinnosti", p: [
-    "Zaväzuješ sa nepoužívať aplikáciu na obťažovanie, spam, podvody, propagáciu nenávisti či komerčné účely.",
-    "Tvoje overenie tváre slúži výhradne na potvrdenie, že si reálny človek. Vydávanie sa za iného je dôvodom na okamžité ukončenie účtu.",
-  ]},
-  { h: "3. Obsah a komunikácia", p: [
-    "Hlasovky aj textové správy sú medzi tebou a tvojím partnerom v rozhovore. Ukončením konverzácie sa obsah natrvalo zmaže z oboch zariadení.",
-    "Zakazuje sa zdieľať obsah, ktorý je nezákonný, urážlivý, sexuálne explicitný bez súhlasu druhej strany alebo porušuje práva tretích osôb.",
-  ]},
-  { h: "4. Ukončenie účtu", p: [
-    "Účet môžeš kedykoľvek zrušiť v sekcii Nastavenia. Po zrušení sú tvoje dáta odstránené v zákonných lehotách.",
-    "Vyhradzujeme si právo ukončiť účet, ktorý porušuje tieto podmienky, bez nároku na náhradu.",
-  ]},
-  { h: "5. Zodpovednosť", p: [
-    "Aplikácia je poskytovaná „tak, ako je\". Snažíme sa o jej spoľahlivosť, ale nezodpovedáme za rozhodnutia, ktoré urobíš na základe interakcií s inými používateľmi.",
-    "Za bezpečnosť pri osobných stretnutiach mimo aplikácie nesieš plnú zodpovednosť ty.",
-  ]},
-  { h: "6. Zmeny podmienok", p: [
-    "Tieto podmienky môžeme aktualizovať. O podstatných zmenách ťa upozorníme v aplikácii a budeš mať možnosť ich prijať alebo účet zrušiť.",
-  ]},
+  {
+    h: "1. O službe",
+    p: [
+      "Reson je aplikácia na zoznamovanie založené na psychologickej rezonancii. Namiesto swipovania ťa páruje cez krátky test a hlasovú konverzáciu.",
+      "Používaním aplikácie potvrdzuješ, že máš aspoň 16 rokov a že údaje o sebe poskytuješ pravdivo.",
+    ],
+  },
+  {
+    h: "2. Tvoje povinnosti",
+    p: [
+      "Zaväzuješ sa nepoužívať aplikáciu na obťažovanie, spam, podvody, propagáciu nenávisti či komerčné účely.",
+      "Tvoje overenie tváre slúži výhradne na potvrdenie, že si reálny človek. Vydávanie sa za iného je dôvodom na okamžité ukončenie účtu.",
+    ],
+  },
+  {
+    h: "3. Obsah a komunikácia",
+    p: [
+      "Hlasovky aj textové správy sú medzi tebou a tvojím partnerom v rozhovore. Ukončením konverzácie sa obsah natrvalo zmaže z oboch zariadení.",
+      "Zakazuje sa zdieľať obsah, ktorý je nezákonný, urážlivý, sexuálne explicitný bez súhlasu druhej strany alebo porušuje práva tretích osôb.",
+    ],
+  },
+  {
+    h: "4. Ukončenie účtu",
+    p: [
+      "Účet môžeš kedykoľvek zrušiť v sekcii Nastavenia. Po zrušení sú tvoje dáta odstránené v zákonných lehotách.",
+      "Vyhradzujeme si právo ukončiť účet, ktorý porušuje tieto podmienky, bez nároku na náhradu.",
+    ],
+  },
+  {
+    h: "5. Zodpovednosť",
+    p: [
+      'Aplikácia je poskytovaná „tak, ako je". Snažíme sa o jej spoľahlivosť, ale nezodpovedáme za rozhodnutia, ktoré urobíš na základe interakcií s inými používateľmi.',
+      "Za bezpečnosť pri osobných stretnutiach mimo aplikácie nesieš plnú zodpovednosť ty.",
+    ],
+  },
+  {
+    h: "6. Zmeny podmienok",
+    p: [
+      "Tieto podmienky môžeme aktualizovať. O podstatných zmenách ťa upozorníme v aplikácii a budeš mať možnosť ich prijať alebo účet zrušiť.",
+    ],
+  },
 ];
 
 const PRIVACY_BODY: Array<{ h: string; p: string[] }> = [
-  { h: "1. Kto sme", p: [
-    "Prevádzkovateľom služby Reson je tím vývojárov so sídlom v Slovenskej republike. V zmysle Nariadenia (EÚ) 2016/679 (GDPR) sme prevádzkovateľom tvojich osobných údajov.",
-  ]},
-  { h: "2. Aké údaje spracúvame", p: [
-    "Identifikačné: telefónne číslo, krstné meno alebo prezývka, vek, mesto, pohlavie, orientácia.",
-    "Overovacie: krátky 3-sekundový videoklip tváre slúžiaci na potvrdenie, že si reálny človek.",
-    "Behaviorálne: odpovede na 6 testových otázok, hodnotenia rezonancie, história rozhovorov (uložené iba v tvojom zariadení).",
-  ]},
-  { h: "3. Účely spracúvania", p: [
-    "Poskytovanie služby — párovanie, komunikácia, bezpečnosť účtu.",
-    "Zlepšovanie kvality (v agregovanej, anonymizovanej forme).",
-    "Plnenie zákonných povinností.",
-  ]},
-  { h: "4. Doba uchovania", p: [
-    "Profilové údaje: po dobu existencie účtu.",
-    "Overovacie video: maximálne 30 dní, alebo do úspešného overenia.",
-    "Konverzácie: ukladajú sa lokálne v tvojom zariadení. Ukončením rozhovoru sú natrvalo zmazané.",
-  ]},
-  { h: "5. Tvoje práva (GDPR)", p: [
-    "Právo na prístup, opravu, výmaz, obmedzenie spracúvania, prenosnosť a námietku.",
-    "Právo podať sťažnosť na Úrade na ochranu osobných údajov SR.",
-    "Žiadosti adresuj cez sekciu Kontakt — odpovieme do 30 dní.",
-  ]},
-  { h: "6. Bezpečnosť", p: [
-    "Údaje sú šifrované pri prenose (TLS) aj v pokoji. K osobným údajom má prístup len obmedzený okruh autorizovaných osôb.",
-  ]},
+  {
+    h: "1. Kto sme",
+    p: [
+      "Prevádzkovateľom služby Reson je tím vývojárov so sídlom v Slovenskej republike. V zmysle Nariadenia (EÚ) 2016/679 (GDPR) sme prevádzkovateľom tvojich osobných údajov.",
+    ],
+  },
+  {
+    h: "2. Aké údaje spracúvame",
+    p: [
+      "Identifikačné: telefónne číslo, krstné meno alebo prezývka, vek, mesto, pohlavie, orientácia.",
+      "Overovacie: krátky 3-sekundový videoklip tváre slúžiaci na potvrdenie, že si reálny človek.",
+      "Behaviorálne: odpovede na 6 testových otázok, hodnotenia rezonancie, história rozhovorov (uložené iba v tvojom zariadení).",
+    ],
+  },
+  {
+    h: "3. Účely spracúvania",
+    p: [
+      "Poskytovanie služby — párovanie, komunikácia, bezpečnosť účtu.",
+      "Zlepšovanie kvality (v agregovanej, anonymizovanej forme).",
+      "Plnenie zákonných povinností.",
+    ],
+  },
+  {
+    h: "4. Doba uchovania",
+    p: [
+      "Profilové údaje: po dobu existencie účtu.",
+      "Overovacie video: maximálne 30 dní, alebo do úspešného overenia.",
+      "Konverzácie: ukladajú sa lokálne v tvojom zariadení. Ukončením rozhovoru sú natrvalo zmazané.",
+    ],
+  },
+  {
+    h: "5. Tvoje práva (GDPR)",
+    p: [
+      "Právo na prístup, opravu, výmaz, obmedzenie spracúvania, prenosnosť a námietku.",
+      "Právo podať sťažnosť na Úrade na ochranu osobných údajov SR.",
+      "Žiadosti adresuj cez sekciu Kontakt — odpovieme do 30 dní.",
+    ],
+  },
+  {
+    h: "6. Bezpečnosť",
+    p: [
+      "Údaje sú šifrované pri prenose (TLS) aj v pokoji. K osobným údajom má prístup len obmedzený okruh autorizovaných osôb.",
+    ],
+  },
 ];
 
 const COOKIES_BODY: Array<{ h: string; p: string[] }> = [
-  { h: "Aké cookies používame", p: [
-    "Nevyhnutné: udržiavajú tvoje prihlásenie a preferenciu vzhľadu (tmavý/svetlý režim). Bez nich aplikácia nefunguje.",
-    "Funkčné: zapamätajú si jazyk a nastavenia.",
-    "Nepoužívame reklamné ani trackingové cookies tretích strán.",
-  ]},
-  { h: "Lokálne úložisko", p: [
-    "Tvoje rozhovory ukladáme do localStorage tvojho zariadenia. Nemáme k nim na našom serveri prístup.",
-    "Údaje môžeš kedykoľvek zmazať v Nastaveniach.",
-  ]},
+  {
+    h: "Aké cookies používame",
+    p: [
+      "Nevyhnutné: udržiavajú tvoje prihlásenie a preferenciu vzhľadu (tmavý/svetlý režim). Bez nich aplikácia nefunguje.",
+      "Funkčné: zapamätajú si jazyk a nastavenia.",
+      "Nepoužívame reklamné ani trackingové cookies tretích strán.",
+    ],
+  },
+  {
+    h: "Lokálne úložisko",
+    p: [
+      "Tvoje rozhovory ukladáme do localStorage tvojho zariadenia. Nemáme k nim na našom serveri prístup.",
+      "Údaje môžeš kedykoľvek zmazať v Nastaveniach.",
+    ],
+  },
 ];
 
 const CONTACT_BODY: Array<{ h: string; p: string[] }> = [
-  { h: "Napíš nám", p: [
-    "Pre otázky, sťažnosti a uplatnenie GDPR práv: hello@reson.app",
-    "Odpovedáme v pracovných dňoch zvyčajne do 48 hodín.",
-  ]},
-  { h: "Bezpečnostné incidenty", p: [
-    "Ak narazíš na bezpečnostnú chybu, prosím nahlás ju na: security@reson.app",
-  ]},
+  {
+    h: "Napíš nám",
+    p: [
+      "Pre otázky, sťažnosti a uplatnenie GDPR práv: hello@reson.app",
+      "Odpovedáme v pracovných dňoch zvyčajne do 48 hodín.",
+    ],
+  },
+  {
+    h: "Bezpečnostné incidenty",
+    p: ["Ak narazíš na bezpečnostnú chybu, prosím nahlás ju na: security@reson.app"],
+  },
 ];
-

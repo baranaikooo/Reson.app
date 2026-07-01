@@ -2,7 +2,14 @@
 import { useCallback } from "react";
 
 export type HapticPattern =
-  | "tap" | "success" | "warning" | "recording" | "send" | "reveal" | "phase" | "tick";
+  | "tap"
+  | "success"
+  | "warning"
+  | "recording"
+  | "send"
+  | "reveal"
+  | "phase"
+  | "tick";
 
 const PATTERNS: Record<HapticPattern, number | number[]> = {
   tap: 10,
@@ -19,7 +26,11 @@ export function haptic(p: HapticPattern) {
   if (typeof navigator === "undefined") return;
   const nav = navigator as Navigator & { vibrate?: (pattern: number | number[]) => boolean };
   if (typeof nav.vibrate !== "function") return;
-  try { nav.vibrate(PATTERNS[p]); } catch { /* ignore */ }
+  try {
+    nav.vibrate(PATTERNS[p]);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function useHaptic() {
