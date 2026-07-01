@@ -153,7 +153,12 @@ export function onAuthStateChange(callback: (event: string, session: any) => voi
   return supabase.auth.onAuthStateChange(callback);
 }
 
-export async function uploadSnippetVideo(userId: string, slotIndex: number, blob: Blob): Promise<string> {
+export async function uploadSnippetVideo(userId: string, slotIndex: number, blob: Blob): Promise<string | null> {
+  if (userId === "00000000-0000-0000-0000-000000000001") {
+    console.warn(`[Supabase] Skipping video upload for Demo User (slot ${slotIndex})`);
+    return null;
+  }
+
   const fileName = `${userId}/snippet_${slotIndex}_${Date.now()}.webm`;
   
   const { data, error } = await supabase.storage
@@ -165,7 +170,7 @@ export async function uploadSnippetVideo(userId: string, slotIndex: number, blob
 
   if (error) {
     console.error(`[Supabase] Upload failed for slot ${slotIndex}:`, error);
-    throw error;
+    return null; // Return null instead of throwing to prevent Promise.all from failing entirely
   }
 
   const { data: publicUrlData } = supabase.storage
@@ -178,8 +183,13 @@ export async function uploadSnippetVideo(userId: string, slotIndex: number, blob
 export async function saveUserProfile(
   userId: string, 
   profileData: any, 
-  videoUrls: string[]
+  videoUrls: (string | null)[]
 ): Promise<void> {
+  if (userId === "00000000-0000-0000-0000-000000000001") {
+    console.warn("[Supabase] Skipping saveUserProfile for Demo User");
+    return;
+  }
+
   // 1. Upsert Profile
   const { error: profileError } = await supabase
     .from('profiles')
