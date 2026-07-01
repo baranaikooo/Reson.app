@@ -2330,7 +2330,9 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
           <div className="relative">
             <button 
               onClick={() => { haptic("tap"); setMenuOpen(!menuOpen); }}
-              className="rounded-full border border-foreground/10 p-1.5 text-foreground/60 hover:bg-foreground/5 transition-all"
+              aria-label="Ďalšie možnosti"
+              aria-expanded={menuOpen}
+              className="rounded-full border border-foreground/10 p-1.5 text-foreground/60 hover:bg-foreground/5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             >
               <MoreVertical className="size-3.5" />
             </button>
@@ -2472,7 +2474,8 @@ function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, on
             className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50 disabled:pointer-events-none"
           />
           <button onClick={send} disabled={pressureActive || !input.trim() || conversation.status === "closed"}
-            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40">
+            aria-label="Odoslať správu"
+            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-foreground">
             <Send className="size-4" />
           </button>
         </div>
