@@ -102,7 +102,7 @@ function primeMicPermission(): Promise<void> {
 
 // ============ Screens ============
 type Screen =
-  | "landing" | "verify" | "liveness" | "profile" | "snippets-onboarding" | "briefing" | "mirror" | "bankroll" | "pressure"
+  | "landing" | "liveness" | "profile" | "snippets-onboarding" | "briefing" | "mirror" | "bankroll" | "pressure"
   | "test" | "processing" | "autoMatch" | "chamber" | "noOne"
   | "messages" | "thread"
   | "settings" | "legal-terms" | "legal-privacy" | "legal-cookies" | "legal-contact"
@@ -133,7 +133,6 @@ function ResonApp() {
   }, [theme]);
 
   const [screen, setScreen] = useState<Screen>("landing");
-  const [phone, setPhone] = useState("");
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
   const [livenessVideoUrl, setLivenessVideoUrl] = useState<string | null>(null);
@@ -377,7 +376,7 @@ function ResonApp() {
   const activeConversationMatch = activeConversation ? liveCandidates.find(m => m.id === activeConversation.matchId) ?? null : null;
 
   const hasAnswers = profile?.cognitiveDepth !== undefined;
-  const onboardingScreens: Screen[] = ["landing", "verify", "liveness", "profile", "snippets-onboarding", "briefing", "mirror", "bankroll", "pressure"];
+  const onboardingScreens: Screen[] = ["landing", "liveness", "profile", "snippets-onboarding", "briefing", "mirror", "bankroll", "pressure"];
   const focusScreens: Screen[] = ["test", "chamber", "thread"];
   const showNav = profile !== null && !onboardingScreens.includes(screen) && !focusScreens.includes(screen);
   const unreadCount = conversations.filter(c => c.unread).length;
@@ -420,15 +419,11 @@ function ResonApp() {
     <Shell>
       {screen === "landing" && (
         <Landing
-          phone={phone}
-          setPhone={setPhone}
           theme={theme}
           onTheme={setTheme}
-          onNext={() => { haptic("tap"); setGoogleProfile(null); setScreen("verify"); }}
           onGoogle={(profile) => { haptic("success"); setGoogleProfile(profile); setScreen("liveness"); }}
         />
       )}
-      {screen === "verify" && <Verify phone={phone} onBack={() => setScreen("landing")} onVerified={() => { haptic("success"); setScreen("liveness"); }} />}
       {screen === "liveness" && <Liveness onDone={(url) => { haptic("success"); setLivenessVideoUrl(url); setScreen("profile"); }} />}
       {screen === "profile" && (
         <ProfileForm
@@ -710,15 +705,11 @@ function PrimaryButton({ children, onClick, disabled, className }: { children: R
   );
 }
 
-function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
-  phone: string;
-  setPhone: (v: string) => void;
+function Landing({ theme, onTheme, onGoogle }: {
   theme: ThemeMode;
   onTheme: (m: ThemeMode) => void;
-  onNext: () => void;
   onGoogle: (profile: GoogleProfile) => void;
 }) {
-  const valid = phone.replace(/\D/g, "").length >= 8;
   const haptic = useHaptic();
   return (
     <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
@@ -770,47 +761,6 @@ function Landing({ phone, setPhone, theme, onTheme, onNext, onGoogle }: {
           <div className="mt-5 text-[10px] font-mono tracking-wider text-foreground/40 uppercase">
             // LEN OVERENÍ ĽUDIA · DECENTRALIZOVANÁ KVALITA
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Verify({ phone, onBack, onVerified }: { phone: string; onBack: () => void; onVerified: () => void }) {
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const haptic = useHaptic();
-  const ok = code.every(c => c !== "");
-  return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center text-center animate-fade-up">
-      <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card">
-        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">AUTENTIKÁCIA</h2>
-        <p className="text-xs text-foreground/50 leading-relaxed mb-8">Kód bol odoslaný na <span className="font-mono text-foreground/90">{phone || "tvoj telefón"}</span></p>
-        
-        <div className="flex justify-between gap-2 mb-6">
-          {code.map((c, i) => (
-            <input key={i} value={c} maxLength={1} id={`otp-${i}`}
-              onChange={(e) => {
-                haptic("tap");
-                const next = [...code]; next[i] = e.target.value.replace(/\D/g, ""); setCode(next);
-                const el = document.getElementById(`otp-${i+1}`);
-                if (next[i] && el) (el as HTMLInputElement).focus();
-              }}
-              className="h-12 w-10 border border-foreground/20 bg-foreground/5 text-center text-lg font-mono outline-none text-foreground focus:border-foreground" />
-          ))}
-        </div>
-
-        <button onClick={() => { haptic("tap"); setCode(["1","2","3","4","5","6"]); }}
-          className="text-[10px] font-mono text-foreground/45 tracking-wider hover:text-foreground mb-8 block mx-auto uppercase">
-          // DOPLNIŤ DEMO KÓD [123456]
-        </button>
-
-        <div className="flex gap-2">
-          <button onClick={onBack} className="flex-1 border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase">
-            SPÄŤ
-          </button>
-          <button onClick={onVerified} disabled={!ok} className="flex-1 bg-foreground text-background py-3 text-xs tracking-widest hover:bg-foreground/90 disabled:opacity-20 font-bold font-mono uppercase">
-            OVERIŤ
-          </button>
         </div>
       </div>
     </div>
