@@ -671,61 +671,7 @@ export type MockMatch = {
 };
 
 
-export const MOCK_MATCHES: MockMatch[] = [
-  { id: "1", name: "Aurora", age: 28, city: "Bratislava", gender: "female", orientation: "hetero",
-    bio: "Neurovedkyňa. V metre číta. Verí, že ticho je jazyk.",
-    img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80",
-    coords: { lat: 48.1486, lon: 17.1077 },
-    answers: { q1: "B", q2: "B", q3: "A", q4: "B", q5: "B", q6: "B" },
-    cognitive_depth: 0.95, conscientiousness: 0.85, extraversion: 0.20,
-    attachment_style: "Secure", avg_response_time: 2.5, top_priority: "stabilita",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-cyberpunk-look-39891-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-woman-close-up-under-neon-light-40409-large.mp4"] },
-    
-  { id: "2", name: "Kai", age: 31, city: "Košice", gender: "male", orientation: "hetero",
-    bio: "Architekt. Stavia veci, ktoré ho prežijú. Kávu váži na gramy.",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80",
-    coords: { lat: 48.7164, lon: 21.2611 },
-    answers: { q1: "A", q2: "A", q3: "B", q4: "A", q5: "A", q6: "B" },
-    cognitive_depth: 0.70, conscientiousness: 0.90, extraversion: 0.40,
-    attachment_style: "Avoidant", avg_response_time: 3.0, top_priority: "kariera",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-man-dancing-under-neon-lights-40003-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-web-developer-working-on-his-laptop-34293-large.mp4"] },
-    
-  { id: "3", name: "Lior", age: 26, city: "Praha", gender: "female", orientation: "bi",
-    bio: "Violončelistka. Listy píše rukou.",
-    img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80",
-    coords: { lat: 50.0755, lon: 14.4378 },
-    answers: { q1: "B", q2: "B", q3: "B", q4: "B", q5: "B", q6: "A" },
-    cognitive_depth: 0.90, conscientiousness: 0.70, extraversion: 0.30,
-    attachment_style: "Anxious", avg_response_time: 1.8, top_priority: "kreativita",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-fashion-woman-with-silver-makeup-40402-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-woman-smiling-under-colorful-neon-light-40408-large.mp4"] },
-    
-  { id: "4", name: "Mira", age: 29, city: "Žilina", gender: "female", orientation: "homo",
-    bio: "Cez deň analytička, večer keramikárka.",
-    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
-    coords: { lat: 49.2231, lon: 18.7394 },
-    answers: { q1: "A", q2: "A", q3: "B", q4: "B", q5: "B", q6: "B" },
-    cognitive_depth: 0.80, conscientiousness: 0.80, extraversion: 0.60,
-    attachment_style: "Secure", avg_response_time: 2.1, top_priority: "rodina",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-woman-looking-at-neon-lights-40407-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-woman-standing-in-front-of-a-neon-sign-40405-large.mp4"] },
-    
-  { id: "5", name: "Noa", age: 24, city: "Brno", gender: "other", orientation: "bi",
-    bio: "Tvorí elektronickú hudbu. Spí cez deň, žije v noci.",
-    img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80",
-    coords: { lat: 49.1951, lon: 16.6068 },
-    answers: { q1: "B", q2: "A", q3: "B", q4: "B", q5: "A", q6: "A" },
-    cognitive_depth: 0.85, conscientiousness: 0.40, extraversion: 0.90,
-    attachment_style: "Anxious", avg_response_time: 1.2, top_priority: "sloboda",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-slowly-in-neon-light-40406-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-woman-close-up-under-neon-light-40409-large.mp4"] },
-    
-  { id: "6", name: "Dario", age: 34, city: "Bratislava", gender: "male", orientation: "bi",
-    bio: "Učiteľ filozofie. Behá ráno, číta v noci.",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80",
-    coords: { lat: 48.1486, lon: 17.1077 },
-    answers: { q1: "A", q2: "B", q3: "A", q4: "A", q5: "B", q6: "B" },
-    cognitive_depth: 0.90, conscientiousness: 0.75, extraversion: 0.50,
-    attachment_style: "Secure", avg_response_time: 2.8, top_priority: "kreativita",
-    videoUrls: ["https://assets.mixkit.co/videos/preview/mixkit-man-under-neon-light-40001-large.mp4", "https://assets.mixkit.co/videos/preview/mixkit-man-dancing-under-neon-lights-40003-large.mp4"] },
-];
+export const MOCK_MATCHES: MockMatch[] = [];
 
 export type RankedMatch = MockMatch & { score: number; distanceKm?: number };
 

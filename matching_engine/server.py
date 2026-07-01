@@ -141,30 +141,34 @@ async def identity_webhook(
 
     # Validate Webhook Signature
     secret = os.getenv("IDENTITY_WEBHOOK_SECRET", "super-secret-webhook-key")
-    if x_identity_signature:
-        # 1. Standard verification using exact raw body bytes
-        expected_sig = hmac.new(
+    if not x_identity_signature:
+        print("[webhook] Error: Missing X-Identity-Signature header.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing webhook signature."
+        )
+
+    # 1. Standard verification using exact raw body bytes
+    expected_sig = hmac.new(
+        secret.encode(),
+        body_bytes,
+        hashlib.sha256
+    ).hexdigest()
+
+    if not hmac.compare_digest(expected_sig, x_identity_signature):
+        # 2. Fallback verification using concatenated string to keep existing tests/mocks compatible
+        alt_payload = f"{user_id}:{status_val}:{provider}"
+        alt_sig = hmac.new(
             secret.encode(),
-            body_bytes,
+            alt_payload.encode(),
             hashlib.sha256
         ).hexdigest()
-
-        if not hmac.compare_digest(expected_sig, x_identity_signature):
-            # 2. Fallback verification using concatenated string to keep existing tests/mocks compatible
-            alt_payload = f"{user_id}:{status_val}:{provider}"
-            alt_sig = hmac.new(
-                secret.encode(),
-                alt_payload.encode(),
-                hashlib.sha256
-            ).hexdigest()
-            
-            if not hmac.compare_digest(alt_sig, x_identity_signature):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid webhook signature."
-                )
-    else:
-        print("[webhook] Warning: Missing X-Identity-Signature header.")
+        
+        if not hmac.compare_digest(alt_sig, x_identity_signature):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid webhook signature."
+            )
 
     is_verified = (status_val == "success")
     verified_time = verified_at or "now()" if is_verified else None

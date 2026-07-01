@@ -5,7 +5,8 @@ Uses httpx async test client with mocked Supabase responses.
 import pytest
 from unittest.mock import patch, MagicMock
 from httpx import AsyncClient, ASGITransport
-
+import hmac
+import hashlib
 # Patch supabase_client before importing server to avoid connection attempt
 with patch("matching_engine.server.supabase_client") as mock_sb:
     from matching_engine.server import app
@@ -456,13 +457,19 @@ async def test_identity_webhook_success(mock_supabase):
     mock_auth.admin = MagicMock()
 
     transport = ASGITransport(app=app)
+    
+    # Generate mock signature
+    secret = "super-secret-webhook-key"
+    alt_payload = "00000000-0000-0000-0000-000000000001:success:FaceTec"
+    alt_sig = hmac.new(secret.encode(), alt_payload.encode(), hashlib.sha256).hexdigest()
+
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/api/webhooks/identity", json={
             "userId": "00000000-0000-0000-0000-000000000001",
             "status": "success",
             "provider": "FaceTec",
             "verifiedAt": "2026-07-01T12:00:00Z"
-        })
+        }, headers={"x-identity-signature": alt_sig})
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"

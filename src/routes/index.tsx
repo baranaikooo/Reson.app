@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Send, Phone, ChevronRight, Sparkles, Play, Pause, Check, X, Camera, MessageCircle, MapPin, ArrowLeft, Home, Brain, Trash2, Settings as SettingsIcon, Sun, Moon, Shield, FileText, Cookie, Mail, Trash, Paperclip, Image as ImageIcon, User, MoreVertical, AlertTriangle } from "lucide-react";
 import {
-  pickScenarios, MOCK_MATCHES, calcResonance, resonanceBreakdown, catalystFor,
+  pickScenarios, calcResonance, resonanceBreakdown, catalystFor,
   orbSeedFor, rankMatches, partnerContinueDecision, mockReply, archetypeOf,
   type Scenario,
   type Answer, type Answers, type FullAnswers,
@@ -254,9 +254,64 @@ function ResonApp() {
     });
   }, [theme]);
 
+  const [liveCandidates, setLiveCandidates] = useState<MockMatch[]>([]);
+  const [isLoadingMarket, setIsLoadingMarket] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    
+    // CACHE FLUSH FOR THIS DEPLOYMENT
+    if (!localStorage.getItem('reson_cache_flushed_v3')) {
+      localStorage.clear();
+      localStorage.setItem('reson_cache_flushed_v3', 'true');
+    }
+
+    async function fetchLiveMarket() {
+      setIsLoadingMarket(true);
+      try {
+        const { data, error } = await supabase.rpc('get_recommended_matches', {
+          caller_id: profile.id,
+          caller_gender: profile.gender || 'other',
+          caller_orientation: profile.orientation || 'bi',
+          caller_vector: `[${profile.cognitiveDepth || 0.5},${profile.conscientiousness || 0.5}]`,
+          max_limit: 100
+        });
+
+        if (error) throw error;
+        
+        // Map Supabase rows to MockMatch interface
+        const mapped: MockMatch[] = (data || []).map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          age: row.age,
+          city: row.city,
+          gender: row.gender as Gender,
+          orientation: row.orientation as Orientation,
+          bio: "",
+          img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80",
+          answers: { q1: "A", q2: "A", q3: "A", q4: "A", q5: "A", q6: "A" },
+          cognitive_depth: row.cognitive_depth,
+          conscientiousness: row.conscientiousness,
+          extraversion: row.extraversion,
+          attachment_style: row.attachment_style || "Secure",
+          avg_response_time: row.avg_response_time || 3.0,
+          top_priority: row.top_priority || "",
+          distanceKm: row.distance ? Math.round(row.distance * 100) : undefined
+        }));
+        
+        setLiveCandidates(mapped);
+      } catch (err) {
+        console.error("Market fetch failed:", err);
+      } finally {
+        setIsLoadingMarket(false);
+      }
+    }
+    fetchLiveMarket();
+  }, [profile]);
+
   const rankedMatches = useMemo(() => {
     if (!profile) return [];
-    const baseMatches = rankMatches(profile, MOCK_MATCHES);
+    const baseMatches = rankMatches(profile, liveCandidates);
     if (sortBy === "distance") {
       return [...baseMatches].sort((a, b) => {
         const distA = a.distanceKm ?? 9999;
@@ -265,7 +320,7 @@ function ResonApp() {
       });
     }
     return baseMatches;
-  }, [profile, sortBy]);
+  }, [profile, sortBy, liveCandidates]);
 
   const inConversation = useMemo(() => new Set(conversations.map(c => c.matchId)), [conversations]);
 
@@ -319,7 +374,7 @@ function ResonApp() {
 
   const activeMatch = activeMatchId ? rankedMatches.find(m => m.id === activeMatchId) ?? null : null;
   const activeConversation = activeConversationId ? conversations.find(c => c.id === activeConversationId) ?? null : null;
-  const activeConversationMatch = activeConversation ? MOCK_MATCHES.find(m => m.id === activeConversation.matchId) ?? null : null;
+  const activeConversationMatch = activeConversation ? liveCandidates.find(m => m.id === activeConversation.matchId) ?? null : null;
 
   const hasAnswers = profile?.cognitiveDepth !== undefined;
   const onboardingScreens: Screen[] = ["landing", "verify", "liveness", "profile", "snippets-onboarding", "briefing", "mirror", "bankroll", "pressure"];
@@ -1103,6 +1158,17 @@ function Dashboard({
   // Filter matches that are active/available
   const availableMatches = matches.slice(0, 3); // limit to 3 curated daily matches
 
+  // Brutalist Empty State
+  if (matches.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+        <p className="font-mono text-[10px] text-white tracking-[0.25em]">
+          MARKET_LIQUIDITY: [ ZERO ]. AWAITING_NEW_ASSETS.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
       {/* Top Header */}
@@ -1166,15 +1232,7 @@ function Dashboard({
         </p>
       </div>
 
-      {availableMatches.length === 0 ? (
-        <div className="border border-foreground/10 bg-card p-10 text-center space-y-4">
-          <Brain className="mx-auto size-12 text-foreground/30 animate-pulse" />
-          <h4 className="text-base font-semibold text-foreground/90 uppercase">Žiadne nové matches</h4>
-          <p className="text-xs text-foreground/50 leading-relaxed font-mono">
-            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne psychometrické kritériá. Skús to neskôr alebo zmeň nastavenia okruhu.
-          </p>
-        </div>
-      ) : (
+
         <div className="space-y-6">
           {availableMatches.map(match => {
             const similarityPct = Math.round(
@@ -1300,7 +1358,7 @@ function Dashboard({
             );
           })}
         </div>
-      )}
+
 
       {hasMessages && (
         <button
@@ -2120,7 +2178,7 @@ function MessagesList({ conversations, onOpen, onFindNew }: {
       ) : (
         <div className="grid gap-3">
           {conversations.map((c) => {
-            const m = MOCK_MATCHES.find(x => x.id === c.matchId);
+            const m = liveCandidates.find(x => x.id === c.matchId);
             if (!m) return null;
             const last = c.messages[c.messages.length - 1];
             const blurPx = Math.round((c.blurLevel / 100) * BLUR_START);
@@ -2173,7 +2231,7 @@ const REPLY_TYPING_MS = 1400;
 
 function MessageThread({ conversation, match, myVideoUrl, user, onUpdateUser, onBack, onEnd, onUpdate }: {
   conversation: Conversation;
-  match: typeof MOCK_MATCHES[number];
+  match: MockMatch;
   myVideoUrl: string | null;
   user: UserProfile;
   onUpdateUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
