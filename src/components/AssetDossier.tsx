@@ -265,7 +265,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                           e.currentTarget.currentTime = 0;
                         }
                       }}
-                      className={`size-full object-contain bg-black rounded-none transition-all duration-300 ${
+                      className={`size-full object-cover rounded-none transition-all duration-300 ${
                         isPreviewBlurred ? "blur-[15px]" : "blur-none"
                       }`}
                     />
@@ -514,7 +514,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             </div>
             
             <div className="relative aspect-[3/4] w-full border border-foreground/20 rounded-none bg-black overflow-hidden mb-6">
-              <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} playsInline muted className="size-full object-cover" style={{ transform: "scaleX(-1)" }} />
               
               {recordingState === "countdown" && (
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
