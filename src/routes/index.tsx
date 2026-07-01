@@ -560,9 +560,9 @@ function ResonApp() {
               };
               setAnswers(derivedAnswers);
               setScreen("processing");
-            } catch (err) {
+            } catch (err: any) {
               console.error("[UPLOAD_FAILED]: CONNECTION_SEVERED", err);
-              alert("[ UPLOAD_FAILED ]: CONNECTION_SEVERED\\n\\nOdoslanie tvojich dát do cloudu zlyhalo. Skontroluj internet a klikni na tlačidlo znova.");
+              alert(`[ UPLOAD_FAILED ]: CONNECTION_SEVERED\n\nDetail: ${err?.message || JSON.stringify(err)}\n\nOdoslanie zlyhalo. Skús znova.`);
             }
           }}
         />
