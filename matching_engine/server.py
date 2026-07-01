@@ -1,6 +1,8 @@
 import os
+import hmac
+import hashlib
 from collections import Counter
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Header
 from pydantic import BaseModel
 from typing import List, Optional
 from uuid import UUID
@@ -84,7 +86,78 @@ class PressureSubmit(BaseModel):
     response_time: float
     hesitated: bool
 
+class IdentityWebhookPayload(BaseModel):
+    userId: str
+    status: str
+    provider: str
+    verifiedAt: Optional[str] = None
+    signature: Optional[str] = None
+
 # --- Endpoints ---
+
+@app.post("/api/webhooks/identity")
+async def identity_webhook(
+    payload: IdentityWebhookPayload,
+    x_identity_signature: Optional[str] = Header(None)
+):
+    """
+    Secure webhook endpoint for async identity provider (FaceTec/Veriff/Stripe) callbacks.
+    Validates payload integrity using HMAC-SHA256 signature verification.
+    """
+    if not supabase_client:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Supabase client not connected."
+        )
+
+    # Validate Webhook Signature
+    secret = os.getenv("IDENTITY_WEBHOOK_SECRET", "super-secret-webhook-key")
+    if x_identity_signature:
+        raw_payload = f"{payload.userId}:{payload.status}:{payload.provider}"
+        expected_sig = hmac.new(
+            secret.encode(),
+            raw_payload.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        if not hmac.compare_digest(expected_sig, x_identity_signature):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid webhook signature."
+            )
+    else:
+        print("[webhook] Warning: Missing X-Identity-Signature header.")
+
+    is_verified = (payload.status == "success")
+    verified_time = payload.verifiedAt or "now()" if is_verified else None
+
+    # Update public.profiles database table
+    try:
+        supabase_client.table("profiles").update({
+            "liveness_verified": is_verified,
+            "verified_at": verified_time
+        }).eq("id", payload.userId).execute()
+    except Exception as e:
+        print(f"[webhook] Database profiles update error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database update failed: {str(e)}"
+        )
+
+    # Update Supabase Auth user metadata
+    try:
+        supabase_client.auth.admin.update_user_by_id(
+            payload.userId,
+            attributes={"user_metadata": {"liveness_verified": is_verified}}
+        )
+    except Exception as auth_err:
+        print(f"[webhook] Auth metadata update warning: {auth_err}")
+
+    return {
+        "status": "ok",
+        "verified": is_verified,
+        "userId": payload.userId
+    }
 
 @app.post("/api/profile/submit", status_code=status.HTTP_201_CREATED)
 async def submit_profile(profile: ProfileSubmit):

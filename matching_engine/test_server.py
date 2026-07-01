@@ -441,3 +441,32 @@ async def test_submit_pressure_test_success(mock_supabase):
     assert "pressure_test_status" in response.json()
 
 
+@pytest.mark.anyio
+async def test_identity_webhook_success(mock_supabase):
+    """Identity webhook should verify the user and return 200."""
+    mock_table = MagicMock()
+    mock_supabase.table.return_value = mock_table
+    mock_table.update.return_value = mock_table
+    mock_table.eq.return_value = mock_table
+    mock_table.execute.return_value = MagicMock(data=[])
+
+    # Mock admin auth client
+    mock_auth = MagicMock()
+    mock_supabase.auth = mock_auth
+    mock_auth.admin = MagicMock()
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post("/api/webhooks/identity", json={
+            "userId": "00000000-0000-0000-0000-000000000001",
+            "status": "success",
+            "provider": "FaceTec",
+            "verifiedAt": "2026-07-01T12:00:00Z"
+        })
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert response.json()["verified"] is True
+
+
+

@@ -606,6 +606,8 @@ export type UserProfile = {
   videoUrls?: string[];          // live snippet video URLs
   nonNegotiable?: string;        // user directive: non-negotiable
   currentThesis?: string;        // user directive: current thesis
+  livenessVerified?: boolean;    // Biometric verified tier
+  verifiedAt?: string;           // ISO timestamp of verification
 };
 
 export function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {

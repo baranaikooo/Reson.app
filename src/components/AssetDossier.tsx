@@ -489,6 +489,15 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <span className="font-black text-amber-500 font-mono">{calculatedBracket}</span>
           </div>
 
+          <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
+            <span className="text-foreground/45 uppercase">Biometric_Liveness</span>
+            {user.livenessVerified ? (
+              <span className="font-mono font-bold text-green-500 uppercase">[ VERIFIED_TIER_1 ]</span>
+            ) : (
+              <span className="font-mono font-bold text-red-500 uppercase animate-pulse">[ UNVERIFIED - HIGH RISK ]</span>
+            )}
+          </div>
+
           <div className="flex justify-between">
             <span className="text-foreground/45 uppercase">Stav_účtu</span>
             <span className="font-bold text-green-600 uppercase">KALIBROVANÉ</span>
