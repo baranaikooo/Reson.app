@@ -822,6 +822,14 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        stopStream(streamRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const el = videoRef.current;
     if (!el || !stream || phase === "ready") return;
     attachStreamToVideo(el, stream);
@@ -936,10 +944,12 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           setPhase("error");
         }
       } else {
+        if (streamRef.current) stopStream(streamRef.current);
         setErrMsg("Nahrávanie sa nepodarilo. Skús znovu.");
         setPhase("error");
       }
     } catch (err) {
+      if (streamRef.current) stopStream(streamRef.current);
       setErrMsg("Nahrávanie sa nepodarilo. Skús znova.");
       setPhase("error");
     }
