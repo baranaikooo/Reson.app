@@ -24,5 +24,36 @@ Reson is a next-generation dating and matching application focused on cognitive 
 
 
 
+## 📸 Screenshots
 
+*(Replace these placeholder images with actual screenshots of your app by placing them in a `/public/screenshots` folder and updating the links)*
 
+<p align="center">
+  <img src="https://via.placeholder.com/250x500.png?text=Landing+Page" width="250" alt="Landing Page" />
+  <img src="https://via.placeholder.com/250x500.png?text=Value+Bankroll" width="250" alt="Radar Chart" />
+  <img src="https://via.placeholder.com/250x500.png?text=Liveness+Scan" width="250" alt="Liveness Scan" />
+</p>
+
+## 🧠 The Psychology Algorithm
+
+Reson abandons the traditional "looks-first" matching approach. Instead, the engine calculates compatibility based on a multi-dimensional psychological profile:
+- **Cognitive Depth**: Assessed through interactions and response complexity.
+- **Personality Traits**: Measured via standard metrics like Conscientiousness and Extraversion.
+- **Value Bankroll**: Users define their life priorities (Freedom, Family, Career, Creativity, Stability) using an interactive radar chart. The engine seeks resonance in shared core values rather than superficial traits.
+
+## 🗺 Roadmap
+
+- [x] Liveness Verification (Anti-Catfish / On-device ML)
+- [x] Brutalist Dark UI Implementation
+- [x] Voice Chamber (Audio-only matching)
+- [x] Value Bankroll & Interactive Radar Chart
+- [ ] Advanced Matching Engine Algorithm Integration
+- [ ] iOS App Store Release
+- [ ] AI Voice Analysis for Mood & Tone Detection
+
+## 📄 License & Contact
+
+**License:** Copyright © 2026 baranaikooo. All rights reserved. 
+*(If you decide to make this fully open-source later, you can replace this with an MIT License).*
+
+**Contact:** Have questions, feedback, or want to collaborate? Feel free to open a GitHub Issue or reach out via your GitHub profile.
