@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 const sanitize = (val: string) => {
   return (val || '').trim().replace(/[^\x20-\x7E]/g, '');
@@ -8,6 +10,22 @@ const supabaseUrl = sanitize(import.meta.env.VITE_SUPABASE_URL as string);
 const supabaseAnonKey = sanitize(import.meta.env.VITE_SUPABASE_ANON_KEY as string);
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+
+if (Capacitor.isNativePlatform()) {
+  App.addListener('appUrlOpen', (event) => {
+    if (event.url.includes('reson://auth')) {
+      const hashPos = event.url.indexOf('#');
+      if (hashPos !== -1) {
+        const hashParams = new URLSearchParams(event.url.substring(hashPos + 1));
+        const access_token = hashParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token');
+        if (access_token && refresh_token) {
+          supabase.auth.setSession({ access_token, refresh_token });
+        }
+      }
+    }
+  });
+}
 
 export const supabaseLogs: string[] = [];
 let logListener: ((msg: string) => void) | null = null;
@@ -87,10 +105,13 @@ export type AuthError = {
 };
 
 export async function signInWithGoogle() {
+  const isNative = Capacitor.isNativePlatform();
+  const redirectTo = isNative ? 'reson://auth' : window.location.origin;
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin,
+      redirectTo,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
