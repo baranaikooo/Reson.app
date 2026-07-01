@@ -144,6 +144,19 @@ npm run build
 ### Deploy
 The build output will be in the `.output` directory. Deploy this to your hosting provider.
 
+## Local Webhook Testing (Tunneling)
+Since biometrické overenie (Liveness Verification) relies on callbacks from identity providers, you must tunnel webhook traffic to your local server in development.
+
+Use **Stripe CLI** to tunnel events to your local FastAPI server:
+```bash
+stripe listen --forward-to localhost:8000/api/webhooks/identity
+```
+Or if using **ngrok**:
+```bash
+ngrok http 8000
+```
+Then configure the generated URL as your webhook endpoint in your provider settings (e.g. `https://your-tunnel.ngrok-free.app/api/webhooks/identity`).
+
 ## Support
 For issues or questions, check the browser console for detailed error logs prefixed with:
 - `[auth]` - Authentication issues
