@@ -24,15 +24,6 @@ Reson is a next-generation dating and matching application focused on cognitive 
 
 
 
-## 📸 Screenshots
-
-*(Replace these placeholder images with actual screenshots of your app by placing them in a `/public/screenshots` folder and updating the links)*
-
-<p align="center">
-  <img src="https://via.placeholder.com/250x500.png?text=Landing+Page" width="250" alt="Landing Page" />
-  <img src="https://via.placeholder.com/250x500.png?text=Value+Bankroll" width="250" alt="Radar Chart" />
-  <img src="https://via.placeholder.com/250x500.png?text=Liveness+Scan" width="250" alt="Liveness Scan" />
-</p>
 
 ## 🧠 The Psychology Algorithm
 
