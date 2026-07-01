@@ -1158,23 +1158,6 @@ function Dashboard({
   // Filter matches that are active/available
   const availableMatches = matches.slice(0, 3); // limit to 3 curated daily matches
 
-  if (matches.length === 0) {
-    return (
-      <div className="mx-auto w-full max-w-md px-4 py-8 flex flex-col min-h-[80vh] animate-fade-up">
-        {/* Top Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <Logo />
-          <span className="font-mono text-xs tracking-widest text-foreground/45">DASHBOARD</span>
-        </div>
-        
-        <div className="flex-1 flex items-center justify-center bg-black/90 rounded-none border border-foreground/10">
-          <p className="font-mono text-[10px] text-white tracking-[0.25em] text-center px-6">
-            MARKET_LIQUIDITY: [ ZERO ].<br/><br/>AWAITING_NEW_ASSETS.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
@@ -1240,6 +1223,15 @@ function Dashboard({
       </div>
 
 
+      {availableMatches.length === 0 ? (
+        <div className="border border-foreground/10 bg-card p-10 text-center space-y-4">
+          <Brain className="mx-auto size-12 text-foreground/30 animate-pulse" />
+          <h4 className="text-base font-semibold text-foreground/90 uppercase">Žiadne nové matches</h4>
+          <p className="text-xs text-foreground/50 leading-relaxed font-mono">
+            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne psychometrické kritériá. Skús to neskôr alebo zmeň nastavenia okruhu.
+          </p>
+        </div>
+      ) : (
         <div className="space-y-6">
           {availableMatches.map(match => {
             const similarityPct = Math.round(
@@ -1365,6 +1357,7 @@ function Dashboard({
             );
           })}
         </div>
+      )}
 
 
       {hasMessages && (
