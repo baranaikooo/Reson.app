@@ -987,7 +987,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         <div className="relative my-6 grid place-items-center">
           <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25">
             {phase !== "ready" && stream && (
-              <video ref={videoRef} playsInline muted className="size-full object-cover" style={{ transform: "scaleX(-1)" }} />
+              <video ref={videoRef} playsInline muted className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
             )}
             {phase !== "ready" && !stream && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/5 text-foreground/20">
@@ -1003,7 +1003,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             )}
             {phase === "ready" && recordedUrl && (
               <video ref={previewRef} src={recordedUrl} autoPlay loop muted playsInline
-                className="size-full object-cover" style={{ transform: "scaleX(-1)" }} />
+                className="size-full object-contain bg-black" style={{ transform: "scaleX(-1)" }} />
             )}
             {phase === "countdown" && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/10 backdrop-blur-sm">
