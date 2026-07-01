@@ -1158,13 +1158,20 @@ function Dashboard({
   // Filter matches that are active/available
   const availableMatches = matches.slice(0, 3); // limit to 3 curated daily matches
 
-  // Brutalist Empty State
   if (matches.length === 0) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <p className="font-mono text-[10px] text-white tracking-[0.25em]">
-          MARKET_LIQUIDITY: [ ZERO ]. AWAITING_NEW_ASSETS.
-        </p>
+      <div className="mx-auto w-full max-w-md px-4 py-8 flex flex-col min-h-[80vh] animate-fade-up">
+        {/* Top Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <Logo />
+          <span className="font-mono text-xs tracking-widest text-foreground/45">DASHBOARD</span>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center bg-black/90 rounded-none border border-foreground/10">
+          <p className="font-mono text-[10px] text-white tracking-[0.25em] text-center px-6">
+            MARKET_LIQUIDITY: [ ZERO ].<br/><br/>AWAITING_NEW_ASSETS.
+          </p>
+        </div>
       </div>
     );
   }
