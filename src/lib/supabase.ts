@@ -11,7 +11,12 @@ const supabaseAnonKey = sanitize(import.meta.env.VITE_SUPABASE_ANON_KEY as strin
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 
-if (Capacitor.isNativePlatform()) {
+const checkIsNative = () => {
+  if (typeof window === 'undefined') return false;
+  return Capacitor.isNativePlatform() || window.navigator?.userAgent?.includes('ResonMobile');
+};
+
+if (checkIsNative()) {
   App.addListener('appUrlOpen', (event) => {
     if (event.url.includes('reson://auth')) {
       const hashPos = event.url.indexOf('#');
@@ -105,7 +110,7 @@ export type AuthError = {
 };
 
 export async function signInWithGoogle() {
-  const isNative = Capacitor.isNativePlatform();
+  const isNative = typeof window !== 'undefined' && (Capacitor.isNativePlatform() || window.navigator?.userAgent?.includes('ResonMobile'));
   const redirectTo = isNative ? 'reson://auth' : window.location.origin;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
