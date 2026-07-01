@@ -126,6 +126,12 @@ function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
 function ResonApp() {
   const [theme, setTheme] = useTheme();
   const themeLoadedRef = useRef(false);
+  const themeRef = useRef(theme);
+
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
+
   const [screen, setScreen] = useState<Screen>("landing");
   const [phone, setPhone] = useState("");
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile | null>(null);
@@ -183,7 +189,7 @@ function ResonApp() {
         } else {
           themeLoadedRef.current = true;
           supabase.auth.updateUser({
-            data: { theme: theme }
+            data: { theme: themeRef.current }
           }).catch(err => console.warn('[theme] failed to sync to Supabase:', err));
         }
 
@@ -215,7 +221,7 @@ function ResonApp() {
         } else {
           themeLoadedRef.current = true;
           supabase.auth.updateUser({
-            data: { theme: theme }
+            data: { theme: themeRef.current }
           }).catch(err => console.warn('[theme] failed to sync to Supabase on mount:', err));
         }
 
@@ -230,7 +236,7 @@ function ResonApp() {
     });
 
     return () => subscription.unsubscribe();
-  }, [haptic, theme]);
+  }, [haptic]);
 
   // Synchronize theme changes to Supabase user metadata when selected by user
   useEffect(() => {
