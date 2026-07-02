@@ -108,6 +108,63 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     }, 1000);
   }
 
+  async function uploadFileAndSave(index: number, blob: Blob | File) {
+    const userId = user.id || "00000000-0000-0000-0000-000000000001";
+    if (userId === "00000000-0000-0000-0000-000000000001") {
+      // Demo Mode
+      const videoUrl = URL.createObjectURL(blob);
+      setSnippets((prev) => {
+        const next = [...prev];
+        next[index] = videoUrl;
+        syncVideoUrls(next);
+        return next;
+      });
+      return;
+    }
+
+    // Upload to Storage
+    const filename = `${userId}/slot_${index + 1}_${Date.now()}.mp4`;
+    const { data, error } = await supabase.storage.from("media-snippets").upload(filename, blob, {
+      contentType: blob.type || "video/mp4",
+      cacheControl: "3600",
+      upsert: true,
+    });
+
+    if (error) {
+      console.error("[dossier] upload error:", error);
+      alert(`Ukladanie zlyhalo: ${error.message}`);
+      throw error;
+    }
+
+    // Retrieve public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("media-snippets").getPublicUrl(filename);
+
+    // Save to Database Table
+    const { error: dbError } = await supabase.from("media_snippets").upsert(
+      {
+        user_id: userId,
+        slot_index: index + 1,
+        video_url: publicUrl,
+      },
+      { onConflict: "user_id, slot_index" }
+    );
+
+    if (dbError) {
+      console.error("[dossier] database save error:", dbError);
+      alert(`Nepodarilo sa uložiť informácie o videu do databázy.`);
+      throw dbError;
+    }
+
+    setSnippets((prev) => {
+      const next = [...prev];
+      next[index] = publicUrl;
+      syncVideoUrls(next);
+      return next;
+    });
+  }
+
   async function triggerRecord(stream: MediaStream, index: number) {
     haptic("warning");
     setRecordingState("recording");
@@ -123,34 +180,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         throw new Error("File size exceeds 5MB limit");
       }
 
-      // Upload target to media_snippets storage bucket
-      const userId = user.id || "00000000-0000-0000-0000-000000000001";
-      const filename = `${userId}/slot_${index + 1}_${Date.now()}.mp4`;
-
-      const { data, error } = await supabase.storage.from("media-snippets").upload(filename, blob, {
-        contentType: blob.type || "video/mp4",
-        cacheControl: "3600",
-        upsert: true,
-      });
-
-      if (error) {
-        console.error("[dossier] upload error:", error);
-        alert(`Ukladanie zlyhalo: ${error.message}`);
-        throw error;
-      }
-
-      // Retrieve public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("media-snippets").getPublicUrl(filename);
-
-      setSnippets((prev) => {
-        const next = [...prev];
-        next[index] = publicUrl;
-        syncVideoUrls(next);
-        return next;
-      });
-
+      await uploadFileAndSave(index, blob);
       haptic("success");
     } catch (err) {
       console.error("[dossier] recordStreamForMs failed:", err);
@@ -182,7 +212,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     }
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const index = activeUploadIndex;
     if (index === null) return;
 
@@ -191,35 +221,61 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
     if (!file.type.startsWith("video/")) {
       alert("Vyberte validný video súbor.");
+      setActiveUploadIndex(null);
+      return;
+    }
+
+    // Enforce max upload limit of 5 MB
+    const maxLimit = 5 * 1024 * 1024;
+    if (file.size > maxLimit) {
+      alert(`Súbor je príliš veľký (${(file.size / 1024 / 1024).toFixed(2)} MB). Limit je 5 MB.`);
+      setActiveUploadIndex(null);
       return;
     }
 
     const videoUrl = URL.createObjectURL(file);
-
     const tempVideo = document.createElement("video");
     tempVideo.src = videoUrl;
-    tempVideo.onloadedmetadata = () => {
+    tempVideo.onloadedmetadata = async () => {
       if (tempVideo.duration > 3.2) {
         alert(
           "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
         );
       }
-      setSnippets((prev) => {
-        const next = [...prev];
-        next[index] = videoUrl;
-        syncVideoUrls(next);
-        return next;
-      });
-      haptic("success");
-      setActiveUploadIndex(null);
+      try {
+        haptic("warning");
+        await uploadFileAndSave(index, file);
+        haptic("success");
+      } catch (err) {
+        console.error("[dossier] handleFileChange upload failed:", err);
+      } finally {
+        setActiveUploadIndex(null);
+      }
     };
   }
 
-  function deleteSnippet(index: number) {
+  async function deleteSnippet(index: number) {
+    if (!confirm("Naozaj chcete odstrániť toto video?")) return;
     haptic("warning");
+
+    const userId = user.id || "00000000-0000-0000-0000-000000000001";
+    if (userId !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("media_snippets")
+        .delete()
+        .eq("user_id", userId)
+        .eq("slot_index", index + 1);
+
+      if (error) {
+        console.error("[dossier] failed to delete snippet from database:", error);
+        alert("Chyba: Nepodarilo sa odstrániť video z databázy.");
+        return;
+      }
+    }
+
     setSnippets((prev) => {
       const next = [...prev];
-      next.splice(index, 1);
+      next[index] = ""; // Keep slot empty instead of splicing/shifting to avoid slot-index misalignment in database!
       syncVideoUrls(next);
       return next;
     });
@@ -325,9 +381,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                     </div>
                     <button
                       onClick={() => deleteSnippet(idx)}
-                      className="absolute top-1.5 right-1.5 bg-red-600/90 text-white p-1 rounded-none border border-red-500 hover:bg-red-700 transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute top-1.5 right-1.5 bg-red-600/90 text-white p-1.5 rounded-none border border-red-500 hover:bg-red-700 transition-all opacity-90 active:scale-95 z-10"
                     >
-                      <X className="size-3" />
+                      <X className="size-3.5" />
                     </button>
                   </>
                 ) : (
