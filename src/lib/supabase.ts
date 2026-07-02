@@ -237,7 +237,7 @@ export async function saveUserProfile(
   const { error: ledgerError } = await supabase
     .from("psychometric_ledger")
     .update({
-      primary_marker: profileData.attachmentStyle || "UNTESTED",
+      primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
       avg_decision_latency: profileData.avgResponseTime || 0,
       ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
     })
