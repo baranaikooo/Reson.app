@@ -42,7 +42,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   );
   const [orientation, setOrientation] = useState(user.orientation || "hetero");
 
-  function saveFilterChange(key: string, value: any) {
+  async function saveFilterChange(key: string, value: any) {
     onUpdateUser((prev) => {
       if (!prev) return null;
       return {
@@ -50,6 +50,18 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         [key]: value,
       };
     });
+
+    const userId = user.id;
+    const dbKey = key === "radiusKm" ? "radius_km" : key;
+    if (userId && userId !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ [dbKey]: value })
+        .eq("id", userId);
+      if (error) {
+        console.error(`[AssetDossier] Failed to update ${key} in DB:`, error);
+      }
+    }
   }
   // Push snippet changes to parent profile (non-circular, explicit)
   function syncVideoUrls(urls: string[]) {
@@ -60,7 +72,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   }
 
   // Save directives changes back to profile
-  function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
+  async function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
     onUpdateUser((prev) => {
       if (!prev) return null;
       return {
@@ -68,6 +80,18 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
         [field]: val,
       };
     });
+
+    const userId = user.id;
+    const dbKey = field === "nonNegotiable" ? "non_negotiable" : "current_thesis";
+    if (userId && userId !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ [dbKey]: val })
+        .eq("id", userId);
+      if (error) {
+        console.error(`[AssetDossier] Failed to update ${field} in DB:`, error);
+      }
+    }
   }
 
   // JIT Camera Record Flow
@@ -241,10 +265,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           
           let options: MediaRecorderOptions = { mimeType: "video/webm;codecs=vp8" };
           if (typeof MediaRecorder.isTypeSupported === "function") {
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            if (options.mimeType && !MediaRecorder.isTypeSupported(options.mimeType)) {
               options = { mimeType: "video/mp4" };
             }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            if (options.mimeType && !MediaRecorder.isTypeSupported(options.mimeType)) {
               options = { mimeType: "" };
             }
           } else {
@@ -268,6 +292,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
           let animationFrameId: number;
           function drawFrame() {
+            if (!ctx) return;
             if (video.paused || video.ended) {
               cancelAnimationFrame(animationFrameId);
               if (mediaRecorder.state === "recording") {
