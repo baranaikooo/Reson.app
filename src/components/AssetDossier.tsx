@@ -249,7 +249,8 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const hesitationFlag = user.hesitated ? "[ÁNO]" : "[NIE]";
 
   return (
-    <div className="animate-fade-up">
+    <>
+      <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
         <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">
@@ -569,6 +570,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           </div>
         </div>
       </div>
+    </div>
 
       {/* Recording Overlay Modal */}
       {recordingIndex !== null && (
@@ -619,6 +621,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
