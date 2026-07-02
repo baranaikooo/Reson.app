@@ -25,11 +25,17 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    const currentStream = cameraStream;
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (cameraStream) stopStream(cameraStream);
+      if (currentStream) stopStream(currentStream);
     };
   }, [cameraStream]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   // Handle app going to background
   useEffect(() => {
