@@ -444,7 +444,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             <select
               value={orientation}
               onChange={(e) => {
-                const val = e.target.value;
+                const val = e.target.value as "hetero" | "homo" | "bi";
                 setOrientation(val);
                 saveFilterChange("orientation", val);
               }}
@@ -453,7 +453,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               <option value="hetero">Heterosexuálna</option>
               <option value="homo">Homosexuálna</option>
               <option value="bi">Bisexuálna</option>
-              <option value="other">Iná</option>
             </select>
           </div>
         </div>

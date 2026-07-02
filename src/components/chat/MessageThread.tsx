@@ -367,8 +367,7 @@ export function MessageThread({
                         setPressureCompleted(true);
                         setPressureActive(false);
                         setWaitingForPartner(false);
-                        onUpdateUser({ evScore: (user.evScore || 50) + 15 });
-                        alert("Úspešne ste prešli tlakovým testom. EV skóre zvýšené.");
+                        alert("Úspešne ste prešli tlakovým testom.");
                       }, 2500);
                     }}
                     className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-4 py-4 text-xs hover:bg-foreground/5 transition-all"
@@ -383,8 +382,7 @@ export function MessageThread({
                         setPressureCompleted(true);
                         setPressureActive(false);
                         setWaitingForPartner(false);
-                        onUpdateUser({ evScore: Math.max(0, (user.evScore || 50) - 10) });
-                        alert("Reakcia nebola ideálna. EV skóre znížené.");
+                        alert("Reakcia nebola ideálna.");
                       }, 2500);
                     }}
                     className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-4 py-4 text-xs hover:bg-red-500/5 transition-all"
