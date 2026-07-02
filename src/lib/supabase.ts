@@ -300,6 +300,27 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     return null; // Return null if user doesn't exist or hasn't finished onboarding
   }
 
+  // Fetch video loops from media_snippets table
+  const { data: snippetsData, error: snippetsError } = await supabase
+    .from("media_snippets")
+    .select("slot_index, video_url")
+    .eq("user_id", userId)
+    .order("slot_index", { ascending: true });
+
+  if (snippetsError) {
+    console.error("[fetchUserProfile] Error fetching media snippets:", snippetsError);
+  }
+
+  const videoUrls = ["", "", "", ""];
+  if (snippetsData) {
+    snippetsData.forEach((snippet) => {
+      const idx = snippet.slot_index - 1;
+      if (idx >= 0 && idx < 4) {
+        videoUrls[idx] = snippet.video_url;
+      }
+    });
+  }
+
   return {
     id: data.id,
     name: data.name,
@@ -316,5 +337,6 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     hesitated: data.hesitated,
     redemptionQuota: data.redemption_quota,
     completedPressureScenarios: data.completed_pressure_scenarios || [],
+    videoUrls, // Attach fetched videos
   };
 }
