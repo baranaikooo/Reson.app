@@ -403,7 +403,11 @@ function LivenessModal({ user, onVerifySuccess, onClose }: LivenessModalProps) {
     try {
       // Generate HMAC signature using shared secret
       const rawPayload = `${userId}:${status}:${provider}`;
-      const signature = await generateHmacSha256(rawPayload, "super-secret-webhook-key");
+      const webhookSecret = import.meta.env.VITE_WEBHOOK_SECRET;
+      if (!webhookSecret) {
+        throw new Error("Missing VITE_WEBHOOK_SECRET environment variable");
+      }
+      const signature = await generateHmacSha256(rawPayload, webhookSecret);
 
       // Call secure FastAPI webhook
       const res = await fetch("/api/webhooks/identity", {
