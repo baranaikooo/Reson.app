@@ -244,6 +244,7 @@ function ResonApp() {
   const [answers, setAnswers] = useState<Answers>({});
   const [livenessVideoUrl, setLivenessVideoUrl] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
@@ -318,6 +319,7 @@ function ResonApp() {
 
         // Try to fetch existing completed profile
         try {
+          setAuthUserId(user.id);
           const existingProfile = await fetchUserProfile(user.id);
           if (existingProfile) {
             setProfile(existingProfile);
@@ -333,6 +335,7 @@ function ResonApp() {
       } else if (event === "SIGNED_OUT") {
         setGoogleProfile(null);
         setProfile(null);
+        setAuthUserId(null);
         setScreen("landing");
         themeLoadedRef.current = false;
       }
@@ -622,13 +625,7 @@ function ResonApp() {
           initialName={googleProfile?.name.split(/\s+/)[0] ?? ""}
           onSubmit={(p) => {
             haptic("success");
-            getCurrentUser()
-              .then((user) => {
-                setProfile({ ...p, id: user?.id || "00000000-0000-0000-0000-000000000001" });
-              })
-              .catch(() => {
-                setProfile({ ...p, id: "00000000-0000-0000-0000-000000000001" });
-              });
+            setProfile({ ...p, id: authUserId || "00000000-0000-0000-0000-000000000001" });
             setScreen("snippets-onboarding");
           }}
         />
