@@ -237,6 +237,7 @@ export async function saveUserProfile(
       attachment_style: profileData.attachmentStyle,
       avg_response_time: profileData.avgResponseTime,
       top_priority: profileData.topPriority,
+      status: profileData.status || "ACTIVE",
     });
 
   if (profileError) {
@@ -338,5 +339,6 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     redemptionQuota: data.redemption_quota,
     completedPressureScenarios: data.completed_pressure_scenarios || [],
     videoUrls, // Attach fetched videos
+    status: data.status, // Map status column (ACTIVE | FROZEN)
   };
 }
