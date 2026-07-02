@@ -291,14 +291,8 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
 
   if (error) {
     console.error("[fetchUserProfile] Error fetching profile:", error);
-    if (error.code !== "PGRST116") {
-      alert("[fetchUserProfile Debug] DB Error: " + JSON.stringify(error));
-    }
   }
   console.log("[fetchUserProfile] Retrieved profile data:", data);
-  if (data) {
-    alert("[fetchUserProfile Debug] Retrieved data: " + JSON.stringify(data));
-  }
 
   // Check if profile is complete (must have age saved, not just liveness_verified)
   if (error || !data || !data.liveness_verified || !data.age) {

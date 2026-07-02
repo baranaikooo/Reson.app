@@ -329,7 +329,7 @@ function ResonApp() {
             setScreen("liveness");
           }
         } catch (err: any) {
-          alert("[Auth Debug] fetchUserProfile crashed: " + (err?.message || JSON.stringify(err)));
+          console.error("[Auth Debug] fetchUserProfile crashed:", err);
           setScreen("liveness");
         }
       } else if (event === "SIGNED_OUT") {
