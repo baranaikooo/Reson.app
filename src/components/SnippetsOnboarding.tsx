@@ -200,11 +200,10 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
           <span>FÁZA 0.5: MULTIPLE LIVE SNIPPETS</span>
         </div>
         <h2 className="font-sans text-2xl font-black tracking-tight text-foreground uppercase leading-none">
-          Doplňte 3 vizuálne CCTV slučky
+          Pridajte video slučku
         </h2>
         <p className="text-xs text-foreground/60 leading-relaxed font-sans">
-          Základné informácie boli kalibrované. Systém vyžaduje nahratie celkovo až 4 krátkych
-          3-sekundových video slučiek pre overenie identity a algoritmický náhľad na trhu.
+          Základné informácie boli kalibrované. Pre overenie identity a algoritmický náhľad na trh vyžadujeme nahrať aspoň 1 krátke 3-sekundové video. Ak chcete, môžete pridať celkovo až 4 video slučky.
         </p>
       </div>
 
