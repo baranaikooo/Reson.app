@@ -290,7 +290,7 @@ function ResonApp() {
     } = onAuthStateChange(async (event, session) => {
       console.log("[auth] auth state changed:", event, session?.user?.email);
 
-      if (event === "SIGNED_IN" && session?.user) {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
         const user = session.user;
         const metadata = user.user_metadata;
 
