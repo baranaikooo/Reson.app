@@ -386,13 +386,15 @@ function ResonApp() {
     }
 
     async function fetchLiveMarket() {
+      const p = profile;
+      if (!p) return;
       setIsLoadingMarket(true);
       try {
         const { data, error } = await supabase.rpc("get_recommended_matches", {
-          caller_id: profile.id,
-          caller_gender: profile.gender || "other",
-          caller_orientation: profile.orientation || "bi",
-          caller_vector: `[${profile.cognitiveDepth || 0.5},${profile.conscientiousness || 0.5}]`,
+          caller_id: p.id,
+          caller_gender: p.gender || "other",
+          caller_orientation: p.orientation || "bi",
+          caller_vector: `[${p.cognitiveDepth || 0.5},${p.conscientiousness || 0.5}]`,
           max_limit: 100,
         });
 
@@ -657,7 +659,6 @@ function ResonApp() {
             onDone={(c, pList) => {
               try {
                 setConscientiousness(c);
-                setPriorities(pList);
 
                 const sloboda = pList?.sloboda ?? 0;
                 const rodina = pList?.rodina ?? 0;
@@ -728,7 +729,7 @@ function ResonApp() {
                     if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
                     const res = await fetch(url);
                     const blob = await res.blob();
-                    const uploadedUrl = await uploadSnippetVideo(updated.id, idx + 1, blob);
+                    const uploadedUrl = await uploadSnippetVideo(updated.id as string, idx + 1, blob);
                     return { slot: idx + 1, url: uploadedUrl };
                   });
                   const results = await Promise.all(uploadPromises);
@@ -750,7 +751,7 @@ function ResonApp() {
                 }
 
                 // Backend Sync: Save Profile
-                await saveUserProfile(updated.id, updated, publicVideoUrls);
+                await saveUserProfile(updated.id as string, updated, publicVideoUrls);
               } else {
                 console.warn("[Demo Mode] Skipping backend upload because user is not signed in.");
               }
@@ -759,8 +760,8 @@ function ResonApp() {
               const derivedAnswers: FullAnswers = {
                 q1: rt < 2.5 ? "A" : "B",
                 q2: (cognitiveDepth || 0.5) > 0.6 ? "A" : "B",
-                q3: (priorities?.stabilita ?? 0) > (priorities?.sloboda ?? 0) ? "A" : "B",
-                q4: (priorities?.rodina ?? 0) > (priorities?.kariera ?? 0) ? "A" : "B",
+                q3: topPriority === "stabilita" ? "A" : "B",
+                q4: topPriority === "rodina" ? "A" : "B",
                 q5: (cognitiveDepth || 0.5) > 0.8 ? "A" : "B",
                 q6: (conscientiousness || 0.5) > 0.6 ? "A" : "B",
               };
@@ -792,11 +793,11 @@ function ResonApp() {
           onReady={() => goToNextMatch()}
         />
       )}
-      {screen === "chamber" && activeMatch && (
+      {screen === "chamber" && activeMatch && profile && (
         <Chamber
           user={profile}
           match={activeMatch}
-          myVideoUrl={livenessVideoUrl}
+          myVideoUrl={livenessVideoUrl ?? undefined}
           onSuccess={(blurLevel) => onChamberSuccess(activeMatch, blurLevel)}
           onDiscard={() => onChamberDiscard(activeMatch.id)}
           onFairInteraction={reduceRedemptionQuota}
@@ -819,6 +820,7 @@ function ResonApp() {
       {screen === "messages" && (
         <MessagesList
           conversations={conversations}
+          matches={liveCandidates}
           onOpen={(id) => {
             haptic("tap");
             setActiveConversationId(id);
@@ -835,9 +837,9 @@ function ResonApp() {
         <MessageThread
           conversation={activeConversation}
           match={activeConversationMatch}
-          myVideoUrl={livenessVideoUrl}
+          myVideoUrl={livenessVideoUrl ?? undefined}
           user={profile}
-          onUpdateUser={setProfile}
+          onUpdateUser={(update) => setProfile(prev => prev ? { ...prev, ...update } : null)}
           onBack={() => setScreen("messages")}
           onEnd={() => endConversation(activeConversation.id)}
           onUpdate={(patch) => updateConversation(activeConversation.id, patch)}
@@ -846,8 +848,8 @@ function ResonApp() {
 
       {screen === "settings" && profile && (
         <SystemConfig
-          user={profile}
-          onUpdateUser={setProfile}
+          user={profile!}
+          onUpdateUser={setProfile as React.Dispatch<React.SetStateAction<UserProfile | null>>}
           theme={theme}
           onTheme={(m) => {
             haptic("tap");
@@ -2234,10 +2236,12 @@ const MAX_REC_SECONDS = 60;
 // ============ Messages list ============
 function MessagesList({
   conversations,
+  matches,
   onOpen,
   onFindNew,
 }: {
   conversations: Conversation[];
+  matches: RankedMatch[];
   onOpen: (id: string) => void;
   onFindNew: () => void;
 }) {
@@ -2261,7 +2265,7 @@ function MessagesList({
       ) : (
         <div className="grid gap-3">
           {conversations.map((c) => {
-            const m = liveCandidates.find((x) => x.id === c.matchId);
+            const m = matches.find((x) => x.id === c.matchId);
             if (!m) return null;
             const last = c.messages[c.messages.length - 1];
             const blurPx = Math.round((c.blurLevel / 100) * BLUR_START);
