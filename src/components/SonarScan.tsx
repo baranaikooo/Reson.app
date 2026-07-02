@@ -64,7 +64,9 @@ export function SonarScan({
   const wave = 1 - Math.pow(1 - t, 1.6);
   const waveOpacity = Math.sin(Math.min(1, t * 1.05) * Math.PI) * 0.9;
 
-  const cx = 50, cy = 50, R = 48;
+  const cx = 50,
+    cy = 50,
+    R = 48;
 
   return (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
@@ -88,12 +90,33 @@ export function SonarScan({
 
         {/* concentric guide rings */}
         {[0.28, 0.5, 0.74, 0.95].map((k) => (
-          <circle key={k} cx={cx} cy={cy} r={R * k}
-            fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={0.25} />
+          <circle
+            key={k}
+            cx={cx}
+            cy={cy}
+            r={R * k}
+            fill="none"
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth={0.25}
+          />
         ))}
         {/* crosshair */}
-        <line x1={cx - R} y1={cy} x2={cx + R} y2={cy} stroke="rgba(255,255,255,0.08)" strokeWidth={0.2} />
-        <line x1={cx} y1={cy - R} x2={cx} y2={cy + R} stroke="rgba(255,255,255,0.08)" strokeWidth={0.2} />
+        <line
+          x1={cx - R}
+          y1={cy}
+          x2={cx + R}
+          y2={cy}
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth={0.2}
+        />
+        <line
+          x1={cx}
+          y1={cy - R}
+          x2={cx}
+          y2={cy + R}
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth={0.2}
+        />
 
         {/* dots — flare as the wave crosses */}
         {dots.map((d, i) => {
@@ -104,13 +127,16 @@ export function SonarScan({
             <g key={i}>
               {glow > 0.05 && (
                 <circle
-                  cx={cx + d.x * R} cy={cy + d.y * R}
+                  cx={cx + d.x * R}
+                  cy={cy + d.y * R}
                   r={d.size * (1 + glow * 1.4)}
                   fill={`rgba(255, 255, 255, ${glow * 0.25})`}
                 />
               )}
               <circle
-                cx={cx + d.x * R} cy={cy + d.y * R} r={d.size * 0.45}
+                cx={cx + d.x * R}
+                cy={cy + d.y * R}
+                r={d.size * 0.45}
                 fill={`rgba(255, 255, 255, ${baseAlpha})`}
               />
             </g>
@@ -119,7 +145,9 @@ export function SonarScan({
 
         {/* the sweeping wave */}
         <circle
-          cx={cx} cy={cy} r={Math.max(0.1, wave * R)}
+          cx={cx}
+          cy={cy}
+          r={Math.max(0.1, wave * R)}
           fill="none"
           stroke="rgba(255,255,255,0.85)"
           strokeWidth={0.45}
@@ -127,7 +155,9 @@ export function SonarScan({
         />
         {/* faint trailing wave */}
         <circle
-          cx={cx} cy={cy} r={Math.max(0.1, wave * R * 0.82)}
+          cx={cx}
+          cy={cy}
+          r={Math.max(0.1, wave * R * 0.82)}
           fill="none"
           stroke="rgba(255,255,255,0.3)"
           strokeWidth={0.25}
@@ -135,10 +165,22 @@ export function SonarScan({
         />
 
         {/* rim */}
-        <circle cx={cx} cy={cy} r={R} fill="none"
-          stroke="rgba(255,255,255,0.2)" strokeWidth={0.4} />
-        <circle cx={cx} cy={cy} r={R - 1.2} fill="none"
-          stroke="rgba(255,255,255,0.05)" strokeWidth={0.3} />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={R}
+          fill="none"
+          stroke="rgba(255,255,255,0.2)"
+          strokeWidth={0.4}
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={R - 1.2}
+          fill="none"
+          stroke="rgba(255,255,255,0.05)"
+          strokeWidth={0.3}
+        />
 
         {/* center pip */}
         <circle cx={cx} cy={cy} r={0.9} fill="rgba(255,255,255,0.9)" opacity={0.85} />

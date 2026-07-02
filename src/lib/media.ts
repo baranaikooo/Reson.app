@@ -2,7 +2,10 @@
 
 function isAppleDevice(): boolean {
   if (typeof navigator === "undefined") return false;
-  return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
+  return (
+    /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) &&
+    !(window as Window & { MSStream?: unknown }).MSStream
+  );
 }
 
 export function pickAudioMime(): string {
@@ -71,16 +74,27 @@ export function makeMockToneWavUrl(seconds: number): string {
   const len = Math.max(1, Math.min(60, Math.round(seconds))) * sr;
   const buf = new ArrayBuffer(44 + len * 2);
   const view = new DataView(buf);
-  const wstr = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
-  wstr(0, "RIFF"); view.setUint32(4, 36 + len * 2, true); wstr(8, "WAVE");
-  wstr(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-  view.setUint32(24, sr, true); view.setUint32(28, sr * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-  wstr(36, "data"); view.setUint32(40, len * 2, true);
+  const wstr = (o: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+  };
+  wstr(0, "RIFF");
+  view.setUint32(4, 36 + len * 2, true);
+  wstr(8, "WAVE");
+  wstr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sr, true);
+  view.setUint32(28, sr * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  wstr(36, "data");
+  view.setUint32(40, len * 2, true);
   for (let i = 0; i < len; i++) {
     const t = i / sr;
     const env = Math.min(1, t * 4) * Math.min(1, (seconds - t) * 4);
     const wob = 1 + 0.15 * Math.sin(2 * Math.PI * 0.6 * t);
-    const s = Math.sin(2 * Math.PI * 220 * wob * t) * 0.18 + Math.sin(2 * Math.PI * 330 * t) * 0.10;
+    const s = Math.sin(2 * Math.PI * 220 * wob * t) * 0.18 + Math.sin(2 * Math.PI * 330 * t) * 0.1;
     view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, s * env)) * 0x7fff, true);
   }
   return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
@@ -95,7 +109,9 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   const dataSize = numFrames * blockAlign;
   const buf = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buf);
-  const wstr = (o: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+  const wstr = (o: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+  };
 
   wstr(0, "RIFF");
   view.setUint32(4, 36 + dataSize, true);
@@ -135,13 +151,18 @@ export async function blobToPlayableAudioUrl(blob: Blob, fallbackSeconds: number
   }
 
   try {
-    const Ctx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const Ctx =
+      window.AudioContext ||
+      (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) throw new Error("AudioContext unavailable");
     const ctx = new Ctx();
     try {
       const decoded = await ctx.decodeAudioData(await blob.arrayBuffer());
       const wav = audioBufferToWav(decoded);
-      console.info("[voice] converted recording to WAV for playback", { from: mime, size: blob.size });
+      console.info("[voice] converted recording to WAV for playback", {
+        from: mime,
+        size: blob.size,
+      });
       return URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
     } finally {
       void ctx.close();
@@ -152,7 +173,11 @@ export async function blobToPlayableAudioUrl(blob: Blob, fallbackSeconds: number
   }
 }
 
-export function createMediaRecorder(stream: MediaStream, mime: string, kind?: "audio" | "video"): MediaRecorder {
+export function createMediaRecorder(
+  stream: MediaStream,
+  mime: string,
+  kind?: "audio" | "video",
+): MediaRecorder {
   const options: MediaRecorderOptions = {};
   if (mime) options.mimeType = mime;
   if (kind === "video") {
@@ -187,7 +212,9 @@ export function recordStreamForMs(
     };
     rec.onerror = () => reject(new Error("MediaRecorder error"));
     rec.onstop = () => {
-      const blob = chunks.length ? new Blob(chunks, { type: mimeType }) : new Blob([], { type: mimeType });
+      const blob = chunks.length
+        ? new Blob(chunks, { type: mimeType })
+        : new Blob([], { type: mimeType });
       resolve({ blob, mimeType });
     };
 
@@ -213,7 +240,10 @@ export function recordStreamForMs(
   });
 }
 
-export async function attachStreamToVideo(video: HTMLVideoElement, stream: MediaStream): Promise<void> {
+export async function attachStreamToVideo(
+  video: HTMLVideoElement,
+  stream: MediaStream,
+): Promise<void> {
   video.srcObject = stream;
   video.muted = true;
   video.playsInline = true;
@@ -224,18 +254,22 @@ export async function attachStreamToVideo(video: HTMLVideoElement, stream: Media
   }
 }
 
-export async function openCamera(constraints: MediaStreamConstraints = { video: { facingMode: "user" }, audio: false }): Promise<MediaStream> {
+export async function openCamera(
+  constraints: MediaStreamConstraints = { video: { facingMode: "user" }, audio: false },
+): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new DOMException("getUserMedia unavailable", "NotSupportedError");
   }
   return navigator.mediaDevices.getUserMedia(constraints);
 }
 
-export async function openMic(constraints: MediaTrackConstraints = {
-  echoCancellation: true,
-  noiseSuppression: true,
-  autoGainControl: true,
-}): Promise<MediaStream> {
+export async function openMic(
+  constraints: MediaTrackConstraints = {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new DOMException("getUserMedia unavailable", "NotSupportedError");
   }

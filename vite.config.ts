@@ -10,21 +10,21 @@ export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
-    server: { 
+    server: {
       entry: "server",
     },
   },
   nitro: {
-    preset: "vercel"
+    preset: "vercel",
   },
   // Kompletná konfigurácia pre bezproblémový chod cez ngrok tunel
   vite: {
     server: {
-      host: true,         // Povolí prístup z vonkajšej siete
+      host: true, // Povolí prístup z vonkajšej siete
       allowedHosts: true, // Úplne vypne kontrolu hostiteľov (Vite akceptuje true na vypnutie)
       hmr: {
-        clientPort: 443   // Donúti klientsky JavaScript spájať sa cez bezpečné ngrok HTTPS porty
-      }
-    }
-  }
+        clientPort: 443, // Donúti klientsky JavaScript spájať sa cez bezpečné ngrok HTTPS porty
+      },
+    },
+  },
 });
