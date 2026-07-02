@@ -7,21 +7,29 @@ export type HapticPattern =
   | "tap"
   | "success"
   | "warning"
+  | "error"
+  | "destructive"
   | "recording"
   | "send"
   | "reveal"
   | "phase"
-  | "tick";
+  | "tick"
+  | "medium"
+  | "heavy";
 
 const WEB_PATTERNS: Record<HapticPattern, number | number[]> = {
   tap: 10,
   success: [15, 40, 25],
   warning: [40, 60, 40],
+  error: [50, 50, 50],
+  destructive: [50, 50, 50],
   recording: 20,
   send: [12, 30, 18],
   reveal: [10, 20, 10, 20, 30],
   phase: [8, 30, 8],
   tick: 6,
+  medium: 20,
+  heavy: [40, 40, 40],
 };
 
 export async function haptic(p: HapticPattern) {
@@ -37,11 +45,19 @@ export async function haptic(p: HapticPattern) {
         case "phase":
         case "recording":
         case "reveal":
+        case "medium":
           await Haptics.impact({ style: ImpactStyle.Medium });
+          break;
+        case "heavy":
+          await Haptics.impact({ style: ImpactStyle.Heavy });
           break;
         case "warning":
           // Použijeme Heavy impact alebo Warning notifikáciu
           await Haptics.notification({ type: NotificationType.Warning });
+          break;
+        case "error":
+        case "destructive":
+          await Haptics.notification({ type: NotificationType.Error });
           break;
         case "success":
           await Haptics.notification({ type: NotificationType.Success });
