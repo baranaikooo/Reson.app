@@ -1586,7 +1586,7 @@ function Dashboard({
                 : "border-foreground/15 text-foreground hover:bg-foreground/5"
             }`}
           >
-            DNA ZHODA
+            ZHODA
           </button>
           <button
             onClick={() => {
@@ -1612,8 +1612,7 @@ function Dashboard({
           Algoritmus pre teba vybral
         </h2>
         <p className="text-xs text-foreground/50 leading-relaxed font-mono">
-          Uzavretý trh s maximálnou kompatibilitou. Žiadne nekonečné swajpovanie, iba vybrané
-          profily s najvyššou EV na základe tvojej kognitívnej DNA.
+          Profily s najvyššou kompatibilitou vybrané na základe tvojej kognitívnej rezonancie.
         </p>
       </div>
 
@@ -1624,7 +1623,7 @@ function Dashboard({
             Žiadne nové matches
           </h4>
           <p className="text-xs text-foreground/50 leading-relaxed font-mono">
-            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne psychometrické kritériá.
+            Momentálne sme pre teba nenašli ďalšie profily spĺňajúce prísne kognitívne kritériá.
             Skús to neskôr alebo zmeň nastavenia okruhu.
           </p>
         </div>
@@ -1642,13 +1641,13 @@ function Dashboard({
             );
 
             const extSum = (profile.extraversion ?? 0.5) + match.extraversion;
-            let extLabel = "Vyvážená komplementarita";
-            if (extSum < 0.6) extLabel = "Tichá harmónia (Introvert + Introvert)";
-            else if (extSum > 1.4) extLabel = "Dynamická energia (Extrovert + Extrovert)";
+            let extLabel = "Vyvážená energia";
+            if (extSum < 0.6) extLabel = "Introvertný súlad";
+            else if (extSum > 1.4) extLabel = "Extrovertný súlad";
 
             const isSecureMatch =
               profile.attachmentStyle === "Secure" && match.attachment_style === "Secure";
-            const attachmentLabel = isSecureMatch ? "Maximálne bezpečné" : "Štandardné spojenie";
+            const attachmentLabel = isSecureMatch ? "Bezpečný štýl väzby" : "Bežný štýl väzby";
 
             return (
               <div
@@ -1657,7 +1656,7 @@ function Dashboard({
               >
                 {/* Match Score Badge */}
                 <div className="absolute top-4 right-4 bg-foreground/10 border border-foreground/20 px-2.5 py-1 font-mono text-[10px] font-bold text-foreground tracking-widest">
-                  EV {Math.round(match.score)}%
+                  ZHODA {Math.round(match.score)}%
                 </div>
 
                 <div className="flex gap-4 items-start mb-6">
@@ -1700,7 +1699,7 @@ function Dashboard({
                       )}
                       {match.isAutoExpanded && (
                         <span className="bg-amber-500/15 border border-amber-500/30 px-1 py-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 rounded-none tracking-normal">
-                          [AUTO-EXPANDED]
+                          [ROZŠÍRENÝ OKRUH]
                         </span>
                       )}
                     </p>
@@ -1717,7 +1716,7 @@ function Dashboard({
                   {/* Similarity metric */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Kognitívna Podoba</span>
+                      <span>Kognitívna zhoda</span>
                       <span className="text-foreground font-bold">{similarityPct}%</span>
                     </div>
                     <div className="h-[3px] w-full bg-foreground/10 overflow-hidden">
@@ -1731,7 +1730,7 @@ function Dashboard({
                   {/* Complementarity metric */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Komplementarita</span>
+                      <span>Energia</span>
                       <span className="text-foreground font-bold">OPTIMÁLNA</span>
                     </div>
                     <p className="text-[10px] text-foreground/45 font-mono">{extLabel}</p>
@@ -1740,11 +1739,11 @@ function Dashboard({
                   {/* Attachment style metric */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Citové Bezpečie</span>
+                      <span>Vzťahová väzba</span>
                       <span
                         className={`${isSecureMatch ? "text-foreground" : "text-foreground/70"} font-bold`}
                       >
-                        {isSecureMatch ? "BEZPEČNÉ" : "STABILNÉ"}
+                        {isSecureMatch ? "KOMPATIBILNÁ" : "ŠTANDARDNÁ"}
                       </span>
                     </div>
                     <p className="text-[10px] text-foreground/45 font-mono">{attachmentLabel}</p>
