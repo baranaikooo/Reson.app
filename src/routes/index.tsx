@@ -162,6 +162,19 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppSplash() {
+  return (
+    <div className="flex min-h-[80vh] flex-col items-center justify-center text-center animate-fade-in">
+      <div className="size-16 rounded-full border border-foreground/10 bg-foreground/[0.02] flex items-center justify-center animate-pulse">
+        <span className="size-4 rounded-full bg-foreground/40 animate-ping" />
+      </div>
+      <p className="mt-6 font-mono text-[9px] tracking-[0.32em] text-foreground/45 uppercase">
+        RESON // SYSTÉM SA INICIALIZUJE
+      </p>
+    </div>
+  );
+}
+
 // Proactively triggers the browser's native mic permission prompt so the
 // microphone shows up in the site's permissions list long before the user
 // reaches the voice chamber. Safe to call multiple times — the result is
@@ -245,6 +258,7 @@ function ResonApp() {
   const [livenessVideoUrl, setLivenessVideoUrl] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
@@ -301,6 +315,7 @@ function ResonApp() {
           setProfile(null);
           setAuthUserId(null);
           setScreen("landing");
+          setIsAuthenticating(false);
           return;
         }
 
@@ -342,13 +357,16 @@ function ResonApp() {
         } catch (err: any) {
           console.error("[Auth Debug] fetchUserProfile crashed:", err);
           setScreen("liveness");
+        } finally {
+          setIsAuthenticating(false);
         }
-      } else if (event === "SIGNED_OUT") {
+      } else {
         setGoogleProfile(null);
         setProfile(null);
         setAuthUserId(null);
         setScreen("landing");
         themeLoadedRef.current = false;
+        setIsAuthenticating(false);
       }
     });
 
@@ -608,6 +626,14 @@ function ResonApp() {
             ).includes(screen)
           ? "settings"
           : "home";
+
+  if (isAuthenticating) {
+    return (
+      <Shell>
+        <AppSplash />
+      </Shell>
+    );
+  }
 
   return (
     <Shell>
