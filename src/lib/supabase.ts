@@ -224,7 +224,17 @@ export async function saveUserProfile(
     .from("profiles")
     .update({
       liveness_verified: true,
-      // Only updating fields the user set in onboarding
+      age: profileData.age,
+      city: profileData.city,
+      gender: profileData.gender,
+      orientation: profileData.orientation,
+      cognitive_depth: profileData.cognitiveDepth,
+      conscientiousness: profileData.conscientiousness,
+      extraversion: profileData.extraversion,
+      attachment_style: profileData.attachmentStyle,
+      avg_response_time: profileData.avgResponseTime,
+      top_priority: profileData.topPriority,
+      hesitated: profileData.hesitated,
     })
     .eq("id", userId);
 
