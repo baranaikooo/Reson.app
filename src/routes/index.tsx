@@ -317,13 +317,18 @@ function ResonApp() {
         haptic("success");
 
         // Try to fetch existing completed profile
-        const existingProfile = await fetchUserProfile(user.id);
-        if (existingProfile) {
-          setProfile(existingProfile);
-          setScreen("autoMatch");
-        } else {
-          // If no existing profile, go to profile creation
-          setScreen("profile");
+        try {
+          const existingProfile = await fetchUserProfile(user.id);
+          if (existingProfile) {
+            setProfile(existingProfile);
+            setScreen("autoMatch");
+          } else {
+            // If no existing profile, start from the beginning (liveness/camera)
+            setScreen("liveness");
+          }
+        } catch (err: any) {
+          alert("[Auth Debug] fetchUserProfile crashed: " + (err?.message || JSON.stringify(err)));
+          setScreen("liveness");
         }
       } else if (event === "SIGNED_OUT") {
         setGoogleProfile(null);
