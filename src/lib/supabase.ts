@@ -223,8 +223,19 @@ export async function saveUserProfile(
   const { error: profileError } = await supabase
     .from("profiles")
     .update({
+      name: profileData.name || "Používateľ",
+      age: profileData.age || 18,
+      city: profileData.city || "",
+      gender: profileData.gender || "other",
+      orientation: profileData.orientation || "bi",
       liveness_verified: true,
-      // Only updating fields the user set in onboarding
+      // Optional psychometric metrics if present
+      cognitive_depth: profileData.cognitiveDepth,
+      conscientiousness: profileData.conscientiousness,
+      extraversion: profileData.extraversion,
+      attachment_style: profileData.attachmentStyle,
+      avg_response_time: profileData.avgResponseTime,
+      top_priority: profileData.topPriority,
     })
     .eq("id", userId);
 
@@ -267,4 +278,36 @@ export async function saveUserProfile(
       throw snippetError;
     }
   }
+}
+
+export async function fetchUserProfile(userId: string): Promise<any | null> {
+  if (!userId || userId === "00000000-0000-0000-0000-000000000001") return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (error || !data || !data.liveness_verified) {
+    return null; // Return null if user doesn't exist or hasn't finished onboarding
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    age: data.age,
+    city: data.city,
+    gender: data.gender,
+    orientation: data.orientation,
+    cognitiveDepth: data.cognitive_depth,
+    conscientiousness: data.conscientiousness,
+    extraversion: data.extraversion,
+    attachmentStyle: data.attachment_style,
+    avgResponseTime: data.avg_response_time,
+    topPriority: data.top_priority,
+    hesitated: data.hesitated,
+    redemptionQuota: data.redemption_quota,
+    completedPressureScenarios: data.completed_pressure_scenarios || [],
+  };
 }

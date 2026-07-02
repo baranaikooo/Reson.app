@@ -78,6 +78,7 @@ import {
   supabase,
   uploadSnippetVideo,
   saveUserProfile,
+  fetchUserProfile,
 } from "@/lib/supabase";
 import { initializeBanditState } from "@/lib/resonance";
 import { SemanticMirror } from "@/components/SemanticMirror";
@@ -314,9 +315,19 @@ function ResonApp() {
         };
         setGoogleProfile(profileData);
         haptic("success");
-        setScreen("liveness");
+
+        // Try to fetch existing completed profile
+        const existingProfile = await fetchUserProfile(user.id);
+        if (existingProfile) {
+          setProfile(existingProfile);
+          setScreen("autoMatch");
+        } else {
+          // If no existing profile, go to profile creation
+          setScreen("profile");
+        }
       } else if (event === "SIGNED_OUT") {
         setGoogleProfile(null);
+        setProfile(null);
         setScreen("landing");
         themeLoadedRef.current = false;
       }
