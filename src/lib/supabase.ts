@@ -172,6 +172,13 @@ export async function uploadSnippetVideo(
 
   const fileName = `${userId}/snippet_${slotIndex}_${Date.now()}.webm`;
 
+  // Self-healing: try to create the bucket in case it is missing (fails silently if no permission/exists)
+  try {
+    await supabase.storage.createBucket("media-snippets", { public: true });
+  } catch (e) {
+    // Ignore error
+  }
+
   const { data, error } = await supabase.storage.from("media-snippets").upload(fileName, blob, {
     contentType: blob.type || "video/webm",
     upsert: true,
@@ -226,9 +233,14 @@ export async function saveUserProfile(
       id: userId,
       name: profileData.name || "Používateľ",
       age: profileData.age || 18,
+      birth_date: profileData.birthDate || "2000-01-01",
       city: profileData.city || "",
       gender: profileData.gender || "other",
       orientation: profileData.orientation || "bi",
+      radius_km: profileData.radiusKm || 200,
+      non_negotiable: profileData.nonNegotiable || "",
+      current_thesis: profileData.currentThesis || "",
+      similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
       liveness_verified: true,
       // Optional psychometric metrics if present
       cognitive_depth: profileData.cognitiveDepth,
@@ -326,9 +338,13 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     id: data.id,
     name: data.name,
     age: data.age,
+    birthDate: data.birth_date,
     city: data.city,
     gender: data.gender,
     orientation: data.orientation,
+    radiusKm: data.radius_km || 200,
+    nonNegotiable: data.non_negotiable || "",
+    currentThesis: data.current_thesis || "",
     cognitiveDepth: data.cognitive_depth,
     conscientiousness: data.conscientiousness,
     extraversion: data.extraversion,
