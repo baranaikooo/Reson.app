@@ -289,8 +289,17 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     .eq("id", userId)
     .single();
 
+  if (error) {
+    console.error("[fetchUserProfile] Error fetching profile:", error);
+    alert("[fetchUserProfile Debug] DB Error: " + JSON.stringify(error));
+  }
+  console.log("[fetchUserProfile] Retrieved profile data:", data);
+  alert("[fetchUserProfile Debug] Retrieved data: " + JSON.stringify(data));
+
   // Check if profile is complete (must have age saved, not just liveness_verified)
   if (error || !data || !data.liveness_verified || !data.age) {
+    console.warn("[fetchUserProfile] Profile is incomplete or not verified. liveness_verified:", data?.liveness_verified, "age:", data?.age);
+    alert(`[fetchUserProfile Debug] Check failed. verified: ${data?.liveness_verified}, age: ${data?.age}`);
     return null; // Return null if user doesn't exist or hasn't finished onboarding
   }
 
