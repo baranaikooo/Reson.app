@@ -289,7 +289,8 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     .eq("id", userId)
     .single();
 
-  if (error || !data || !data.liveness_verified) {
+  // Check if profile is complete (must have age saved, not just liveness_verified)
+  if (error || !data || !data.liveness_verified || !data.age) {
     return null; // Return null if user doesn't exist or hasn't finished onboarding
   }
 
