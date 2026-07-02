@@ -292,7 +292,18 @@ function ResonApp() {
       console.log("[auth] auth state changed:", event, session?.user?.email);
 
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
-        const user = session.user;
+        // Double check with Supabase auth server that the user still exists (not deleted)
+        const user = await getCurrentUser();
+        if (!user) {
+          console.warn("[Auth] User session is invalid or user was deleted. Signing out.");
+          await supabase.auth.signOut();
+          setGoogleProfile(null);
+          setProfile(null);
+          setAuthUserId(null);
+          setScreen("landing");
+          return;
+        }
+
         const metadata = user.user_metadata;
 
         // Sync theme from Supabase metadata if exists, otherwise upload current theme
