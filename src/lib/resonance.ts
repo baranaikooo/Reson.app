@@ -880,6 +880,7 @@ export type UserProfile = {
   currentThesis?: string; // user directive: current thesis
   livenessVerified?: boolean; // Biometric verified tier
   verifiedAt?: string; // ISO timestamp of verification
+  status?: "ACTIVE" | "FROZEN" | "BANNED";
 };
 
 export function haversineKm(

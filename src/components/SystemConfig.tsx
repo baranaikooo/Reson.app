@@ -53,7 +53,7 @@ export function SystemConfig({
   const [messageAlerts, setMessageAlerts] = useState(true);
 
   // Market freeze state
-  const [isFrozen, setIsFrozen] = useState(false);
+  const [isFrozen, setIsFrozen] = useState(user.status === "FROZEN");
   const [showLivenessModal, setShowLivenessModal] = useState(false);
 
   // Fetch permissions status on mount
@@ -124,10 +124,27 @@ export function SystemConfig({
   }
 
   // Market Freeze Toggle (hides profile without EV penalty)
-  function handleToggleFreeze() {
+  async function handleToggleFreeze() {
     haptic("warning");
     const nextState = !isFrozen;
     setIsFrozen(nextState);
+
+    if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ status: nextState ? "FROZEN" : "ACTIVE" })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("[settings] failed to toggle freeze in database:", error);
+        alert("Chyba: Nepodarilo sa zmeniť stav profilu v databáze.");
+        setIsFrozen(!nextState); // rollback
+        return;
+      }
+    }
+
+    onUpdateUser((prev) => (prev ? { ...prev, status: nextState ? "FROZEN" : "ACTIVE" } : null));
+
     alert(
       nextState
         ? "SKRYTIE PROFILU AKTÍVNE: Váš profil je dočasne skrytý pred ostatnými. Vaša doterajšia kompatibilita zostáva zachovaná."
@@ -136,30 +153,45 @@ export function SystemConfig({
   }
 
   // Account Management
-  function handleLogout() {
+  async function handleLogout() {
     haptic("warning");
     if (confirm("Naozaj sa chcete odhlásiť?")) {
       try {
-        localStorage.removeItem("reson:profile");
+        localStorage.clear();
       } catch {
         /* ignore */
       }
+      await supabase.auth.signOut();
       location.reload();
     }
   }
 
-  function handleDataWipe() {
+  async function handleDataWipe() {
     haptic("destructive");
     if (
       confirm(
         "UPOZORNENIE: Chystáte sa natrvalo zmazať svoj profil. Všetky informácie, výsledky testov a správy budú permanentne vymazané. Táto akcia je NEVRATNÁ. Chcete pokračovať?",
       )
     ) {
+      if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+        const { error } = await supabase
+          .from("profiles")
+          .delete()
+          .eq("id", user.id);
+
+        if (error) {
+          console.error("[settings] failed to delete profile from database:", error);
+          alert("Chyba: Nepodarilo sa zmazať profil z databázy.");
+          return;
+        }
+      }
+
       try {
         localStorage.clear();
       } catch {
         /* ignore */
       }
+      await supabase.auth.signOut();
       location.reload();
     }
   }
