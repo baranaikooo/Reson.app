@@ -87,8 +87,6 @@ export function GoogleSignInButton({
       // The user will be redirected back to the app
     } catch (err) {
       console.error("Supabase Google sign-in error:", err);
-      // Fallback to demo mode on error
-      onSuccess({ name: "Google Demo", email: "demo@gmail.com" });
     }
   };
 
