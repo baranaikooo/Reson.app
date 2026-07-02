@@ -788,16 +788,18 @@ function ResonApp() {
                   });
                   const results = await Promise.all(uploadPromises);
 
-                  if (results.some((r) => r.url === null)) {
+                  const failedCount = results.filter((r) => r.url === null).length;
+                  if (failedCount > 0) {
+                    console.warn(`[Onboarding] ${failedCount} video snippet uploads failed.`);
                     alert(
-                      "Nepodarilo sa nahrať všetky videá kvôli slabému pripojeniu. Skúste to znova.",
+                      "Niektoré videá sa nepodarilo nahrať. Budete ich môcť pridať neskôr vo vašom profile.",
                     );
-                    return; // Stop flow
                   }
 
-                  // Reconstruct array to keep correctly aligned slots (pad empty slots if necessary)
-                  // For now map by order assuming results are in order
-                  publicVideoUrls = results.map((r) => r.url as string);
+                  // Collect only the successful URLs
+                  publicVideoUrls = results
+                    .filter((r) => r.url !== null)
+                    .map((r) => r.url as string);
 
                   // Update local profile with public URLs so they don't break on reload
                   updated.videoUrls = publicVideoUrls;
@@ -1969,19 +1971,38 @@ function ProfileForm({
 }) {
   const haptic = useHaptic();
   const [name, setName] = useState(initialName);
-  const [age, setAge] = useState<string>("");
+  const [birthDate, setBirthDate] = useState<string>("");
+  const [age, setAge] = useState<number | null>(null);
   const [city, setCity] = useState("");
   const [gender, setGender] = useState<Gender | "">("");
   const [orientation, setOrientation] = useState<Orientation | "">("");
   const [loc, setLoc] = useState<LocStatus>("idle");
   const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
 
-  const ageNum = Number(age);
+  function calculateAge(birthDateString: string): number {
+    if (!birthDateString) return 0;
+    const today = new Date();
+    const birth = new Date(birthDateString);
+    let calculatedAge = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      calculatedAge--;
+    }
+    return calculatedAge;
+  }
+
+  function handleBirthDateChange(dateString: string) {
+    setBirthDate(dateString);
+    const calculatedAge = calculateAge(dateString);
+    setAge(calculatedAge);
+  }
+
+  const ageNum = age || 0;
   const nameTrim = name.trim();
   const valid =
     nameTrim.length >= 2 &&
     nameTrim.length <= 30 &&
-    ageNum >= 16 &&
+    ageNum >= 18 &&
     ageNum <= 99 &&
     city.trim().length > 1 &&
     city.length <= 60 &&
@@ -2111,18 +2132,30 @@ function ProfileForm({
 
             <div>
               <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
-                Vek{" "}
+                Dátum narodenia{" "}
                 <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
-                  // Tvoj skutočný vek
+                  // Pre automatické overenie veku
                 </span>
               </label>
               <input
-                inputMode="numeric"
-                value={age}
-                onChange={(e) => setAge(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                placeholder="napr. 27"
+                type="date"
+                value={birthDate}
+                onChange={(e) => handleBirthDateChange(e.target.value)}
                 className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
               />
+              {age !== null && (
+                <div className="mt-2 text-xs font-mono">
+                  {age < 18 ? (
+                    <span className="text-red-500 font-bold uppercase">
+                      Chyba: Musíte mať aspoň 18 rokov (Aktuálne: {age})
+                    </span>
+                  ) : (
+                    <span className="text-foreground/60">
+                      Vypočítaný vek: <strong className="text-foreground">{age} rokov</strong>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -2209,6 +2242,7 @@ function ProfileForm({
             onSubmit({
               name: nameTrim,
               age: ageNum,
+              birthDate: birthDate,
               city: city.trim(),
               gender: gender as Gender,
               orientation: orientation as Orientation,

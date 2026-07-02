@@ -859,6 +859,7 @@ export type Orientation = "hetero" | "homo" | "bi";
 export type UserProfile = {
   name: string;
   age: number;
+  birthDate?: string;
   city: string;
   gender: Gender;
   orientation: Orientation;
