@@ -125,9 +125,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       // Upload target to media_snippets storage bucket
       const userId = user.id || "00000000-0000-0000-0000-000000000001";
-      const filename = `snippets/${userId}/slot_${index + 1}_${Date.now()}.mp4`;
+      const filename = `${userId}/slot_${index + 1}_${Date.now()}.mp4`;
 
-      const { data, error } = await supabase.storage.from("media_snippets").upload(filename, blob, {
+      const { data, error } = await supabase.storage.from("media-snippets").upload(filename, blob, {
         contentType: blob.type || "video/mp4",
         cacheControl: "3600",
         upsert: true,
@@ -142,7 +142,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       // Retrieve public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from("media_snippets").getPublicUrl(filename);
+      } = supabase.storage.from("media-snippets").getPublicUrl(filename);
 
       setSnippets((prev) => {
         const next = [...prev];
