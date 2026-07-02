@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Camera, Upload, Eye, EyeOff } from "lucide-react";
+import { X, Camera, Upload, Eye, EyeOff, Loader2 } from "lucide-react";
 import { UserProfile } from "@/lib/resonance";
 import { useHaptic } from "@/hooks/use-haptics";
 import { openCamera, recordStreamForMs, stopStream, attachStreamToVideo } from "@/lib/media";
@@ -29,6 +29,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Directives local editing states
   const [nonNegotiable, setNonNegotiable] = useState(user.nonNegotiable || "");
@@ -212,6 +213,112 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     }
   }
 
+  async function compressVideo(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
+      video.playsInline = true;
+      video.style.position = "absolute";
+      video.style.left = "-9999px";
+      video.style.top = "-9999px";
+      document.body.appendChild(video);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 480;
+      canvas.height = 640; // 3:4 portrait aspect ratio
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        document.body.removeChild(video);
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
+      video.onloadedmetadata = () => {
+        video.play().then(() => {
+          const fps = 30;
+          const stream = canvas.captureStream(fps);
+          
+          let options: MediaRecorderOptions = { mimeType: "video/webm;codecs=vp8" };
+          if (typeof MediaRecorder.isTypeSupported === "function") {
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              options = { mimeType: "video/mp4" };
+            }
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              options = { mimeType: "" };
+            }
+          } else {
+            options = { mimeType: "" };
+          }
+
+          const mediaRecorder = new MediaRecorder(stream, options);
+          const chunks: Blob[] = [];
+
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data && event.data.size > 0) {
+              chunks.push(event.data);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            const finalBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "video/mp4" });
+            document.body.removeChild(video);
+            resolve(finalBlob);
+          };
+
+          let animationFrameId: number;
+          function drawFrame() {
+            if (video.paused || video.ended) {
+              cancelAnimationFrame(animationFrameId);
+              if (mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+              }
+              return;
+            }
+
+            const vWidth = video.videoWidth;
+            const vHeight = video.videoHeight;
+            const targetWidth = canvas.width;
+            const targetHeight = canvas.height;
+            const vRatio = vWidth / vHeight;
+            const targetRatio = targetWidth / targetHeight;
+
+            let sx = 0, sy = 0, sWidth = vWidth, sHeight = vHeight;
+
+            if (vRatio > targetRatio) {
+              sWidth = vHeight * targetRatio;
+              sx = (vWidth - sWidth) / 2;
+            } else {
+              sHeight = vWidth / targetRatio;
+              sy = (vHeight - sHeight) / 2;
+            }
+
+            ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+            animationFrameId = requestAnimationFrame(drawFrame);
+          }
+
+          mediaRecorder.start();
+          drawFrame();
+
+          const maxDuration = Math.min(3000, video.duration * 1000);
+          setTimeout(() => {
+            if (mediaRecorder.state === "recording") {
+              video.pause();
+            }
+          }, maxDuration);
+        }).catch(err => {
+          document.body.removeChild(video);
+          reject(err);
+        });
+      };
+
+      video.onerror = (err) => {
+        document.body.removeChild(video);
+        reject(err);
+      };
+    });
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const index = activeUploadIndex;
     if (index === null) return;
@@ -225,33 +332,38 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       return;
     }
 
-    // Enforce max upload limit of 5 MB
-    const maxLimit = 5 * 1024 * 1024;
+    // Enforce max upload limit of 30 MB (fallback raw limit)
+    const maxLimit = 30 * 1024 * 1024;
     if (file.size > maxLimit) {
-      alert(`Súbor je príliš veľký (${(file.size / 1024 / 1024).toFixed(2)} MB). Limit je 5 MB.`);
+      alert(`Súbor je príliš veľký (${(file.size / 1024 / 1024).toFixed(2)} MB). Maximálny limit je 30 MB.`);
       setActiveUploadIndex(null);
       return;
     }
 
-    const videoUrl = URL.createObjectURL(file);
-    const tempVideo = document.createElement("video");
-    tempVideo.src = videoUrl;
-    tempVideo.onloadedmetadata = async () => {
-      if (tempVideo.duration > 3.2) {
-        alert(
-          "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
-        );
+    setIsUploading(true);
+
+    try {
+      let uploadBlob: Blob | File = file;
+
+      // Auto compress to 480p portrait 3s loops using canvas recording if supported
+      if (typeof HTMLCanvasElement.prototype.captureStream === "function" && typeof window.MediaRecorder === "function") {
+        try {
+          uploadBlob = await compressVideo(file);
+        } catch (compressErr) {
+          console.warn("[dossier] Client-side video compression failed, using original file:", compressErr);
+        }
       }
-      try {
-        haptic("warning");
-        await uploadFileAndSave(index, file);
-        haptic("success");
-      } catch (err) {
-        console.error("[dossier] handleFileChange upload failed:", err);
-      } finally {
-        setActiveUploadIndex(null);
-      }
-    };
+
+      haptic("warning");
+      await uploadFileAndSave(index, uploadBlob);
+      haptic("success");
+    } catch (err: any) {
+      console.error("[dossier] handleFileChange upload failed:", err);
+      alert(`Nahrávanie zlyhalo: ${err.message || err}`);
+    } finally {
+      setIsUploading(false);
+      setActiveUploadIndex(null);
+    }
   }
 
   async function deleteSnippet(index: number) {
@@ -674,6 +786,21 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                 [ ZRUŠIŤ ]
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isUploading && (
+        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[200] flex flex-col justify-center items-center p-4">
+          <div className="w-full max-w-xs border border-foreground/20 bg-card p-6 rounded-none text-center space-y-4">
+            <Loader2 className="size-8 animate-spin text-foreground mx-auto animate-pulse" />
+            <h3 className="font-sans text-sm font-bold uppercase text-foreground">
+              Spracovanie videa...
+            </h3>
+            <p className="text-[10px] text-foreground/60 font-mono max-w-xs leading-relaxed uppercase">
+              Komprimujem a nahrávam súbor <br />
+              (môže to trvať niekoľko sekúnd)
+            </p>
           </div>
         </div>
       )}
