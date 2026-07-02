@@ -34,7 +34,8 @@ export function BlindVote({ onVote }: BlindVoteProps) {
             Slepé hlasovanie o budúcnosti
           </p>
           <p className="text-xs text-foreground/60 leading-relaxed pt-2 font-mono uppercase">
-            Dosiahli ste 3-minútovú hranicu (180s) hlasovej komunikácie. Čet bol dočasne zablokovaný. Obaja musíte nezávisle (naslepo) rozhodnúť:
+            Dosiahli ste 3-minútovú hranicu (180s) hlasovej komunikácie. Čet bol dočasne
+            zablokovaný. Obaja musíte nezávisle (naslepo) rozhodnúť:
           </p>
         </div>
 
@@ -43,13 +44,15 @@ export function BlindVote({ onVote }: BlindVoteProps) {
           <div className="flex gap-2.5 items-start">
             <span className="text-foreground font-bold text-xs pt-0.5">✓</span>
             <p className="text-foreground/75 leading-relaxed">
-              Ak **obaja** zvolíte *Odomknúť*, profilová fotografia/video sa zaostria a povolí sa neobmedzený textový čet.
+              Ak **obaja** zvolíte *Odomknúť*, profilová fotografia/video sa zaostria a povolí sa
+              neobmedzený textový čet.
             </p>
           </div>
           <div className="flex gap-2.5 items-start">
             <span className="text-red-500 font-bold text-xs pt-0.5">✗</span>
             <p className="text-foreground/75 leading-relaxed">
-              Ak **čo i len jeden** zvolí *Zrušiť*, match sa okamžite a navždy vymaže pre oboch používateľov.
+              Ak **čo i len jeden** zvolí *Zrušiť*, match sa okamžite a navždy vymaže pre oboch
+              používateľov.
             </p>
           </div>
         </div>
@@ -64,7 +67,7 @@ export function BlindVote({ onVote }: BlindVoteProps) {
             <Key className="size-4" />
             <span>ODOMKNÚŤ PROFIL (COOPERATE)</span>
           </button>
-          
+
           <button
             type="button"
             onClick={() => handleVote("cancel")}

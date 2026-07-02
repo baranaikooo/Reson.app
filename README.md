@@ -4,8 +4,6 @@
 
 Reson is a next-generation dating and matching application focused on cognitive resonance, deep psychological alignment, and authentic interactions. It replaces superficial swiping with a 6-question psychometric test, voice-only communication, and strict liveness verification.
 
-
-
 ## 🌟 Key Features
 
 - **No Swiping**: Matches are generated based on psychological alignment (Cognitive Depth, Conscientiousness, Extraversion).
@@ -22,12 +20,10 @@ Reson is a next-generation dating and matching application focused on cognitive 
 - **Backend/Auth/DB**: Supabase (PostgreSQL, Edge Functions, Auth)
 - **AI/ML**: TensorFlow.js (BlazeFace for on-device liveness verification)
 
-
-
-
 ## 🧠 The Psychology Algorithm
 
 Reson abandons the traditional "looks-first" matching approach. Instead, the engine calculates compatibility based on a multi-dimensional psychological profile:
+
 - **Cognitive Depth**: Assessed through interactions and response complexity.
 - **Personality Traits**: Measured via standard metrics like Conscientiousness and Extraversion.
 - **Value Bankroll**: Users define their life priorities (Freedom, Family, Career, Creativity, Stability) using an interactive radar chart. The engine seeks resonance in shared core values rather than superficial traits.
@@ -44,7 +40,7 @@ Reson abandons the traditional "looks-first" matching approach. Instead, the eng
 
 ## 📄 License & Contact
 
-**License:** Copyright © 2026 baranaikooo. All rights reserved. 
-*(If you decide to make this fully open-source later, you can replace this with an MIT License).*
+**License:** Copyright © 2026 baranaikooo. All rights reserved.
+_(If you decide to make this fully open-source later, you can replace this with an MIT License)._
 
 **Contact:** Have questions, feedback, or want to collaborate? Feel free to open a GitHub Issue or reach out via your GitHub profile.

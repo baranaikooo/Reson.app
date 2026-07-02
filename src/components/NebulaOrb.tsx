@@ -249,11 +249,5 @@ export function NebulaOrb({ seed, size = 220, className, staticFrame = false }: 
     };
   }, [seed.hue, seed.saturation, seed.speed, seed.turbulence, seed.hash, size, staticFrame]);
 
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{ width: size, height: size }}
-    />
-  );
+  return <div ref={ref} className={className} style={{ width: size, height: size }} />;
 }

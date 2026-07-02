@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 interface DNAOrbProps {
   conscientiousness: number; // 0.1 - 1.0
-  extraversion: number;      // 0.1 - 1.0
+  extraversion: number; // 0.1 - 1.0
   size?: number;
 }
 
@@ -33,12 +33,12 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
   }, [extraversion]);
 
   return (
-    <div 
-      className="relative grid place-items-center transition-all duration-500 ease-out" 
+    <div
+      className="relative grid place-items-center transition-all duration-500 ease-out"
       style={{ width: size, height: size }}
     >
       {/* Outer Halo Glow */}
-      <div 
+      <div
         className="absolute rounded-full opacity-35 blur-[35px] transition-all duration-500 ease-out"
         style={{
           width: size * 0.8,
@@ -50,8 +50,8 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
 
       {/* Ripple Rings */}
       {[0.0, 0.4, 0.8].map((delay, index) => (
-        <span 
-          key={index} 
+        <span
+          key={index}
           className="absolute rounded-full border transition-all ease-out"
           style={{
             width: size * 0.5,
@@ -62,16 +62,16 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
             transform: `scale(${pulseScale})`,
             animation: `dna-ripple ${animationDuration} infinite linear`,
             animationDelay: `${delay}s`,
-          }} 
+          }}
         />
       ))}
 
       {/* Inner Fluid Orb using SVG filter blobs */}
       <div className="absolute grid place-items-center">
-        <svg 
-          viewBox="0 0 100 100" 
-          width={size * 0.65} 
-          height={size * 0.65} 
+        <svg
+          viewBox="0 0 100 100"
+          width={size * 0.65}
+          height={size * 0.65}
           className="overflow-visible"
         >
           <defs>
@@ -80,7 +80,7 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
               <stop offset="50%" stopColor={`hsla(${hueSecondary}, 90%, 50%, 0.8)`} />
               <stop offset="100%" stopColor={`hsla(${huePrimary - 40}, 100%, 30%, 0.9)`} />
             </radialGradient>
-            
+
             <radialGradient id="dnaAura" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor={`hsla(${huePrimary}, 90%, 65%, 0.35)`} />
               <stop offset="70%" stopColor={`hsla(${hueSecondary}, 80%, 45%, 0.1)`} />
@@ -90,11 +90,11 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
             {/* Fluid morphing filter */}
             <filter id="fluidFilter">
               <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-              <feColorMatrix 
-                in="blur" 
-                mode="matrix" 
-                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" 
-                result="fluid" 
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+                result="fluid"
               />
               <feComposite in="SourceGraphic" in2="fluid" operator="atop" />
             </filter>
@@ -107,61 +107,61 @@ export function DNAOrb({ conscientiousness, extraversion, size = 180 }: DNAOrbPr
           <g filter="url(#fluidFilter)">
             {/* Core Blob 1 */}
             <circle cx="50" cy="50" r="28" fill="url(#dnaGrad)">
-              <animate 
-                attributeName="r" 
-                values="28;29.5;26.5;28" 
-                dur={animationDuration} 
-                repeatCount="indefinite" 
+              <animate
+                attributeName="r"
+                values="28;29.5;26.5;28"
+                dur={animationDuration}
+                repeatCount="indefinite"
               />
             </circle>
 
             {/* Satellite Blob 2 */}
             <circle cx="42" cy="46" r="14" fill="url(#dnaGrad)">
-              <animate 
-                attributeName="cx" 
-                values="42;45;38;42" 
-                dur={animationDuration} 
-                repeatCount="indefinite" 
+              <animate
+                attributeName="cx"
+                values="42;45;38;42"
+                dur={animationDuration}
+                repeatCount="indefinite"
               />
-              <animate 
-                attributeName="cy" 
-                values="46;40;48;46" 
-                dur={animationDuration} 
-                repeatCount="indefinite" 
+              <animate
+                attributeName="cy"
+                values="46;40;48;46"
+                dur={animationDuration}
+                repeatCount="indefinite"
               />
             </circle>
 
             {/* Satellite Blob 3 */}
             <circle cx="58" cy="54" r="13" fill="url(#dnaGrad)">
-              <animate 
-                attributeName="cx" 
-                values="58;53;61;58" 
-                dur={animationDuration} 
-                repeatCount="indefinite" 
+              <animate
+                attributeName="cx"
+                values="58;53;61;58"
+                dur={animationDuration}
+                repeatCount="indefinite"
               />
-              <animate 
-                attributeName="cy" 
-                values="54;60;50;54" 
-                dur={animationDuration} 
-                repeatCount="indefinite" 
+              <animate
+                attributeName="cy"
+                values="54;60;50;54"
+                dur={animationDuration}
+                repeatCount="indefinite"
               />
             </circle>
           </g>
 
           {/* Center Energy Core */}
-          <circle 
-            cx="50" 
-            cy="50" 
-            r="8" 
-            fill="#ffffff" 
-            opacity="0.8" 
+          <circle
+            cx="50"
+            cy="50"
+            r="8"
+            fill="#ffffff"
+            opacity="0.8"
             style={{ filter: "drop-shadow(0 0 5px #ffffff)" }}
           >
-            <animate 
-              attributeName="r" 
-              values="7;9;7" 
-              dur={`${parseFloat(animationDuration) * 0.6}s`} 
-              repeatCount="indefinite" 
+            <animate
+              attributeName="r"
+              values="7;9;7"
+              dur={`${parseFloat(animationDuration) * 0.6}s`}
+              repeatCount="indefinite"
             />
           </circle>
         </svg>
