@@ -222,7 +222,8 @@ export async function saveUserProfile(
   // 1. Upsert Profile
   const { error: profileError } = await supabase
     .from("profiles")
-    .update({
+    .upsert({
+      id: userId,
       name: profileData.name || "Používateľ",
       age: profileData.age || 18,
       city: profileData.city || "",
@@ -236,23 +237,22 @@ export async function saveUserProfile(
       attachment_style: profileData.attachmentStyle,
       avg_response_time: profileData.avgResponseTime,
       top_priority: profileData.topPriority,
-    })
-    .eq("id", userId);
+    });
 
   if (profileError) {
-    console.error("[Supabase] Profile update failed:", profileError);
+    console.error("[Supabase] Profile upsert failed:", profileError);
     throw profileError;
   }
 
   // 2. Upsert Psychometric Ledger
   const { error: ledgerError } = await supabase
     .from("psychometric_ledger")
-    .update({
+    .upsert({
+      user_id: userId,
       primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
       avg_decision_latency: profileData.avgResponseTime || 0,
       ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
-    })
-    .eq("user_id", userId);
+    });
 
   if (ledgerError) {
     console.error("[Supabase] Ledger update failed:", ledgerError);
