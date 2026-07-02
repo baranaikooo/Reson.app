@@ -305,6 +305,10 @@ function ResonApp() {
     } = onAuthStateChange(async (event, session) => {
       console.log("[auth] auth state changed:", event, session?.user?.email);
 
+      if (event === "USER_UPDATED") {
+        return; // Ignore metadata updates (e.g. theme sync) to prevent accidental logouts
+      }
+
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
         // Double check with Supabase auth server that the user still exists (not deleted)
         const user = await getCurrentUser();
