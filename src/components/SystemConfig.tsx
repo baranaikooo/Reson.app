@@ -407,7 +407,7 @@ export function SystemConfig({
             }`}
           >
             <Snowflake className="size-4 mb-1" />
-            {isFrozen ? "[ ROZBALIŤ ]" : "[ SKRYŤ PROFIL ]"}
+            {isFrozen ? "[ ODKRYŤ PROFIL ]" : "[ SKRYŤ PROFIL ]"}
           </button>
 
           {/* SIGN OUT */}
