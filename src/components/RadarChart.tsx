@@ -60,13 +60,7 @@ export const RadarChart = React.memo(function RadarChart({
           })
           .join(" ");
         return (
-          <polygon
-            key={rIdx}
-            points={ringPoints}
-            fill="none"
-            stroke="#222222"
-            strokeWidth="1"
-          />
+          <polygon key={rIdx} points={ringPoints} fill="none" stroke="#222222" strokeWidth="1" />
         );
       })}
 
@@ -87,12 +81,7 @@ export const RadarChart = React.memo(function RadarChart({
       })}
 
       {/* Main Scored Area Outline (Strict White Line) */}
-      <polygon
-        points={points}
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="1.5"
-      />
+      <polygon points={points} fill="none" stroke="#ffffff" strokeWidth="1.5" />
 
       {/* Monospace Labels */}
       {axes.map((axis, idx) => {

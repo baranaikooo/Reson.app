@@ -4,7 +4,14 @@ import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 
 export type HapticPattern =
-  | "tap" | "success" | "warning" | "recording" | "send" | "reveal" | "phase" | "tick";
+  | "tap"
+  | "success"
+  | "warning"
+  | "recording"
+  | "send"
+  | "reveal"
+  | "phase"
+  | "tick";
 
 const WEB_PATTERNS: Record<HapticPattern, number | number[]> = {
   tap: 10,
@@ -50,11 +57,11 @@ export async function haptic(p: HapticPattern) {
   if (typeof navigator === "undefined") return;
   const nav = navigator as Navigator & { vibrate?: (pattern: number | number[]) => boolean };
   if (typeof nav.vibrate !== "function") return;
-  
-  try { 
-    nav.vibrate(WEB_PATTERNS[p]); 
-  } catch { 
-    /* ignore */ 
+
+  try {
+    nav.vibrate(WEB_PATTERNS[p]);
+  } catch {
+    /* ignore */
   }
 }
 
