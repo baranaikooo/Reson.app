@@ -8,6 +8,11 @@ export type Answers = Partial<Record<`q${1 | 2 | 3 | 4 | 5 | 6}`, Answer>>;
 export type FullAnswers = Required<Answers>;
 export type DimensionId = "q1" | "q2" | "q3" | "q4" | "q5" | "q6";
 
+export type ThemeMode = "dark" | "light";
+
+export type PartnerDecision = "yes" | "no" | "pending";
+export const partnerContinueDecision = "yes";
+
 type Mode = "similar" | "complement";
 type WeightEntry = { mode: Mode; weight: number };
 
@@ -543,7 +548,7 @@ export function calcResonanceWithUncertainty(
   const feedbackCount = userFeedbackHistory.filter(
     (f) =>
       f.dimensionScores &&
-      Object.keys(f.dimensionScores).some(
+      (Object.keys(f.dimensionScores) as DimensionId[]).some(
         (dim) => dimensionScores[dim] === f.dimensionScores![dim],
       ),
   ).length;
@@ -949,7 +954,7 @@ export type MockMatch = {
 
 export const MOCK_MATCHES: MockMatch[] = [];
 
-export type RankedMatch = MockMatch & { score: number; distanceKm?: number };
+export type RankedMatch = MockMatch & { score: number; distanceKm?: number; isAutoExpanded?: boolean };
 
 export const MAX_MATCH_PHOTOS = 6;
 
