@@ -8,7 +8,11 @@ type Prefs = { necessary: true; analytics: boolean; personalization: boolean };
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [prefs, setPrefs] = useState<Prefs>({ necessary: true, analytics: true, personalization: true });
+  const [prefs, setPrefs] = useState<Prefs>({
+    necessary: true,
+    analytics: true,
+    personalization: true,
+  });
 
   useEffect(() => {
     try {
@@ -96,7 +100,8 @@ export function CookieConsent() {
               Tvoje súkromie, tvoja voľba
             </h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Používame cookies, aby Reson fungoval hladko. Voliteľné nám pomáhajú zlepšovať zážitok.
+              Používame cookies, aby Reson fungoval hladko. Voliteľné nám pomáhajú zlepšovať
+              zážitok.
             </p>
           </div>
         </div>
@@ -133,7 +138,9 @@ export function CookieConsent() {
             className="inline-flex items-center gap-1 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground"
           >
             {expanded ? "Skryť detaily" : "Prispôsobiť"}
-            <ChevronDown className={`size-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`size-3 transition-transform ${expanded ? "rotate-180" : ""}`}
+            />
           </button>
           <div className="flex flex-1 justify-end gap-2">
             <button
