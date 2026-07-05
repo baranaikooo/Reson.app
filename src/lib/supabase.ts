@@ -405,7 +405,7 @@ export async function fetchChatMessages(
     from: m.sender_id === myUserId ? "me" : "them",
     text: m.message_text || "",
     ts: new Date(m.created_at).getTime(),
-    media: m.media_url ? { kind: "gif", url: m.media_url } : undefined,
+    media: m.media_url ? { kind: m.duration ? "audio" : "gif", url: m.media_url, duration: m.duration } : undefined,
   }));
 }
 
@@ -504,21 +504,16 @@ export async function uploadVoiceMessageBlob(
     throw uploadError;
   }
 
-  const { data: signedData, error: signedError } = await supabase.storage
+  const { data: publicUrlData } = supabase.storage
     .from("voice-messages")
-    .createSignedUrl(data.path, 3600);
-
-  if (signedError) {
-    console.error("[uploadVoiceMessageBlob] Signed URL creation failed:", signedError);
-    throw signedError;
-  }
+    .getPublicUrl(data.path);
 
   const { data: dbData, error: dbError } = await supabase
     .from("messages")
     .insert({
       match_id: matchId,
       sender_id: senderId,
-      media_url: signedData.signedUrl,
+      media_url: publicUrlData.publicUrl,
       duration,
       message_text: null,
     })

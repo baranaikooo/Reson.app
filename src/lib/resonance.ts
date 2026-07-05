@@ -1106,7 +1106,7 @@ export type ChatMessage = {
   from: "me" | "them";
   text: string;
   ts: number;
-  media?: { kind: "image" | "gif"; url: string };
+  media?: { kind: "image" | "gif" | "audio"; url: string; duration?: number };
 };
 
 export type Conversation = {
