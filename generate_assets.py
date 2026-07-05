@@ -30,6 +30,26 @@ def main():
     smooth_alpha = r.point(lambda p: p if p > 50 else 0)
     master_fg = Image.merge("RGBA", (white_layer.split()[0], white_layer.split()[1], white_layer.split()[2], smooth_alpha))
     
+    # 3. Scale down the wave and center it to ensure it fits perfectly in Android's round safe zone
+    w, h = source_img.size
+    scale_factor = 0.55  # Wave will occupy 55% of the canvas size
+    new_w = int(w * scale_factor)
+    new_h = int(h * scale_factor)
+    offset_x = (w - new_w) // 2
+    offset_y = (h - new_h) // 2
+
+    # Scale and center the Standard Image
+    std_resized = master_std.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    final_std = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+    final_std.paste(std_resized, (offset_x, offset_y))
+    master_std = final_std
+
+    # Scale and center the Foreground Image
+    fg_resized = master_fg.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    final_fg = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    final_fg.paste(fg_resized, (offset_x, offset_y), mask=fg_resized.split()[3])
+    master_fg = final_fg
+
     # Save source images for `@capacitor/assets` tool config
     assets_dir = "assets"
     os.makedirs(assets_dir, exist_ok=True)
