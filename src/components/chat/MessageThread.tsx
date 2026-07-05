@@ -18,7 +18,8 @@ import {
   getOrCreateMatch,
   saveChatMessage,
   fetchChatMessages
-} from "@/lib/supabase"; // Placeholder if used elsewhere
+} from "@/lib/supabase";
+import { VoiceBubble } from "./VoiceBubble";
 
 const THREAD_BLUR_STEP = 8;
 const MOCK_GIFS: string[] = [
@@ -57,6 +58,7 @@ export function MessageThread({
   const [closureOpen, setClosureOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [supabaseMatchId, setSupabaseMatchId] = useState<string | null>(null);
 
@@ -334,6 +336,23 @@ export function MessageThread({
 
         {conversation.messages.map((m) => {
           const mine = m.from === "me";
+          if (m.media && m.media.kind === "audio") {
+            const voiceMsg = {
+              id: m.id,
+              from: m.from,
+              duration: m.media.duration || 0,
+              audioUrl: m.media.url,
+            };
+            return (
+              <VoiceBubble
+                key={m.id}
+                msg={voiceMsg}
+                playing={playingAudioId === m.id}
+                onToggle={() => setPlayingAudioId(playingAudioId === m.id ? null : m.id)}
+                onEnded={() => setPlayingAudioId(null)}
+              />
+            );
+          }
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div
