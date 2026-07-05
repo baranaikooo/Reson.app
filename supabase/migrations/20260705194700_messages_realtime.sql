@@ -41,3 +41,9 @@ CREATE TRIGGER on_blind_vote_inserted
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.matches;
 alter publication supabase_realtime add table public.blind_votes;
+
+-- 5. Make voice-messages bucket public to allow permanent link sharing
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('voice-messages', 'voice-messages', TRUE)
+ON CONFLICT (id) DO UPDATE SET public = TRUE;
+
