@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 
 def main():
     # Source image paths
-    source_img_path = r"C:\Users\baran\.gemini\antigravity\brain\cf911ff9-11a9-474d-87f9-1d746fe760cf\app_icon_1783072559494.jpg"
+    source_img_path = r"C:\Users\baran\.gemini\antigravity\brain\cf911ff9-11a9-474d-87f9-1d746fe760cf\media__1783073032289.png"
     
     if not os.path.exists(source_img_path):
         print(f"Error: Source image not found at {source_img_path}")

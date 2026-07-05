@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
+import { ChatMessage } from "./resonance";
 
 const sanitize = (val: string) => {
   return (val || "").trim().replace(/[^\x20-\x7E]/g, "");
@@ -358,3 +359,178 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     status: data.status, // Map status column (ACTIVE | FROZEN)
   };
 }
+
+export async function saveChatMessage(
+  matchId: string,
+  senderId: string,
+  text: string,
+  media?: { kind: "image" | "gif"; url: string }
+): Promise<any> {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      match_id: matchId,
+      sender_id: senderId,
+      message_text: text,
+      media_url: media?.url || null,
+      duration: null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[saveChatMessage] Error saving chat message:", error);
+    throw error;
+  }
+  return data;
+}
+
+export async function fetchChatMessages(
+  matchId: string,
+  myUserId: string
+): Promise<ChatMessage[]> {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("match_id", matchId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("[fetchChatMessages] Error fetching messages:", error);
+    return [];
+  }
+
+  return data.map((m: any) => ({
+    id: m.id,
+    from: m.sender_id === myUserId ? "me" : "them",
+    text: m.message_text || "",
+    ts: new Date(m.created_at).getTime(),
+    media: m.media_url ? { kind: "gif", url: m.media_url } : undefined,
+  }));
+}
+
+export async function getOrCreateMatch(
+  myUserId: string,
+  partnerUserId: string,
+  evScore: number
+): Promise<{ id: string; is_unlocked: boolean }> {
+  if (!myUserId || !partnerUserId) {
+    throw new Error("[getOrCreateMatch] Missing user IDs");
+  }
+
+  const [user_p, user_q] = [myUserId, partnerUserId].sort();
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("matches")
+    .select("id, is_unlocked")
+    .eq("user_p", user_p)
+    .eq("user_q", user_q)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("[getOrCreateMatch] Error checking for match:", fetchError);
+  }
+
+  if (existing) {
+    return { id: existing.id, is_unlocked: existing.is_unlocked };
+  }
+
+  const { data: created, error: createError } = await supabase
+    .from("matches")
+    .insert({
+      user_p,
+      user_q,
+      ev_score: evScore,
+      is_unlocked: false,
+      status: "active",
+    })
+    .select("id, is_unlocked")
+    .single();
+
+  if (createError) {
+    console.error("[getOrCreateMatch] Error creating match:", createError);
+    throw createError;
+  }
+
+  return { id: created.id, is_unlocked: created.is_unlocked };
+}
+
+export async function submitBlindVote(
+  matchId: string,
+  userId: string,
+  vote: "unlock" | "cancel"
+): Promise<void> {
+  const { error } = await supabase
+    .from("blind_votes")
+    .upsert(
+      {
+        match_id: matchId,
+        user_id: userId,
+        vote,
+      },
+      { onConflict: "match_id, user_id" }
+    );
+
+  if (error) {
+    console.error("[submitBlindVote] Error submitting blind vote:", error);
+    throw error;
+  }
+}
+
+export async function uploadVoiceMessageBlob(
+  matchId: string,
+  senderId: string,
+  blob: Blob,
+  duration: number
+): Promise<any> {
+  try {
+    await supabase.storage.createBucket("voice-messages", { public: false });
+  } catch (e) {
+    // Ignore error
+  }
+
+  const messageId = `msg_${Date.now()}`;
+  const fileName = `matches/${matchId}/${messageId}.wav`;
+
+  const { data, error: uploadError } = await supabase.storage
+    .from("voice-messages")
+    .upload(fileName, blob, {
+      contentType: blob.type || "audio/wav",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.error("[uploadVoiceMessageBlob] Upload failed:", uploadError);
+    throw uploadError;
+  }
+
+  const { data: signedData, error: signedError } = await supabase.storage
+    .from("voice-messages")
+    .createSignedUrl(data.path, 3600);
+
+  if (signedError) {
+    console.error("[uploadVoiceMessageBlob] Signed URL creation failed:", signedError);
+    throw signedError;
+  }
+
+  const { data: dbData, error: dbError } = await supabase
+    .from("messages")
+    .insert({
+      match_id: matchId,
+      sender_id: senderId,
+      media_url: signedData.signedUrl,
+      duration,
+      message_text: null,
+    })
+    .select()
+    .single();
+
+  if (dbError) {
+    console.error("[uploadVoiceMessageBlob] Error saving message row:", dbError);
+    throw dbError;
+  }
+
+  return dbData;
+}
+
+

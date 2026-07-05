@@ -12,7 +12,13 @@ import {
   Shield,
   Check,
 } from "lucide-react";
-import { makeMockToneWavUrl } from "@/lib/media"; // Placeholder if used elsewhere
+import { makeMockToneWavUrl } from "@/lib/media";
+import {
+  supabase,
+  getOrCreateMatch,
+  saveChatMessage,
+  fetchChatMessages
+} from "@/lib/supabase"; // Placeholder if used elsewhere
 
 const THREAD_BLUR_STEP = 8;
 const MOCK_GIFS: string[] = [
@@ -52,6 +58,73 @@ export function MessageThread({
   const [reportOpen, setReportOpen] = useState(false);
   const [showGifs, setShowGifs] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [supabaseMatchId, setSupabaseMatchId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    let channel: any = null;
+
+    async function initChat() {
+      try {
+        const result = await getOrCreateMatch(user.id!, match.id, match.score);
+        if (!active) return;
+        setSupabaseMatchId(result.id);
+
+        const dbMsgs = await fetchChatMessages(result.id, user.id!);
+        if (active) {
+          onUpdate((c) => ({ ...c, messages: dbMsgs }));
+        }
+
+        channel = supabase
+          .channel(`chat:${result.id}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "messages",
+              filter: `match_id=eq.${result.id}`,
+            },
+            (payload) => {
+              const newMsg = payload.new;
+              if (newMsg.sender_id !== user.id) {
+                onUpdate((c) => {
+                  if (c.messages.some((m) => m.id === newMsg.id)) return c;
+                  return {
+                    ...c,
+                    messages: [
+                      ...c.messages,
+                      {
+                        id: newMsg.id,
+                        from: "them",
+                        text: newMsg.message_text || "",
+                        ts: new Date(newMsg.created_at).getTime(),
+                        media: newMsg.media_url ? { kind: "gif", url: newMsg.media_url } : undefined,
+                      },
+                    ],
+                    blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
+                  };
+                });
+              }
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.error("[MessageThread] Init chat failed:", err);
+      }
+    }
+
+    if (user.id && match.id && !user.id.startsWith("00000000")) {
+      initChat();
+    }
+
+    return () => {
+      active = false;
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [user.id, match.id]);
 
   const [pressureActive, setPressureActive] = useState(false);
   const [pressureCompleted, setPressureCompleted] = useState(false);
@@ -105,7 +178,19 @@ export function MessageThread({
       blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
     }));
     setShowGifs(false);
-    triggerReply(myMsg);
+    
+    if (supabaseMatchId) {
+      saveChatMessage(supabaseMatchId, user.id!, "", media)
+        .then((dbMsg) => {
+          onUpdate((c) => ({
+            ...c,
+            messages: c.messages.map((m) => m.id === myMsg.id ? { ...m, id: dbMsg.id } : m),
+          }));
+        })
+        .catch((err) => console.error("[MessageThread] Failed to save media message:", err));
+    } else {
+      triggerReply(myMsg);
+    }
   }
 
   function send() {
@@ -125,7 +210,18 @@ export function MessageThread({
       blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
     }));
 
-    triggerReply(myMsg);
+    if (supabaseMatchId) {
+      saveChatMessage(supabaseMatchId, user.id!, myMsg.text)
+        .then((dbMsg) => {
+          onUpdate((c) => ({
+            ...c,
+            messages: c.messages.map((m) => m.id === myMsg.id ? { ...m, id: dbMsg.id } : m),
+          }));
+        })
+        .catch((err) => console.error("[MessageThread] Failed to save chat message:", err));
+    } else {
+      triggerReply(myMsg);
+    }
   }
 
   function triggerReply(myMsg: ChatMessage) {
