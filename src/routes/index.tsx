@@ -426,6 +426,7 @@ function ResonApp() {
   }, [theme]);
 
   const [liveCandidates, setLiveCandidates] = useState<RankedMatch[]>([]);
+  const [initiatedMatchIds, setInitiatedMatchIds] = useState<Set<string>>(new Set());
   const [isLoadingMarket, setIsLoadingMarket] = useState(false);
 
   useEffect(() => {
@@ -473,6 +474,41 @@ function ResonApp() {
         }));
 
         setLiveCandidates(mapped);
+
+        // Fetch matches where user is a participant to check for sent messages
+        const { data: myMatches } = await supabase
+          .from("matches")
+          .select("id, user_p, user_q")
+          .or(`user_p.eq.${p.id},user_q.eq.${p.id}`);
+
+        const matchIdToPartnerId = new Map<string, string>();
+        if (myMatches) {
+          myMatches.forEach((m: any) => {
+            const partnerId = m.user_p === p.id ? m.user_q : m.user_p;
+            matchIdToPartnerId.set(m.id, partnerId);
+          });
+        }
+
+        const matchIds = Array.from(matchIdToPartnerId.keys());
+        const initiatedPartners = new Set<string>();
+
+        if (matchIds.length > 0) {
+          const { data: sentMessages } = await supabase
+            .from("messages")
+            .select("match_id")
+            .in("match_id", matchIds)
+            .eq("sender_id", p.id);
+
+          if (sentMessages) {
+            sentMessages.forEach((msg: any) => {
+              const partnerId = matchIdToPartnerId.get(msg.match_id);
+              if (partnerId) {
+                initiatedPartners.add(partnerId);
+              }
+            });
+          }
+        }
+        setInitiatedMatchIds(initiatedPartners);
       } catch (err) {
         console.error("Market fetch failed:", err);
       } finally {
@@ -846,6 +882,7 @@ function ResonApp() {
         <AutoMatch
           nextName={pickNextMatch()?.name ?? null}
           hasNext={pickNextMatch() !== null}
+          isInitiated={pickNextMatch() ? initiatedMatchIds.has(pickNextMatch()!.id) : false}
           onReady={() => goToNextMatch()}
         />
       )}
@@ -871,6 +908,7 @@ function ResonApp() {
           }}
           onMessages={() => setScreen("messages")}
           hasMessages={conversations.length > 0}
+          initiatedMatchIds={initiatedMatchIds}
         />
       )}
       {screen === "messages" && (
@@ -1531,6 +1569,7 @@ function Dashboard({
   onSelectMatch,
   onMessages,
   hasMessages,
+  initiatedMatchIds,
 }: {
   profile: UserProfile;
   matches: RankedMatch[];
@@ -1539,6 +1578,7 @@ function Dashboard({
   onSelectMatch: (matchId: string) => void;
   onMessages: () => void;
   hasMessages: boolean;
+  initiatedMatchIds?: Set<string>;
 }) {
   const haptic = useHaptic();
 
@@ -1762,7 +1802,11 @@ function Dashboard({
                   className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-3.5 active:scale-[0.99] transition-all text-xs tracking-widest uppercase hover:bg-foreground/90"
                 >
                   <MessageCircle className="size-4" />
-                  <span>Vstúpiť do hlasového četu</span>
+                  <span>
+                    {initiatedMatchIds?.has(match.id)
+                      ? "Pokračovať v hlasovom čete"
+                      : "Vstúpiť do hlasového četu"}
+                  </span>
                 </button>
               </div>
             );
@@ -2263,10 +2307,12 @@ function ProfileForm({
 function AutoMatch({
   nextName,
   hasNext,
+  isInitiated,
   onReady,
 }: {
   nextName: string | null;
   hasNext: boolean;
+  isInitiated: boolean;
   onReady: () => void;
 }) {
   const haptic = useHaptic();
@@ -2282,7 +2328,11 @@ function AutoMatch({
         ALGORITMUS HĽADÁ TVOJU REZONANCIU
       </p>
       <p className="mt-4 text-sm font-light text-foreground/60 font-mono">
-        {hasNext ? `Pripravujem priestor s ${nextName ?? "tvojím partnerom"}…` : "Hľadám ďalej…"}
+        {hasNext
+          ? isInitiated
+            ? `Pokračujem v hlasovom čete s ${nextName ?? "tvojím partnerom"}…`
+            : `Pripravujem priestor s ${nextName ?? "tvojím partnerom"}…`
+          : "Hľadám ďalej…"}
       </p>
     </div>
   );
