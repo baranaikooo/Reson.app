@@ -7,6 +7,12 @@ import { BlindVote } from "@/components/BlindVote";
 import { VoiceBubble, VoiceMsg } from "@/components/chat/VoiceBubble";
 import { RecordButton } from "@/components/chat/RecordButton";
 import { pickAudioMime, createMediaRecorder, stopStream } from "@/lib/media";
+import {
+  supabase,
+  getOrCreateMatch,
+  submitBlindVote,
+  uploadVoiceMessageBlob
+} from "@/lib/supabase";
 
 // Since Wave is heavily used, let's just create a quick local copy of it for Chamber since we can't easily extract it without creating another file and updating all its usages.
 function Wave({ size = 280, intense = false }: { size?: number; intense?: boolean }) {
@@ -82,6 +88,82 @@ export function Chamber({
   >("voice");
   const [myChoice, setMyChoice] = useState<"unlock" | "cancel" | null>(null);
   const [theirChoice, setTheirChoice] = useState<"unlock" | "cancel" | null>(null);
+  const [supabaseMatchId, setSupabaseMatchId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    let channel: any = null;
+
+    async function initMatch() {
+      try {
+        const result = await getOrCreateMatch(user.id!, match.id, match.score);
+        if (!active) return;
+        setSupabaseMatchId(result.id);
+
+        const { data: dbMessages, error } = await supabase
+          .from("messages")
+          .select("*")
+          .eq("match_id", result.id)
+          .order("created_at", { ascending: true });
+
+        if (error) {
+          console.error("[Chamber] Fetching messages error:", error);
+        } else if (dbMessages && active) {
+          setMessages(
+            dbMessages.map((m: any) => ({
+              id: m.id,
+              from: m.sender_id === user.id ? "me" : "them",
+              duration: m.duration || 0,
+              audioUrl: m.media_url,
+            }))
+          );
+        }
+
+        channel = supabase
+          .channel(`chamber:${result.id}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "messages",
+              filter: `match_id=eq.${result.id}`,
+            },
+            (payload) => {
+              const newMsg = payload.new;
+              if (newMsg.sender_id !== user.id) {
+                setMessages((prev) => {
+                  if (prev.some((x) => x.id === newMsg.id)) return prev;
+                  return [
+                    ...prev,
+                    {
+                      id: newMsg.id,
+                      from: "them",
+                      duration: newMsg.duration || 0,
+                      audioUrl: newMsg.media_url,
+                    },
+                  ];
+                });
+               }
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.error("[Chamber] Init match failed:", err);
+      }
+    }
+
+    if (user.id && match.id && !user.id.startsWith("00000000")) {
+      initMatch();
+    }
+
+    return () => {
+      active = false;
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [user.id, match.id]);
 
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -216,6 +298,17 @@ export function Chamber({
           const url = URL.createObjectURL(blob);
 
           setMessages((prev) => [...prev, { id: msgId, from: "me", duration: dur, audioUrl: url }]);
+
+          if (supabaseMatchId) {
+            uploadVoiceMessageBlob(supabaseMatchId, user.id!, blob, dur)
+              .then((dbMsg) => {
+                setMessages((prev) => prev.map((m) => m.id === msgId ? { ...m, id: dbMsg.id } : m));
+              })
+              .catch((err) => {
+                console.error("[Chamber] Failed to upload voice message:", err);
+                setMicError("Chyba synchronizácie správy so serverom.");
+              });
+          }
           resolve();
         };
       });
@@ -428,26 +521,101 @@ export function Chamber({
 
       {stage === "blindVote" && (
         <BlindVote
-          onVote={(vote) => {
+          onVote={async (vote) => {
             haptic(vote === "unlock" ? "success" : "warning");
             setMyChoice(vote);
             setStage("waiting");
             onFairInteraction();
 
-            // Simulating game theory partner choice
-            setTimeout(() => {
-              const partnerCooperates = Math.random() < (match.score > 70 ? 0.9 : 0.6);
-              const partnerChoice = partnerCooperates ? "unlock" : "cancel";
-              setTheirChoice(partnerChoice);
+            if (!supabaseMatchId) {
+              // Fallback to simulation if supabase is not available (demo mode)
+              setTimeout(() => {
+                const partnerCooperates = Math.random() < (match.score > 70 ? 0.9 : 0.6);
+                const partnerChoice = partnerCooperates ? "unlock" : "cancel";
+                setTheirChoice(partnerChoice);
 
-              if (vote === "unlock" && partnerChoice === "unlock") {
-                haptic("success");
-                onSuccess(0); // transition to normal text thread with blur = 0!
-              } else {
-                haptic("warning");
-                setStage("result-no");
+                if (vote === "unlock" && partnerChoice === "unlock") {
+                  haptic("success");
+                  onSuccess(0);
+                } else {
+                  haptic("warning");
+                  setStage("result-no");
+                }
+              }, 2500);
+              return;
+            }
+
+            try {
+              // Submit our vote to Supabase
+              await submitBlindVote(supabaseMatchId, user.id!, vote);
+
+              // Check if the other user has already voted
+              const { data: partnerVotes } = await supabase
+                .from("blind_votes")
+                .select("vote")
+                .eq("match_id", supabaseMatchId)
+                .neq("user_id", user.id!)
+                .maybeSingle();
+
+              if (partnerVotes) {
+                setTheirChoice(partnerVotes.vote as "unlock" | "cancel");
+                
+                if (partnerVotes.vote === "cancel" || vote === "cancel") {
+                  await supabase
+                    .from("matches")
+                    .update({ status: "deleted" })
+                    .eq("id", supabaseMatchId);
+                  haptic("warning");
+                  setStage("result-no");
+                  return;
+                }
               }
-            }, 2500);
+
+              // Subscribe to match updates (is_unlocked changes)
+              const matchChannel = supabase
+                .channel(`match_status:${supabaseMatchId}`)
+                .on(
+                  "postgres_changes",
+                  {
+                    event: "UPDATE",
+                    schema: "public",
+                    table: "matches",
+                    filter: `id=eq.${supabaseMatchId}`,
+                  },
+                  (payload) => {
+                    const updatedMatch = payload.new;
+                    if (updatedMatch.status === "deleted") {
+                      haptic("warning");
+                      setStage("result-no");
+                    } else if (updatedMatch.is_unlocked) {
+                      haptic("success");
+                      onSuccess(0);
+                    }
+                  }
+                )
+                .subscribe();
+
+              // Also check immediately if already unlocked by Postgres trigger
+              const { data: currentMatch } = await supabase
+                .from("matches")
+                .select("is_unlocked, status")
+                .eq("id", supabaseMatchId)
+                .single();
+
+              if (currentMatch) {
+                if (currentMatch.status === "deleted") {
+                  haptic("warning");
+                  setStage("result-no");
+                } else if (currentMatch.is_unlocked) {
+                  haptic("success");
+                  onSuccess(0);
+                }
+              }
+            } catch (err) {
+              console.error("[Chamber] Vote submission failed:", err);
+              alert("Odoslanie voľby zlyhalo. Skúste znova.");
+              setStage("blindVote");
+            }
           }}
         />
       )}
