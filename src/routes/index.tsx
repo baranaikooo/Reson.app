@@ -298,8 +298,71 @@ function ResonApp() {
     initializeBanditState().catch((err) => console.error("Failed to init bandit state:", err));
   }, []);
 
-  // Handle Supabase auth state changes
+  // Handle Supabase auth state changes and initial session check
   useEffect(() => {
+    let initialized = false;
+
+    // Helper to process session user (load profile, sync theme, etc.)
+    async function processSessionUser(user: any) {
+      const metadata = user.user_metadata;
+
+      // Sync theme from Supabase metadata if exists, otherwise upload current theme
+      const savedTheme = metadata?.theme;
+      if (savedTheme === "light" || savedTheme === "dark") {
+        setTheme(savedTheme);
+        themeLoadedRef.current = true;
+      } else {
+        themeLoadedRef.current = true;
+        supabase.auth
+          .updateUser({
+            data: { theme: themeRef.current },
+          })
+          .catch((err) => console.warn("[theme] failed to sync to Supabase:", err));
+      }
+
+      const profileData: GoogleProfile = {
+        name: metadata?.name || metadata?.full_name || user.email?.split("@")[0] || "Používateľ",
+        email: user.email || "",
+        picture: metadata?.avatar_url || metadata?.picture,
+      };
+      setGoogleProfile(profileData);
+      haptic("success");
+
+      try {
+        setAuthUserId(user.id);
+        const existingProfile = await fetchUserProfile(user.id);
+        if (existingProfile) {
+          setProfile(existingProfile);
+          setScreen("autoMatch");
+        } else {
+          setScreen("liveness");
+        }
+      } catch (err: any) {
+        console.error("[Auth Debug] fetchUserProfile crashed:", err);
+        setScreen("liveness");
+      } finally {
+        setIsAuthenticating(false);
+      }
+    }
+
+    // 1. Initial auth check on mount (prevents landing flash)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const user = await getCurrentUser();
+        if (user) {
+          await processSessionUser(user);
+        } else {
+          setScreen("landing");
+          setIsAuthenticating(false);
+        }
+      } else {
+        setScreen("landing");
+        setIsAuthenticating(false);
+      }
+      initialized = true;
+    });
+
+    // 2. Auth changes subscription for subsequent updates
     const {
       data: { subscription },
     } = onAuthStateChange(async (event, session) => {
@@ -309,60 +372,18 @@ function ResonApp() {
         return; // Ignore metadata updates (e.g. theme sync) to prevent accidental logouts
       }
 
-      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
-        // Double check with Supabase auth server that the user still exists (not deleted)
+      if (!initialized) return; // Skip initial events, getSession handles the mount logic!
+
+      if (session?.user) {
         const user = await getCurrentUser();
-        if (!user) {
-          console.warn("[Auth] User session is invalid or user was deleted. Signing out.");
-          await supabase.auth.signOut();
+        if (user) {
+          await processSessionUser(user);
+        } else {
           setGoogleProfile(null);
           setProfile(null);
           setAuthUserId(null);
           setScreen("landing");
-          setIsAuthenticating(false);
-          return;
-        }
-
-        const metadata = user.user_metadata;
-
-        // Sync theme from Supabase metadata if exists, otherwise upload current theme
-        const savedTheme = metadata?.theme;
-        if (savedTheme === "light" || savedTheme === "dark") {
-          setTheme(savedTheme);
-          themeLoadedRef.current = true;
-        } else {
-          themeLoadedRef.current = true;
-          supabase.auth
-            .updateUser({
-              data: { theme: themeRef.current },
-            })
-            .catch((err) => console.warn("[theme] failed to sync to Supabase:", err));
-        }
-
-        const profileData: GoogleProfile = {
-          name: metadata?.name || metadata?.full_name || user.email?.split("@")[0] || "Používateľ",
-          email: user.email || "",
-          picture: metadata?.avatar_url || metadata?.picture,
-        };
-        setGoogleProfile(profileData);
-        haptic("success");
-
-        // Try to fetch existing completed profile
-        try {
-          setAuthUserId(user.id);
-          const existingProfile = await fetchUserProfile(user.id);
-          if (existingProfile) {
-            setProfile(existingProfile);
-            setScreen("autoMatch");
-          } else {
-            // If no existing profile, start from the beginning (liveness/camera)
-            setScreen("liveness");
-          }
-        } catch (err: any) {
-          console.error("[Auth Debug] fetchUserProfile crashed:", err);
-          setScreen("liveness");
-        } finally {
-          setIsAuthenticating(false);
+          themeLoadedRef.current = false;
         }
       } else {
         setGoogleProfile(null);
@@ -370,36 +391,6 @@ function ResonApp() {
         setAuthUserId(null);
         setScreen("landing");
         themeLoadedRef.current = false;
-        setIsAuthenticating(false);
-      }
-    });
-
-    // Check for existing session on mount
-    getCurrentUser().then((user) => {
-      if (user) {
-        const metadata = user.user_metadata;
-
-        // Sync theme from Supabase metadata if exists, otherwise upload current theme
-        const savedTheme = metadata?.theme;
-        if (savedTheme === "light" || savedTheme === "dark") {
-          setTheme(savedTheme);
-          themeLoadedRef.current = true;
-        } else {
-          themeLoadedRef.current = true;
-          supabase.auth
-            .updateUser({
-              data: { theme: themeRef.current },
-            })
-            .catch((err) => console.warn("[theme] failed to sync to Supabase on mount:", err));
-        }
-
-        const profileData: GoogleProfile = {
-          name: metadata?.name || metadata?.full_name || user.email?.split("@")[0] || "Používateľ",
-          email: user.email || "",
-          picture: metadata?.avatar_url || metadata?.picture,
-        };
-        setGoogleProfile(profileData);
-        // Don't auto-navigate, let user decide
       }
     });
 
@@ -817,10 +808,15 @@ function ResonApp() {
                 if (updated.videoUrls && updated.videoUrls.length > 0) {
                   const uploadPromises = updated.videoUrls.map(async (url, idx) => {
                     if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
-                    const res = await fetch(url);
-                    const blob = await res.blob();
-                    const uploadedUrl = await uploadSnippetVideo(updated.id as string, idx + 1, blob);
-                    return { slot: idx + 1, url: uploadedUrl };
+                    try {
+                      const res = await fetch(url);
+                      const blob = await res.blob();
+                      const uploadedUrl = await uploadSnippetVideo(updated.id as string, idx + 1, blob);
+                      return { slot: idx + 1, url: uploadedUrl };
+                    } catch (fetchErr) {
+                      console.error(`[Onboarding] Failed to upload snippet ${idx + 1}:`, fetchErr);
+                      return { slot: idx + 1, url: null };
+                    }
                   });
                   const results = await Promise.all(uploadPromises);
 
