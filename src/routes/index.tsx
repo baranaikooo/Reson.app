@@ -225,22 +225,40 @@ type Screen =
   | "legal-contact"
   | "profile-dossier";
 
-type ThemeMode = "dark" | "light";
+type ThemeMode = "system" | "dark" | "light";
 function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
   const [mode, setMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return "dark";
-    return (localStorage.getItem("reson:theme") as ThemeMode) || "dark";
+    if (typeof window === "undefined") return "system";
+    return (localStorage.getItem("reson:theme") as ThemeMode) || "system";
   });
+
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.documentElement.classList.remove("dark", "light");
-    document.documentElement.classList.add(mode);
+    if (mode === "system") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.add(isDark ? "dark" : "light");
+    } else {
+      document.documentElement.classList.add(mode);
+    }
     try {
       localStorage.setItem("reson:theme", mode);
     } catch {
       /* ignore */
     }
   }, [mode]);
+
+  useEffect(() => {
+    if (mode !== "system" || typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      document.documentElement.classList.remove("dark", "light");
+      document.documentElement.classList.add(e.matches ? "dark" : "light");
+    };
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, [mode]);
+
   return [mode, setMode];
 }
 

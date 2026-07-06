@@ -86,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "color-scheme", content: "light dark" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -109,11 +110,12 @@ function RootShell({ children }: { children: ReactNode }) {
   const themeScript = `
     (function(){
       try {
-        var t = localStorage.getItem('reson:theme');
+        var t = localStorage.getItem('reson:theme') || 'system';
         if (t === 'light' || t === 'dark') {
           document.documentElement.classList.add(t);
         } else {
-          document.documentElement.classList.add('dark');
+          var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.add(isDark ? 'dark' : 'light');
         }
       } catch(e) {
         document.documentElement.classList.add('dark');
