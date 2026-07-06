@@ -474,13 +474,26 @@ export function SystemConfig({
         <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">
           Vzhľad aplikácie
         </p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => {
+              haptic("tap");
+              onTheme("system");
+            }}
+            className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
+              theme === "system"
+                ? "border-foreground bg-foreground text-background"
+                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
+            }`}
+          >
+            SYSTÉM
+          </button>
           <button
             onClick={() => {
               haptic("tap");
               onTheme("dark");
             }}
-            className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
+            className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
               theme === "dark"
                 ? "border-foreground bg-foreground text-background"
                 : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
@@ -493,7 +506,7 @@ export function SystemConfig({
               haptic("tap");
               onTheme("light");
             }}
-            className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono ${
+            className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
               theme === "light"
                 ? "border-foreground bg-foreground text-background"
                 : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"

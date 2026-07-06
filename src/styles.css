@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
 @theme inline {
   --radius-sm: 0px;
@@ -45,6 +45,102 @@
 :root {
   --radius: 0px;
   --bento-radius: 0px;
+  /* SVETLÝ REŽIM (Light Mode - predvolený) */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0f0;
+  --secondary-foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #666666;
+  --accent: #000000;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #000000;
+  --input: #ffffff;
+  --ring: #000000;
+  --resonance: #000000;
+  --resonance-glow: transparent;
+  --violet-accent: #000000;
+  --gradient-primary: linear-gradient(0deg, #000000, #000000);
+  --gradient-glow: linear-gradient(0deg, #000000, #000000);
+  --gradient-soft: linear-gradient(0deg, #f0f0f0, #f0f0f0);
+  --shadow-glow: none;
+  --shadow-cyan: none;
+}
+
+/* TMAVÝ REŽIM (Dark Mode - automatické systémové prepínanie) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #111111;
+    --card-foreground: #ffffff;
+    --popover: #111111;
+    --popover-foreground: #ffffff;
+    --primary: #ffffff;
+    --primary-foreground: #000000;
+    --secondary: #222222;
+    --secondary-foreground: #ffffff;
+    --muted: #111111;
+    --muted-foreground: #a0a0a0;
+    --accent: #ffffff;
+    --accent-foreground: #000000;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #ffffff;
+    --input: #111111;
+    --ring: #ffffff;
+    --resonance: #ffffff;
+    --resonance-glow: transparent;
+    --violet-accent: #ffffff;
+    --gradient-primary: linear-gradient(0deg, #ffffff, #ffffff);
+    --gradient-glow: linear-gradient(0deg, #ffffff, #ffffff);
+    --gradient-soft: linear-gradient(0deg, #111111, #111111);
+    --shadow-glow: none;
+    --shadow-cyan: none;
+  }
+}
+
+/* Explicitná trieda .light pre vynútenie svetlého režimu */
+.light {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0f0;
+  --secondary-foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #666666;
+  --accent: #000000;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #000000;
+  --input: #ffffff;
+  --ring: #000000;
+  --resonance: #000000;
+  --resonance-glow: transparent;
+  --violet-accent: #000000;
+  --gradient-primary: linear-gradient(0deg, #000000, #000000);
+  --gradient-glow: linear-gradient(0deg, #000000, #000000);
+  --gradient-soft: linear-gradient(0deg, #f0f0f0, #f0f0f0);
+  --shadow-glow: none;
+  --shadow-cyan: none;
+}
+
+/* Explicitná trieda .dark pre vynútenie tmavého režimu */
+.dark {
   --background: #000000;
   --foreground: #ffffff;
   --card: #111111;
@@ -61,7 +157,7 @@
   --accent-foreground: #000000;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #222222;
+  --border: #ffffff;
   --input: #111111;
   --ring: #ffffff;
   --resonance: #ffffff;
@@ -72,33 +168,6 @@
   --gradient-soft: linear-gradient(0deg, #111111, #111111);
   --shadow-glow: none;
   --shadow-cyan: none;
-}
-
-.dark {
-  --background: #000000;
-  --foreground: #ffffff;
-}
-
-.light {
-  --background: #f5f5f5;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #0a0a0a;
-  --primary-foreground: #f5f5f5;
-  --secondary: #e5e5e5;
-  --secondary-foreground: #0a0a0a;
-  --muted: #ebebeb;
-  --muted-foreground: #525252;
-  --accent: #0a0a0a;
-  --accent-foreground: #f5f5f5;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #d4d4d4;
-  --input: #ffffff;
-  --ring: #0a0a0a;
 }
 
 @layer base {
