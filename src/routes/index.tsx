@@ -876,12 +876,14 @@ function ResonApp() {
         />
       )}
       {screen === "autoMatch" && (
-        <AutoMatch
-          nextName={pickNextMatch()?.name ?? null}
-          hasNext={pickNextMatch() !== null}
-          isInitiated={pickNextMatch() ? initiatedMatchIds.has(pickNextMatch()!.id) : false}
-          onReady={() => goToNextMatch()}
-        />
+        <div className="animate-kinetic-fade">
+          <AutoMatch
+            nextName={pickNextMatch()?.name ?? null}
+            hasNext={pickNextMatch() !== null}
+            isInitiated={pickNextMatch() ? initiatedMatchIds.has(pickNextMatch()!.id) : false}
+            onReady={() => goToNextMatch()}
+          />
+        </div>
       )}
       {screen === "chamber" && activeMatch && profile && (
         <Chamber
@@ -894,35 +896,39 @@ function ResonApp() {
         />
       )}
       {screen === "noOne" && profile && (
-        <Dashboard
-          profile={profile}
-          matches={rankedMatches}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          onSelectMatch={(id) => {
-            setActiveMatchId(id);
-            setScreen("chamber");
-          }}
-          onMessages={() => setScreen("messages")}
-          hasMessages={conversations.length > 0}
-          initiatedMatchIds={initiatedMatchIds}
-        />
+        <div className="animate-kinetic-fade">
+          <Dashboard
+            profile={profile}
+            matches={rankedMatches}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            onSelectMatch={(id) => {
+              setActiveMatchId(id);
+              setScreen("chamber");
+            }}
+            onMessages={() => setScreen("messages")}
+            hasMessages={conversations.length > 0}
+            initiatedMatchIds={initiatedMatchIds}
+          />
+        </div>
       )}
       {screen === "messages" && (
-        <MessagesList
-          conversations={conversations}
-          matches={liveCandidates}
-          onOpen={(id) => {
-            haptic("tap");
-            setActiveConversationId(id);
-            setConversations((cs) => cs.map((c) => (c.id === id ? { ...c, unread: false } : c)));
-            setScreen("thread");
-          }}
-          onFindNew={() => {
-            haptic("tap");
-            goToNextMatch();
-          }}
-        />
+        <div className="animate-kinetic-fade">
+          <MessagesList
+            conversations={conversations}
+            matches={liveCandidates}
+            onOpen={(id) => {
+              haptic("tap");
+              setActiveConversationId(id);
+              setConversations((cs) => cs.map((c) => (c.id === id ? { ...c, unread: false } : c)));
+              setScreen("thread");
+            }}
+            onFindNew={() => {
+              haptic("tap");
+              goToNextMatch();
+            }}
+          />
+        </div>
       )}
       {screen === "thread" && activeConversation && activeConversationMatch && profile && (
         <MessageThread
@@ -938,19 +944,21 @@ function ResonApp() {
       )}
 
       {screen === "settings" && profile && (
-        <SystemConfig
-          user={profile!}
-          onUpdateUser={setProfile as React.Dispatch<React.SetStateAction<UserProfile | null>>}
-          theme={theme}
-          onTheme={(m) => {
-            haptic("tap");
-            setTheme(m);
-          }}
-          onOpenTerms={() => setScreen("legal-terms")}
-          onOpenPrivacy={() => setScreen("legal-privacy")}
-          onOpenCookies={() => setScreen("legal-cookies")}
-          onOpenContact={() => setScreen("legal-contact")}
-        />
+        <div className="animate-kinetic-fade">
+          <SystemConfig
+            user={profile!}
+            onUpdateUser={setProfile as React.Dispatch<React.SetStateAction<UserProfile | null>>}
+            theme={theme}
+            onTheme={(m) => {
+              haptic("tap");
+              setTheme(m);
+            }}
+            onOpenTerms={() => setScreen("legal-terms")}
+            onOpenPrivacy={() => setScreen("legal-privacy")}
+            onOpenCookies={() => setScreen("legal-cookies")}
+            onOpenContact={() => setScreen("legal-contact")}
+          />
+        </div>
       )}
       {screen === "legal-terms" && (
         <LegalPage
@@ -973,11 +981,13 @@ function ResonApp() {
         <LegalPage title="Kontakt" onBack={() => setScreen("settings")} body={CONTACT_BODY} />
       )}
       {screen === "profile-dossier" && profile && (
-        <AssetDossier
-          user={profile}
-          onBack={() => setScreen("autoMatch")}
-          onUpdateUser={setProfile}
-        />
+        <div className="animate-kinetic-fade">
+          <AssetDossier
+            user={profile}
+            onBack={() => setScreen("autoMatch")}
+            onUpdateUser={setProfile}
+          />
+        </div>
       )}
 
       {showNav && (
@@ -1146,7 +1156,13 @@ function Landing({
 }) {
   const haptic = useHaptic();
   return (
-    <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
+    <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center animate-fade-up overflow-hidden">
+      {/* Background Liquid Sonar */}
+      <div className="absolute inset-0 pointer-events-none grid place-items-center opacity-[0.06] dark:opacity-[0.03] overflow-hidden">
+        <div className="animate-liquid-sonar scale-[2] md:scale-[2.4]">
+          <Wave size={400} intense />
+        </div>
+      </div>
       <div className="relative z-10 flex flex-col items-center max-w-sm w-full">
         {/* Terminal Header */}
         <div className="border border-foreground/20 px-4 py-2 font-mono text-[10px] tracking-widest text-foreground/50 mb-4 uppercase">
@@ -1570,6 +1586,195 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
   );
 }
 
+interface MatchCardProps {
+  match: RankedMatch;
+  profile: UserProfile;
+  similarityPct: number;
+  extLabel: string;
+  attachmentLabel: string;
+  isSecureMatch: boolean;
+  initiatedMatchIds?: Set<string>;
+  onSelectMatch: (id: string) => void;
+}
+
+function MatchCard({
+  match,
+  profile,
+  similarityPct,
+  extLabel,
+  attachmentLabel,
+  isSecureMatch,
+  initiatedMatchIds,
+  onSelectMatch,
+}: MatchCardProps) {
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startX = useRef(0);
+  const haptic = useHaptic();
+
+  const handleStart = (clientX: number) => {
+    startX.current = clientX;
+    setIsDragging(true);
+  };
+
+  const handleMove = (clientX: number) => {
+    if (!isDragging) return;
+    const diff = clientX - startX.current;
+    const clampedDiff = Math.max(-140, Math.min(140, diff));
+    setDragX(clampedDiff);
+  };
+
+  const handleEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    if (dragX < -100) {
+      haptic("warning");
+      // Snap back on release
+      setDragX(0);
+    } else {
+      setDragX(0);
+    }
+  };
+
+  return (
+    <div
+      onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+      onTouchMove={(e) => handleMove(e.touches[0].clientX)}
+      onTouchEnd={handleEnd}
+      onMouseDown={(e) => handleStart(e.clientX)}
+      onMouseMove={(e) => {
+        if (e.buttons === 1) handleMove(e.clientX);
+      }}
+      onMouseUp={handleEnd}
+      onMouseLeave={handleEnd}
+      style={{
+        transform: `translate3d(${dragX}px, 0, 0) translateZ(0)`,
+        transition: isDragging
+          ? "none"
+          : "transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        cursor: isDragging ? "grabbing" : "grab",
+        touchAction: "pan-y",
+      }}
+      className="border border-foreground/10 bg-card p-6 relative overflow-hidden hover:border-foreground/30 select-none will-change-transform"
+    >
+      {/* Match Score Badge */}
+      <div className="absolute top-4 right-4 bg-foreground/10 border border-foreground/20 px-2.5 py-1 font-mono text-[10px] font-bold text-foreground tracking-widest pointer-events-none">
+        ZHODA {Math.round(match.score)}%
+      </div>
+
+      <div className="flex gap-4 items-start mb-6 pointer-events-none">
+        {/* Blurred video avatar with CCTV aesthetics */}
+        <div className="relative size-16 shrink-0 overflow-hidden border border-foreground/25 rounded-none bg-black">
+          {match.videoUrls && match.videoUrls.length > 0 ? (
+            <video
+              src={match.videoUrls[0]}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="size-full object-contain bg-black blur-[5px]"
+            />
+          ) : (
+            <img
+              src={match.img}
+              alt={match.name}
+              className="size-full object-cover blur-md scale-125"
+            />
+          )}
+          {/* CCTV Overlay Indicator */}
+          <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
+            <span className="size-1 animate-pulse rounded-full bg-red-500" />
+            <span className="font-mono text-[6px] tracking-tighter text-white">LIVE</span>
+          </div>
+        </div>
+        <div className="min-w-0 pr-16">
+          <h3 className="text-lg font-bold text-foreground leading-tight">
+            {match.name},{" "}
+            <span className="text-foreground/60 font-light">{match.age}</span>
+          </h3>
+          <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
+            <span>{match.city}</span>
+            {match.distanceKm !== undefined && (
+              <>
+                <span>•</span>
+                <span>{Math.round(match.distanceKm)} km</span>
+              </>
+            )}
+            {match.isAutoExpanded && (
+              <span className="bg-amber-500/15 border border-amber-500/30 px-1 py-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 rounded-none tracking-normal">
+                [ROZŠÍRENÝ OKRUH]
+              </span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      {/* Micro-bio */}
+      <p className="text-xs text-foreground/70 leading-relaxed mb-6 italic bg-foreground/[0.02] border border-foreground/10 p-3 font-mono pointer-events-none">
+        &ldquo;{match.bio}&rdquo;
+      </p>
+
+      {/* Compatibility Metrics */}
+      <div className="space-y-3.5 mb-6 border-t border-foreground/10 pt-5 pointer-events-none">
+        {/* Similarity metric */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
+            <span>Kognitívna zhoda</span>
+            <span className="text-foreground font-bold">{similarityPct}%</span>
+          </div>
+          <div className="h-[3px] w-full bg-foreground/10 overflow-hidden">
+            <div
+              className="h-full bg-foreground transition-all duration-500"
+              style={{ width: `${similarityPct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Complementarity metric */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
+            <span>Energia</span>
+            <span className="text-foreground font-bold">OPTIMÁLNA</span>
+          </div>
+          <p className="text-[10px] text-foreground/45 font-mono">{extLabel}</p>
+        </div>
+
+        {/* Attachment style metric */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
+            <span>Vzťahová väzba</span>
+            <span
+              className={`${isSecureMatch ? "text-foreground" : "text-foreground/70"} font-bold`}
+            >
+              {isSecureMatch ? "KOMPATIBILNÁ" : "ŠTANDARDNÁ"}
+            </span>
+          </div>
+          <p className="text-[10px] text-foreground/45 font-mono">{attachmentLabel}</p>
+        </div>
+      </div>
+
+      {/* Action button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          haptic("medium");
+          onSelectMatch(match.id);
+        }}
+        className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-3.5 active:scale-[0.99] transition-all text-xs tracking-widest uppercase hover:bg-foreground/90 cursor-pointer"
+      >
+        <MessageCircle className="size-4" />
+        <span>
+          {initiatedMatchIds?.has(match.id)
+            ? "Pokračovať v hlasovom čete"
+            : "Vstúpiť do hlasového četu"}
+        </span>
+      </button>
+    </div>
+  );
+}
+
 function Dashboard({
   profile,
   matches,
@@ -1595,7 +1800,14 @@ function Dashboard({
   const availableMatches = matches.slice(0, 3); // limit to 3 curated daily matches
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
+    <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up relative overflow-hidden">
+      {/* Background Liquid Sonar */}
+      <div className="absolute inset-0 pointer-events-none grid place-items-center opacity-[0.06] dark:opacity-[0.03] overflow-hidden">
+        <div className="animate-liquid-sonar scale-[1.8] md:scale-[2.2]">
+          <Wave size={400} intense />
+        </div>
+      </div>
+
       {/* Top Header */}
       <div className="mb-8 flex items-center justify-between">
         <Logo />
@@ -1701,123 +1913,17 @@ function Dashboard({
             const attachmentLabel = isSecureMatch ? "Bezpečný štýl väzby" : "Bežný štýl väzby";
 
             return (
-              <div
+              <MatchCard
                 key={match.id}
-                className="border border-foreground/10 bg-card p-6 transition-all duration-300 relative overflow-hidden hover:border-foreground/30"
-              >
-                {/* Match Score Badge */}
-                <div className="absolute top-4 right-4 bg-foreground/10 border border-foreground/20 px-2.5 py-1 font-mono text-[10px] font-bold text-foreground tracking-widest">
-                  ZHODA {Math.round(match.score)}%
-                </div>
-
-                <div className="flex gap-4 items-start mb-6">
-                  {/* Blurred video avatar with CCTV aesthetics */}
-                  <div className="relative size-16 shrink-0 overflow-hidden border border-foreground/25 rounded-none bg-black">
-                    {match.videoUrls && match.videoUrls.length > 0 ? (
-                      <video
-                        src={match.videoUrls[0]}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="size-full object-contain bg-black blur-[5px]"
-                      />
-                    ) : (
-                      <img
-                        src={match.img}
-                        alt={match.name}
-                        className="size-full object-cover blur-md scale-125"
-                      />
-                    )}
-                    {/* CCTV Overlay Indicator */}
-                    <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
-                      <span className="size-1 animate-pulse rounded-full bg-red-500" />
-                      <span className="font-mono text-[6px] tracking-tighter text-white">LIVE</span>
-                    </div>
-                  </div>
-                  <div className="min-w-0 pr-16">
-                    <h3 className="text-lg font-bold text-foreground leading-tight">
-                      {match.name},{" "}
-                      <span className="text-foreground/60 font-light">{match.age}</span>
-                    </h3>
-                    <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
-                      <span>{match.city}</span>
-                      {match.distanceKm !== undefined && (
-                        <>
-                          <span>•</span>
-                          <span>{Math.round(match.distanceKm)} km</span>
-                        </>
-                      )}
-                      {match.isAutoExpanded && (
-                        <span className="bg-amber-500/15 border border-amber-500/30 px-1 py-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 rounded-none tracking-normal">
-                          [ROZŠÍRENÝ OKRUH]
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Micro-bio */}
-                <p className="text-xs text-foreground/70 leading-relaxed mb-6 italic bg-foreground/[0.02] border border-foreground/10 p-3 font-mono">
-                  &ldquo;{match.bio}&rdquo;
-                </p>
-
-                {/* Compatibility Metrics */}
-                <div className="space-y-3.5 mb-6 border-t border-foreground/10 pt-5">
-                  {/* Similarity metric */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Kognitívna zhoda</span>
-                      <span className="text-foreground font-bold">{similarityPct}%</span>
-                    </div>
-                    <div className="h-[3px] w-full bg-foreground/10 overflow-hidden">
-                      <div
-                        className="h-full bg-foreground transition-all duration-500"
-                        style={{ width: `${similarityPct}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Complementarity metric */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Energia</span>
-                      <span className="text-foreground font-bold">OPTIMÁLNA</span>
-                    </div>
-                    <p className="text-[10px] text-foreground/45 font-mono">{extLabel}</p>
-                  </div>
-
-                  {/* Attachment style metric */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
-                      <span>Vzťahová väzba</span>
-                      <span
-                        className={`${isSecureMatch ? "text-foreground" : "text-foreground/70"} font-bold`}
-                      >
-                        {isSecureMatch ? "KOMPATIBILNÁ" : "ŠTANDARDNÁ"}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-foreground/45 font-mono">{attachmentLabel}</p>
-                  </div>
-                </div>
-
-                {/* Action button */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    haptic("medium");
-                    onSelectMatch(match.id);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-3.5 active:scale-[0.99] transition-all text-xs tracking-widest uppercase hover:bg-foreground/90"
-                >
-                  <MessageCircle className="size-4" />
-                  <span>
-                    {initiatedMatchIds?.has(match.id)
-                      ? "Pokračovať v hlasovom čete"
-                      : "Vstúpiť do hlasového četu"}
-                  </span>
-                </button>
-              </div>
+                match={match}
+                profile={profile}
+                similarityPct={similarityPct}
+                extLabel={extLabel}
+                attachmentLabel={attachmentLabel}
+                isSecureMatch={isSecureMatch}
+                initiatedMatchIds={initiatedMatchIds}
+                onSelectMatch={onSelectMatch}
+              />
             );
           })}
         </div>
