@@ -33,35 +33,57 @@ const WEB_PATTERNS: Record<HapticPattern, number | number[]> = {
 };
 
 export async function haptic(p: HapticPattern) {
+  const profile = typeof window !== "undefined" ? window.localStorage.getItem("reson_haptic_profile") || "TACTILE" : "TACTILE";
+  if (profile === "STEALTH") return;
+
   // 1. NATIVE CAPACITOR HAPTICS (iOS/Android APK)
   if (Capacitor.isNativePlatform()) {
     try {
-      switch (p) {
-        case "tap":
-        case "send":
-        case "tick":
-          await Haptics.impact({ style: ImpactStyle.Light });
-          break;
-        case "phase":
-        case "recording":
-        case "reveal":
-        case "medium":
-          await Haptics.impact({ style: ImpactStyle.Medium });
-          break;
-        case "heavy":
-          await Haptics.impact({ style: ImpactStyle.Heavy });
-          break;
-        case "warning":
-          // Použijeme Heavy impact alebo Warning notifikáciu
-          await Haptics.notification({ type: NotificationType.Warning });
-          break;
-        case "error":
-        case "destructive":
-          await Haptics.notification({ type: NotificationType.Error });
-          break;
-        case "success":
-          await Haptics.notification({ type: NotificationType.Success });
-          break;
+      if (profile === "MECHANICAL") {
+        // Boost everything to Heavy or Error/Warning notifications
+        switch (p) {
+          case "error":
+          case "destructive":
+            await Haptics.notification({ type: NotificationType.Error });
+            break;
+          case "success":
+            await Haptics.notification({ type: NotificationType.Success });
+            break;
+          case "warning":
+            await Haptics.notification({ type: NotificationType.Warning });
+            break;
+          default:
+            await Haptics.impact({ style: ImpactStyle.Heavy });
+            break;
+        }
+      } else {
+        // TACTILE (Standard tactile feedback)
+        switch (p) {
+          case "tap":
+          case "send":
+          case "tick":
+            await Haptics.impact({ style: ImpactStyle.Light });
+            break;
+          case "phase":
+          case "recording":
+          case "reveal":
+          case "medium":
+            await Haptics.impact({ style: ImpactStyle.Medium });
+            break;
+          case "heavy":
+            await Haptics.impact({ style: ImpactStyle.Heavy });
+            break;
+          case "warning":
+            await Haptics.notification({ type: NotificationType.Warning });
+            break;
+          case "error":
+          case "destructive":
+            await Haptics.notification({ type: NotificationType.Error });
+            break;
+          case "success":
+            await Haptics.notification({ type: NotificationType.Success });
+            break;
+        }
       }
       return; // Ak natívna haptika zbehla, nepokračujeme na webový fallback
     } catch (e) {
@@ -75,7 +97,15 @@ export async function haptic(p: HapticPattern) {
   if (typeof nav.vibrate !== "function") return;
 
   try {
-    nav.vibrate(WEB_PATTERNS[p]);
+    let pattern = WEB_PATTERNS[p];
+    if (profile === "MECHANICAL") {
+      if (typeof pattern === "number") {
+        pattern = Math.max(60, pattern * 3);
+      } else {
+        pattern = pattern.map((v) => Math.max(60, v * 3));
+      }
+    }
+    nav.vibrate(pattern);
   } catch {
     /* ignore */
   }

@@ -16,6 +16,7 @@ import {
 import { UserProfile, ThemeMode } from "@/lib/resonance";
 import { useHaptic } from "@/hooks/use-haptics";
 import { supabase } from "@/lib/supabase";
+import { BackgroundGeoEngine } from "@/lib/geo";
 
 interface SystemConfigProps {
   user: UserProfile;
@@ -54,6 +55,86 @@ export function SystemConfig({
 
   // Market freeze state
   const [isFrozen, setIsFrozen] = useState(user.status === "FROZEN");
+
+  // Local personalization states
+  const [hapticProfile, setHapticProfile] = useState<"STEALTH" | "TACTILE" | "MECHANICAL">(
+    user.haptic_profile || (localStorage.getItem("reson_haptic_profile") as any) || "TACTILE"
+  );
+  const [geoDensity, setGeoDensity] = useState<"ECO_5KM" | "BALANCED_2KM" | "HIGH_FREQ_500M">(
+    user.geo_density || (localStorage.getItem("reson_geo_density") as any) || "BALANCED_2KM"
+  );
+  const [uiSpeed, setUiSpeed] = useState<"TYPEWRITER_ANIMATED" | "INSTANT_RAW">(
+    user.ui_speed || (localStorage.getItem("reson_ui_speed") as any) || "TYPEWRITER_ANIMATED"
+  );
+
+  // Sync initial database settings to state and local storage on mount/update
+  useEffect(() => {
+    if (user.haptic_profile) {
+      setHapticProfile(user.haptic_profile);
+      localStorage.setItem("reson_haptic_profile", user.haptic_profile);
+    }
+    if (user.geo_density) {
+      setGeoDensity(user.geo_density);
+      localStorage.setItem("reson_geo_density", user.geo_density);
+      BackgroundGeoEngine.setDistanceFilter(user.geo_density);
+    }
+    if (user.ui_speed) {
+      setUiSpeed(user.ui_speed);
+      localStorage.setItem("reson_ui_speed", user.ui_speed);
+    }
+  }, [user.haptic_profile, user.geo_density, user.ui_speed]);
+
+  async function handleUpdateHapticProfile(val: "STEALTH" | "TACTILE" | "MECHANICAL") {
+    setHapticProfile(val);
+    localStorage.setItem("reson_haptic_profile", val);
+    haptic("tap");
+
+    if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ haptic_profile: val })
+        .eq("id", user.id);
+      if (error) {
+        console.error("[settings] failed to save haptic profile in database:", error);
+      }
+    }
+    onUpdateUser((prev) => (prev ? { ...prev, haptic_profile: val } : null));
+  }
+
+  async function handleUpdateGeoDensity(val: "ECO_5KM" | "BALANCED_2KM" | "HIGH_FREQ_500M") {
+    setGeoDensity(val);
+    localStorage.setItem("reson_geo_density", val);
+    BackgroundGeoEngine.setDistanceFilter(val);
+    haptic("tap");
+
+    if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ geo_density: val })
+        .eq("id", user.id);
+      if (error) {
+        console.error("[settings] failed to save geo density in database:", error);
+      }
+    }
+    onUpdateUser((prev) => (prev ? { ...prev, geo_density: val } : null));
+  }
+
+  async function handleUpdateUiSpeed(val: "TYPEWRITER_ANIMATED" | "INSTANT_RAW") {
+    setUiSpeed(val);
+    localStorage.setItem("reson_ui_speed", val);
+    haptic("tap");
+
+    if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ ui_speed: val })
+        .eq("id", user.id);
+      if (error) {
+        console.error("[settings] failed to save UI speed in database:", error);
+      }
+    }
+    onUpdateUser((prev) => (prev ? { ...prev, ui_speed: val } : null));
+  }
 
   // Fetch permissions status on mount
   useEffect(() => {
@@ -293,6 +374,97 @@ export function SystemConfig({
             >
               {messageAlerts ? "[ ZAPNUTÉ ]" : "[ VYPNUTÉ ]"}
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Personalization & System Engine Configs */}
+      <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+          HARDWARE & PERSONALIZÁCIA
+        </p>
+
+        <div className="space-y-4 font-mono text-xs">
+          {/* Haptic profile */}
+          <div className="space-y-2 border-b border-foreground/5 pb-3">
+            <div className="flex justify-between items-center">
+              <span className="text-foreground/60 uppercase">Haptický profil</span>
+              <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
+                {hapticProfile}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              {(["STEALTH", "TACTILE", "MECHANICAL"] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handleUpdateHapticProfile(p)}
+                  className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
+                    hapticProfile === p
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* GPS background tracking density */}
+          <div className="space-y-2 border-b border-foreground/5 pb-3">
+            <div className="flex justify-between items-center">
+              <span className="text-foreground/60 uppercase">Frekvencia GPS</span>
+              <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
+                {geoDensity.replace("_", " ")}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              {(["ECO_5KM", "BALANCED_2KM", "HIGH_FREQ_500M"] as const).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => handleUpdateGeoDensity(d)}
+                  className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
+                    geoDensity === d
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
+                  }`}
+                >
+                  {d.split("_")[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Progressive Typewriter rendering speed */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-foreground/60 uppercase">Vykresľovanie textu</span>
+              <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
+                {uiSpeed === "TYPEWRITER_ANIMATED" ? "POSTUPNÉ" : "OKAMŽITÉ"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleUpdateUiSpeed("TYPEWRITER_ANIMATED")}
+                className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
+                  uiSpeed === "TYPEWRITER_ANIMATED"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
+                }`}
+              >
+                TYPEWRITER
+              </button>
+              <button
+                onClick={() => handleUpdateUiSpeed("INSTANT_RAW")}
+                className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
+                  uiSpeed === "INSTANT_RAW"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
+                }`}
+              >
+                RAW (OKAMŽITE)
+              </button>
+            </div>
           </div>
         </div>
       </div>
