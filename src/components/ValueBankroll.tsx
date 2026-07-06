@@ -113,12 +113,12 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
             <div key={cat.id} className="border border-foreground/10 bg-card p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div className="space-y-0.5 pr-2">
-                  <h5 className="text-sm font-semibold text-foreground/90 uppercase">
+                  <h5 className="text-base font-bold text-foreground uppercase">
                     {cat.label}
                   </h5>
-                  <p className="text-xs text-foreground/50 leading-relaxed font-mono">{cat.desc}</p>
+                  <p className="text-sm text-foreground/55 leading-relaxed font-mono">{cat.desc}</p>
                 </div>
-                <div className="bg-foreground/10 px-2.5 py-1 font-mono text-sm font-bold text-foreground">
+                <div className="bg-foreground/10 px-3 py-1.5 font-mono text-base font-bold text-foreground">
                   {val}
                 </div>
               </div>
@@ -145,15 +145,15 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
           type="button"
           disabled={allocatedSum !== totalChips}
           onClick={handleConfirm}
-          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all"
         >
           {allocatedSum === totalChips ? (
             <>
-              <Check className="size-4" />
+              <Check className="size-5" />
               <span>ULOŽIŤ PRIORITNÝ PROFIL</span>
             </>
           ) : (
-            <span className="font-mono">ROZDEĽ EŠTE {remainingChips} BODOV</span>
+            <span className="font-mono text-lg tracking-wider">ROZDEĽ EŠTE {remainingChips} BODOV</span>
           )}
         </button>
       </div>
