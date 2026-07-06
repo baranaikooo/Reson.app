@@ -289,9 +289,9 @@ export function PressureChat({
               />
             </div>
           ) : (
-            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-4 py-3 text-foreground/90 text-sm leading-relaxed self-start animate-fade-in">
+            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-4 py-3 text-foreground text-base md:text-lg font-bold leading-relaxed self-start animate-fade-in">
               {scenario.message}
-              <span className="block text-[9px] text-foreground/30 text-right mt-1.5 font-mono">
+              <span className="block text-[10px] text-foreground/35 text-right mt-1.5 font-mono">
                 doručené
               </span>
             </div>
@@ -310,9 +310,15 @@ export function PressureChat({
       </div>
 
       {/* Decision Prompt Label */}
-      <p className="text-center font-mono text-[10px] tracking-wider text-foreground/45 uppercase mb-4">
-        {isTyping ? "Čakaj na správu..." : "Máš jeden dotyk! Prvý dotyk odosiela:"}
-      </p>
+      {isTyping ? (
+        <p className="text-center font-mono text-base md:text-lg tracking-wider text-foreground/50 uppercase mb-4 animate-pulse">
+          Čakaj na správu...
+        </p>
+      ) : (
+        <div className="border-2 border-white bg-black text-white p-4 mb-4 uppercase text-center font-mono text-base md:text-lg font-bold tracking-wider">
+          Máš jeden dotyk! Prvý dotyk odosiela:
+        </div>
+      )}
 
       {/* Choices Grid (Strict One-Tap Submit) */}
       <div className="space-y-3">
@@ -322,9 +328,9 @@ export function PressureChat({
             type="button"
             disabled={clicked || isTyping}
             onClick={() => handleSelect(opt.style)}
-            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-6 py-3.5 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200"
+            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-6 py-4 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200"
           >
-            <p className="text-xs font-medium leading-relaxed text-foreground/80">{opt.text}</p>
+            <p className="text-base md:text-lg font-bold leading-relaxed text-foreground">{opt.text}</p>
           </button>
         ))}
       </div>
