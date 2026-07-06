@@ -20,6 +20,13 @@ export function EncryptedText({
   const [revealedLength, setRevealedLength] = useState(0);
   const [scrambledText, setScrambledText] = useState("");
 
+  const uiSpeed = typeof window !== "undefined" ? window.localStorage.getItem("reson_ui_speed") || "TYPEWRITER_ANIMATED" : "TYPEWRITER_ANIMATED";
+  const isInstant = uiSpeed === "INSTANT_RAW";
+
+  if (isInstant) {
+    return <span className={revealedClassName}>{text}</span>;
+  }
+
   // Reveal characters one-by-one
   useEffect(() => {
     setRevealedLength(0);

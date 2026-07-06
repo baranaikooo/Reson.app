@@ -882,6 +882,9 @@ export type UserProfile = {
   livenessVerified?: boolean; // Biometric verified tier
   verifiedAt?: string; // ISO timestamp of verification
   status?: "ACTIVE" | "FROZEN" | "BANNED";
+  haptic_profile?: "STEALTH" | "TACTILE" | "MECHANICAL";
+  geo_density?: "ECO_5KM" | "BALANCED_2KM" | "HIGH_FREQ_500M";
+  ui_speed?: "TYPEWRITER_ANIMATED" | "INSTANT_RAW";
 };
 
 export function haversineKm(
