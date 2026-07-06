@@ -56,6 +56,7 @@ import {
 
 import { SonarScan } from "@/components/SonarScan";
 import { GoogleSignInButton, type GoogleProfile } from "@/components/GoogleSignInButton";
+import { EncryptedText } from "@/components/ui/encrypted-text";
 import { Blobs, Chip, PillButton, SoftCard, HandNote } from "@/components/Playful";
 import { useHaptic } from "@/hooks/use-haptics";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -1185,14 +1186,26 @@ function Landing({
         <h1 className="font-sans text-5xl font-black uppercase tracking-tighter text-foreground">
           Reson
         </h1>
-        <p className="mt-4 text-sm font-medium leading-relaxed text-foreground/75 font-mono">
-          SPOZNAJ DRUHÝCH SKÔR, NEŽ ICH UVIDÍŠ.
-          <span className="block mt-1 text-foreground/50">ŽIADNE SWIPOVANIE. IBA HLAS.</span>
+        <div className="mt-4 text-sm font-medium leading-relaxed text-foreground/75 font-mono min-h-[75px]">
+          <EncryptedText
+            text="SPOZNAJ DRUHÝCH SKÔR, NEŽ ICH UVIDÍŠ."
+            encryptedClassName="text-foreground/30"
+            revealedClassName="text-foreground font-bold"
+            revealDelayMs={40}
+          />
+          <span className="block mt-1 text-foreground/50">
+            <EncryptedText
+              text="ŽIADNE SWIPOVANIE. IBA HLAS."
+              encryptedClassName="text-foreground/20"
+              revealedClassName="text-foreground/70"
+              revealDelayMs={60}
+            />
+          </span>
           <span className="block mt-3 text-[9px] text-foreground/35 uppercase tracking-wider">
             // EV(Compatibility) = 0.6 * Similarity(depth, conscientiousness) + 0.4 *
             Complementarity(extraversion)
           </span>
-        </p>
+        </div>
 
         <div className="mt-10 w-full">
           <GoogleSignInButton onSuccess={onGoogle} />
