@@ -8,7 +8,7 @@ export type Answers = Partial<Record<`q${1 | 2 | 3 | 4 | 5 | 6}`, Answer>>;
 export type FullAnswers = Required<Answers>;
 export type DimensionId = "q1" | "q2" | "q3" | "q4" | "q5" | "q6";
 
-export type ThemeMode = "dark" | "light";
+export type ThemeMode = "system" | "dark" | "light";
 
 export type PartnerDecision = "yes" | "no" | "pending";
 export const partnerContinueDecision = "yes";
