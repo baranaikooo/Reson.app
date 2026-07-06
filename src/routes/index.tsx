@@ -1420,7 +1420,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">
           LIVE SNIPPET
         </h2>
-        <p className="text-xs text-foreground/50 leading-relaxed mb-6">
+        <p className="text-sm text-foreground/60 leading-relaxed mb-6">
           Krátky 3-sekundový video-snippet, ktorý slúži ako verifikácia vašej reálnej identity.
         </p>
 
@@ -1500,9 +1500,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 if (phase === "error") retake();
                 else runScan();
               }}
-              className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
             >
-              <Camera className="size-4" />
+              <Camera className="size-5" />
               {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "NAHRAŤ SNIPPET"}
             </button>
           )}
@@ -1510,13 +1510,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             <>
               <button
                 onClick={() => onDone(recordedUrl)}
-                className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all"
+                className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all"
               >
                 POKRAČOVAŤ
               </button>
               <button
                 onClick={retake}
-                className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-semibold font-mono uppercase"
+                className="w-full border border-foreground/20 py-3.5 text-sm tracking-widest text-foreground/60 hover:bg-foreground/5 font-bold font-mono uppercase"
               >
                 ZRUŠIŤ
               </button>
@@ -1532,23 +1532,23 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
   return (
     <div className="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
       <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card flex flex-col items-center">
-        <div className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mb-4">
+        <div className="font-mono text-[11px] tracking-widest text-foreground/50 uppercase mb-4">
           // PSYCHOMETRICKÁ KALIBRÁCIA · ~2 MIN
         </div>
         <h2 className="font-sans text-2xl font-black uppercase tracking-tight text-foreground mb-4">
           Kalibrácia profilu
         </h2>
-        <p className="text-xs leading-relaxed text-foreground/70 mb-6">
+        <p className="text-sm leading-relaxed text-foreground/80 mb-6">
           Prejdi 3 zážitkovými testami: dopĺňanie metafor, alokácia životných hodnôt a reakcia na
           náhlu konfliktnú situáciu.
         </p>
-        <p className="text-[10px] text-foreground/40 leading-relaxed font-mono mb-8 uppercase">
+        <p className="text-xs leading-relaxed text-foreground/50 font-mono mb-8 uppercase">
           Tento proces vypočíta tvoju rezonančnú kompatibilitu na základe psychologického
           očakávania.
         </p>
         <button
           onClick={onBegin}
-          className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all"
+          className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all"
         >
           ZAČAŤ KALIBRÁCIU
         </button>
@@ -2119,14 +2119,14 @@ function ProfileForm({
         haptic("tap");
         onClick();
       }}
-      className={`flex flex-col items-center justify-center border px-3 py-3 text-center transition-all active:scale-[0.97] ${
+      className={`flex flex-col items-center justify-center border px-4 py-4 text-center transition-all active:scale-[0.97] ${
         active
           ? "border-foreground bg-foreground/10 text-foreground font-bold"
           : "border-foreground/10 bg-foreground/[0.02] text-foreground/75 hover:bg-foreground/5"
       }`}
     >
-      <span className="text-sm font-semibold tracking-wide">{label}</span>
-      {sub && <span className="mt-0.5 text-[9px] font-mono text-foreground/50">{sub}</span>}
+      <span className="text-base font-bold tracking-wide">{label}</span>
+      {sub && <span className="mt-0.5 text-xs font-mono text-foreground/50">{sub}</span>}
     </button>
   );
 
@@ -2156,9 +2156,9 @@ function ProfileForm({
         <div className="mt-8 text-left border border-foreground/20 bg-card p-6">
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
                 Meno{" "}
-                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
                   // Ako ťa majú oslovovať
                 </span>
               </label>
@@ -2166,14 +2166,14 @@ function ProfileForm({
                 value={name}
                 onChange={(e) => setName(e.target.value.slice(0, 30))}
                 placeholder="ako ti hovoria"
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
+                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-4 text-lg text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
                 Dátum narodenia{" "}
-                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
                   // Pre automatické overenie veku
                 </span>
               </label>
@@ -2181,7 +2181,7 @@ function ProfileForm({
                 type="date"
                 value={birthDate}
                 onChange={(e) => handleBirthDateChange(e.target.value)}
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-3 text-sm text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
+                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-4 text-lg text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
               />
               {age !== null && (
                 <div className="mt-2 text-xs font-mono">
@@ -2199,14 +2199,14 @@ function ProfileForm({
             </div>
 
             <div>
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
                 Mesto{" "}
-                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
                   // Kde sa práve nachádzaš
                 </span>
               </label>
-              <div className="flex items-center gap-3 border border-foreground/10 bg-foreground/5 px-4 py-3">
-                <MapPin className="size-4 text-foreground/50" />
+              <div className="flex items-center gap-3 border border-foreground/10 bg-foreground/5 px-4 py-4">
+                <MapPin className="size-5 text-foreground/50" />
                 <input
                   value={city}
                   onChange={(e) => {
@@ -2214,22 +2214,22 @@ function ProfileForm({
                     if (loc !== "idle") setLoc("idle");
                   }}
                   placeholder="napr. Bratislava"
-                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-foreground/30 font-mono"
+                  className="w-full bg-transparent text-lg text-foreground outline-none placeholder:text-foreground/30 font-mono"
                 />
               </div>
               <button
                 onClick={useMyLocation}
                 disabled={loc === "loading"}
-                className="mt-2 inline-flex items-center gap-2 border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-[9px] font-bold text-foreground hover:bg-foreground/10 disabled:opacity-60 font-mono uppercase tracking-wider"
+                className="mt-2 inline-flex items-center gap-2 border border-foreground/20 bg-foreground/5 px-4 py-2.5 text-xs font-bold text-foreground hover:bg-foreground/10 disabled:opacity-60 font-mono uppercase tracking-wider"
               >
                 <MapPin className="size-3" /> {locText[loc]}
               </button>
             </div>
 
             <div>
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
                 Identita{" "}
-                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
                   // Rodová polarizácia
                 </span>
               </label>
@@ -2245,9 +2245,9 @@ function ProfileForm({
             </div>
 
             <div>
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
                 Orientácia{" "}
-                <span className="text-[9px] text-foreground/35 font-normal ml-1.5">
+                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
                   // Sexuálna komplementarita
                 </span>
               </label>
@@ -2290,7 +2290,7 @@ function ProfileForm({
               radiusKm: 250,
             })
           }
-          className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all"
+          className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all"
         >
           POKRAČOVAŤ
         </button>

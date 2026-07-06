@@ -202,7 +202,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         <h2 className="font-sans text-2xl font-black tracking-tight text-foreground uppercase leading-none">
           Pridajte video slučku
         </h2>
-        <p className="text-xs text-foreground/60 leading-relaxed font-sans">
+        <p className="text-sm md:text-base text-foreground/75 leading-relaxed font-sans font-medium">
           Základné informácie boli kalibrované. Pre overenie identity a algoritmický náhľad na trh vyžadujeme nahrať aspoň 1 krátke 3-sekundové video. Ak chcete, môžete pridať celkovo až 4 video slučky.
         </p>
       </div>
@@ -299,7 +299,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
             haptic("success");
             onDone(activeSnippets);
           }}
-          className="w-full border-2 border-foreground py-4 text-xs font-black tracking-widest text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
+          className="w-full border-2 border-foreground py-4.5 text-lg font-bold tracking-wider text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
         >
           [ POKRAČOVAŤ K SEMANTICKÉMU ZRKADLU ]
         </button>
@@ -345,7 +345,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
             <div className="flex gap-2">
               <button
                 onClick={cancelRecording}
-                className="flex-1 border border-foreground/20 py-3 text-xs tracking-widest text-foreground/60 font-bold uppercase hover:bg-foreground/5 transition-all rounded-none bg-card"
+                className="flex-1 border border-foreground/20 py-3.5 text-sm font-bold tracking-wider text-foreground/60 uppercase hover:bg-foreground/5 transition-all rounded-none bg-card"
               >
                 [ ZRUŠIŤ ]
               </button>
