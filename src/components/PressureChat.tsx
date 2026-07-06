@@ -93,9 +93,12 @@ export function PressureChat({
   // Otherwise, use the hardcore dynamic limit of 5-8 seconds (min 8s clamp).
   const calculatedLimit = isOnboarding ? 12.0 : Math.max(wordCount / (200 / 60) + 6.0, 8.0);
 
+  const uiSpeed = typeof window !== "undefined" ? window.localStorage.getItem("reson_ui_speed") || "TYPEWRITER_ANIMATED" : "TYPEWRITER_ANIMATED";
+  const isInstant = uiSpeed === "INSTANT_RAW";
+
   const [totalLimit] = useState(calculatedLimit);
   const [timeLeft, setTimeLeft] = useState(calculatedLimit);
-  const [isTyping, setIsTyping] = useState(true);
+  const [isTyping, setIsTyping] = useState(!isInstant);
   const [clicked, setClicked] = useState(false);
 
   // Gyroscopic orientation listener
@@ -121,8 +124,14 @@ export function PressureChat({
     };
   }, []);
 
-  // Phase 1: Typing Indicator for 3 seconds
+  // Phase 1: Typing Indicator for 3 seconds (bypassed if INSTANT_RAW is active)
   useEffect(() => {
+    if (isInstant) {
+      setIsTyping(false);
+      startTimeRef.current = performance.now();
+      lastTickRef.current = performance.now();
+      return;
+    }
     const typingTimer = setTimeout(() => {
       setIsTyping(false);
       haptic("warning");
@@ -131,7 +140,7 @@ export function PressureChat({
     }, 3000);
 
     return () => clearTimeout(typingTimer);
-  }, [haptic]);
+  }, [haptic, isInstant]);
 
   // Phase 2: Active countdown timer with haptic acceleration ticks
   useEffect(() => {

@@ -1,0 +1,5 @@
+-- Migration: Add personalization settings to profiles table
+ALTER TABLE public.profiles 
+  ADD COLUMN IF NOT EXISTS haptic_profile TEXT NOT NULL DEFAULT 'TACTILE',
+  ADD COLUMN IF NOT EXISTS geo_density TEXT NOT NULL DEFAULT 'BALANCED_2KM',
+  ADD COLUMN IF NOT EXISTS ui_speed TEXT NOT NULL DEFAULT 'TYPEWRITER_ANIMATED';
