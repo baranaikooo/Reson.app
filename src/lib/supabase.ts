@@ -240,6 +240,8 @@ export async function saveUserProfile(
       orientation: profileData.orientation || "bi",
       radius_km: profileData.radiusKm || 200,
       non_negotiable: profileData.nonNegotiable || "",
+      latitude: profileData.coords?.lat,
+      longitude: profileData.coords?.lon,
       current_thesis: profileData.currentThesis || "",
       similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
       liveness_verified: true,
@@ -357,6 +359,10 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     completedPressureScenarios: data.completed_pressure_scenarios || [],
     videoUrls, // Attach fetched videos
     status: data.status, // Map status column (ACTIVE | FROZEN)
+    coords: data.latitude && data.longitude ? { lat: data.latitude, lon: data.longitude } : undefined,
+    haptic_profile: data.haptic_profile,
+    geo_density: data.geo_density,
+    ui_speed: data.ui_speed,
   };
 }
 

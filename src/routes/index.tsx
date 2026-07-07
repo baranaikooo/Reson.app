@@ -52,6 +52,7 @@ import {
   type Conversation,
   type ChatMessage,
   type Archetype,
+  haversineKm,
 } from "@/lib/resonance";
 
 import { SonarScan } from "@/components/SonarScan";
@@ -435,6 +436,106 @@ function ResonApp() {
     });
   }, [theme]);
 
+  // Real-time Geolocation watchPosition Stream
+  useEffect(() => {
+    if (!profile || !authUserId || authUserId === "00000000-0000-0000-0000-000000000001") return;
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+
+    let lastSavedCoords: { lat: number; lon: number } | null = profile.coords ?? null;
+
+    const watchId = navigator.geolocation.watchPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const currentCoords = { lat: latitude, lon: longitude };
+
+        // Distance filter check based on geo_density setting
+        let shouldUpdate = false;
+        if (!lastSavedCoords) {
+          shouldUpdate = true;
+        } else {
+          const distanceDiff = haversineKm(lastSavedCoords, currentCoords);
+          const density = profile.geo_density || "BALANCED_2KM";
+          let thresholdKm = 2.0; // default 2km
+          if (density === "ECO_5KM") thresholdKm = 5.0;
+          else if (density === "HIGH_FREQ_500M") thresholdKm = 0.5;
+
+          if (distanceDiff >= thresholdKm) {
+            shouldUpdate = true;
+          }
+        }
+
+        if (shouldUpdate) {
+          console.info(`[Geolocation Stream] Location changed. Updating to: [Lat: ${latitude}, Lon: ${longitude}]`);
+          lastSavedCoords = currentCoords;
+
+          // Update local state reactively
+          setProfile((prev) => prev ? { ...prev, coords: currentCoords } : null);
+
+          // Update database asynchronously
+          const { error } = await supabase
+            .from("profiles")
+            .update({
+              latitude,
+              longitude,
+            })
+            .eq("id", authUserId);
+
+          if (error) {
+            console.error("[Geolocation Stream] failed to update location in database:", error);
+          }
+        }
+      },
+      (err) => {
+        console.warn("[Geolocation Stream] watchPosition error:", err);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [authUserId, profile?.id, profile?.geo_density]);
+
+  // Real-time Supabase Profile Channel Subscription
+  useEffect(() => {
+    if (!authUserId || authUserId === "00000000-0000-0000-0000-000000000001") return;
+
+    const channel = supabase
+      .channel(`profile-updates:${authUserId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `id=eq.${authUserId}`,
+        },
+        (payload) => {
+          console.log("[Supabase Realtime] User profile updated dynamically:", payload.new);
+          const p = payload.new;
+          setProfile((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              coords: p.latitude && p.longitude ? { lat: p.latitude, lon: p.longitude } : prev.coords,
+              haptic_profile: p.haptic_profile || prev.haptic_profile,
+              geo_density: p.geo_density || prev.geo_density,
+              ui_speed: p.ui_speed || prev.ui_speed,
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [authUserId]);
+
   const [liveCandidates, setLiveCandidates] = useState<RankedMatch[]>([]);
   const [initiatedMatchIds, setInitiatedMatchIds] = useState<Set<string>>(new Set());
   const [isLoadingMarket, setIsLoadingMarket] = useState(false);
@@ -481,6 +582,7 @@ function ResonApp() {
           avg_response_time: row.avg_response_time || 3.0,
           top_priority: row.top_priority || "",
           distanceKm: row.distance ? Math.round(row.distance * 100) : undefined,
+          coords: row.latitude && row.longitude ? { lat: row.latitude, lon: row.longitude } : undefined,
         }));
 
         setLiveCandidates(mapped);
