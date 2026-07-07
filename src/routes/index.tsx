@@ -1251,9 +1251,6 @@ function BottomNav({
           label={testDone ? "Matche" : "Domov"}
           onClick={onHome}
         />
-        {!testDone && (
-          <Item id="test" icon={<Brain className="size-5" />} label="Test" onClick={onTest} />
-        )}
         <Item
           id="messages"
           icon={<MessageCircle className="size-5" />}
