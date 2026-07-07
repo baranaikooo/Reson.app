@@ -386,7 +386,7 @@ export function SystemConfig({
 
         <div className="space-y-4 font-mono text-xs">
           {/* Haptic profile */}
-          <div className="space-y-2 border-b border-foreground/5 pb-3">
+          <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-foreground/60 uppercase">Haptický profil</span>
               <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
@@ -407,63 +407,6 @@ export function SystemConfig({
                   {p}
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* GPS background tracking density */}
-          <div className="space-y-2 border-b border-foreground/5 pb-3">
-            <div className="flex justify-between items-center">
-              <span className="text-foreground/60 uppercase">Frekvencia GPS</span>
-              <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
-                {geoDensity.replace("_", " ")}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {(["ECO_5KM", "BALANCED_2KM", "HIGH_FREQ_500M"] as const).map((d) => (
-                <button
-                  key={d}
-                  onClick={() => handleUpdateGeoDensity(d)}
-                  className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
-                    geoDensity === d
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
-                  }`}
-                >
-                  {d.split("_")[0]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Progressive Typewriter rendering speed */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-foreground/60 uppercase">Vykresľovanie textu</span>
-              <span className="text-[10px] font-bold text-foreground bg-foreground/10 px-2 py-0.5 uppercase">
-                {uiSpeed === "TYPEWRITER_ANIMATED" ? "POSTUPNÉ" : "OKAMŽITÉ"}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleUpdateUiSpeed("TYPEWRITER_ANIMATED")}
-                className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
-                  uiSpeed === "TYPEWRITER_ANIMATED"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
-                }`}
-              >
-                TYPEWRITER
-              </button>
-              <button
-                onClick={() => handleUpdateUiSpeed("INSTANT_RAW")}
-                className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
-                  uiSpeed === "INSTANT_RAW"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
-                }`}
-              >
-                RAW (OKAMŽITE)
-              </button>
             </div>
           </div>
         </div>
