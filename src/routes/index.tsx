@@ -2379,23 +2379,23 @@ function ProfileForm({
               setStep("TEMPORAL_MATRIX");
               setErrorMessage("");
             } else {
-              triggerError("ERROR: INVALID_DATA - Name too short");
+              triggerError("ERROR: INVALID_DATA - Meno je príliš krátke");
             }
           }}
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
-              SYSTEM_IDENTIFICATION
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
+              IDENTIFIKÁCIA_SYSTÉMU
             </div>
           </div>
           <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Zadajte svoje meno pre systémovú identifikáciu rozhrania.
+            Zadaj svoje meno pre systémovú identifikáciu rozhrania.
           </p>
 
           <div className="text-left border border-foreground/20 bg-card p-6">
-            <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
-              Meno (Username)
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+              POUŽÍVATEĽSKÉ MENO
             </label>
             <input
               ref={nameInputRef}
@@ -2417,9 +2417,9 @@ function ProfileForm({
 
           <button
             type="submit"
-            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
           >
-            CONTINUE
+            POKRAČOVAŤ
           </button>
         </form>
       )}
@@ -2434,22 +2434,22 @@ function ProfileForm({
               setStep("AGE_VERIFICATION");
               setErrorMessage("");
             } else {
-              triggerError("ERROR: INVALID_DATA - Date required");
+              triggerError("ERROR: INVALID_DATA - Dátum je povinný");
             }
           }}
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
-              TEMPORAL_MATRIX
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
+              ČASOVÁ_MATRICA
             </div>
           </div>
           <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Zadajte dátum svojho narodenia na kalibráciu časového indexu.
+            Zadaj dátum svojho narodenia na kalibráciu časového indexu.
           </p>
 
           <div className="text-left border border-foreground/20 bg-card p-6">
-            <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
               Dátum narodenia (DD / MM / RRRR)
             </label>
             <input
@@ -2475,15 +2475,15 @@ function ProfileForm({
                 setStep("SYSTEM_IDENTIFICATION");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              PROCESS_DATES
+              SPRACOVAŤ_DÁTUMY
             </button>
           </div>
         </form>
@@ -2499,25 +2499,25 @@ function ProfileForm({
               setStep("MARKET_ALIGNMENT");
               setErrorMessage("");
             } else {
-              triggerError("ERROR: INVALID_DATA - Age criteria failure");
+              triggerError("ERROR: INVALID_DATA - Nesplnené kritérium veku");
             }
           }}
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
-              AGE_VERIFICATION
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
+              OVERENIE_VEKU
             </div>
           </div>
           <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Systém preveril časové údaje a určil váš vek.
+            Systém preveril časové údaje a určil tvoj vek.
           </p>
 
           <div className="text-left border border-foreground/20 bg-card p-6 space-y-4">
             <div className="border-2 border-foreground p-6 bg-foreground/5 font-mono text-center">
-              <p className="text-sm text-foreground/50 uppercase tracking-widest mb-2">// DETECTED_AGE</p>
-              <div className="text-3xl font-black tracking-tight text-foreground uppercase">
-                DETECTED_AGE: [ {age ?? "?"} ]
+              <p className="text-xs text-foreground/50 uppercase tracking-widest mb-2">// DETEKOVANÝ_VEK</p>
+              <div className="text-2xl font-black tracking-tight text-foreground uppercase">
+                DETEKOVANÝ_VEK: [ {age ?? "?"} ]
               </div>
             </div>
           </div>
@@ -2536,15 +2536,15 @@ function ProfileForm({
                 setStep("TEMPORAL_MATRIX");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ACKNOWLEDGE_AND_SECURE
+              POTVRDIŤ_A_ZABEZPEČIŤ
             </button>
           </div>
         </form>
@@ -2560,30 +2560,30 @@ function ProfileForm({
               setStep("DIRECTIVE_01");
               setErrorMessage("");
             } else {
-              triggerError("ERROR: INVALID_DATA - Missing alignment settings");
+              triggerError("ERROR: INVALID_DATA - Chýba nastavenie zaradenia");
             }
           }}
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
-              MARKET_ALIGNMENT
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
+              TRHOVÉ_ZARADENIE
             </div>
           </div>
           <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Nastavte rezonančné parametre pre matchmaking trh.
+            Nastav tvoje rezonančné parametre pre matchmaking trh.
           </p>
 
           <div className="text-left border border-foreground/20 bg-card p-6 space-y-6">
             <div>
-              <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
-                MY_GENDER
+              <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+                MOJE_POHLAVIE
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: "male", label: "MALE" },
-                  { value: "female", label: "FEMALE" },
-                  { value: "other", label: "NON_BINARY" },
+                  { value: "male", label: "MUŽ" },
+                  { value: "female", label: "ŽENA" },
+                  { value: "other", label: "NEBINÁRNY" },
                 ] as const).map((g) => (
                   <button
                     key={g.value}
@@ -2593,7 +2593,7 @@ function ProfileForm({
                       setGender(g.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-2.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       gender === g.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -2606,14 +2606,14 @@ function ProfileForm({
             </div>
 
             <div>
-              <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
-                TARGET_MARKET
+              <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+                CIEĽOVÝ_TRH
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: "male", label: "MALE" },
-                  { value: "female", label: "FEMALE" },
-                  { value: "all", label: "ALL" },
+                  { value: "male", label: "MUŽI" },
+                  { value: "female", label: "ŽENY" },
+                  { value: "all", label: "VŠETCI" },
                 ] as const).map((t) => (
                   <button
                     key={t.value}
@@ -2623,7 +2623,7 @@ function ProfileForm({
                       setTargetMarket(t.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-2.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       targetMarket === t.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -2650,15 +2650,15 @@ function ProfileForm({
                 setStep("AGE_VERIFICATION");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              NEXT_DIRECTIVES
+              ĎALEJ_SMERNICE
             </button>
           </div>
         </form>
@@ -2680,7 +2680,7 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               ČO JE TVOJ NAJVÄČŠÍ ŽIVOTNÝ CIEĽ, NA KTOROM AKURÁT PRACUJEŠ?
             </div>
           </div>
@@ -2712,15 +2712,15 @@ function ProfileForm({
                 setStep("MARKET_ALIGNMENT");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              RECORD_DIRECTIVE_01
+              ZAZNAMENAŤ_SMERNICU_01
             </button>
           </div>
         </form>
@@ -2742,7 +2742,7 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               AKÉ SPRÁVANIE ALEBO VLASTNOSTI U ĽUDÍ ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
@@ -2774,15 +2774,15 @@ function ProfileForm({
                 setStep("DIRECTIVE_01");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              RECORD_DIRECTIVE_02
+              ZAZNAMENAŤ_SMERNICU_02
             </button>
           </div>
         </form>
@@ -2826,7 +2826,7 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               AKO VYZERÁ TVOJ BEŽNÝ DEŇ? (STRATÉGIA VS. CHAOS)
             </div>
           </div>
@@ -2858,15 +2858,15 @@ function ProfileForm({
                 setStep("DIRECTIVE_02");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
-              Späť
+              SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              LOCK_SYSTEM_DIRECTIVES
+              UZAMKNÚŤ_SYSTÉMOVÉ_SMERNICE
             </button>
           </div>
         </form>
