@@ -253,6 +253,9 @@ export async function saveUserProfile(
       avg_response_time: profileData.avgResponseTime,
       top_priority: profileData.topPriority,
       status: profileData.status || "ACTIVE",
+      directive_goal: profileData.directive_goal || "",
+      directive_redflags: profileData.directive_redflags || "",
+      directive_lifestyle: profileData.directive_lifestyle || "",
     });
 
   if (profileError) {
@@ -363,6 +366,9 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     haptic_profile: data.haptic_profile,
     geo_density: data.geo_density,
     ui_speed: data.ui_speed,
+    directive_goal: data.directive_goal,
+    directive_redflags: data.directive_redflags,
+    directive_lifestyle: data.directive_lifestyle,
   };
 }
 
