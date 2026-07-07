@@ -2567,11 +2567,11 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
-              TRHOVÉ ZARADENIE
+              PREFERENCIE SPÁJANIA
             </div>
           </div>
           <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Nastav tvoje rezonančné parametre pre matchmaking trh.
+            Upresni, s kým sa chceš v aplikácii spojiť.
           </p>
 
           <div className="text-left space-y-4">
