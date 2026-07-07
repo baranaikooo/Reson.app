@@ -536,6 +536,68 @@ function ResonApp() {
     };
   }, [authUserId]);
 
+  // Automatic Geolocation Request & Initial Sync on Login/Auth
+  useEffect(() => {
+    if (!authUserId || authUserId === "00000000-0000-0000-0000-000000000001") return;
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+
+    console.log("[Onboarding GPS] Requesting native geolocation permission on startup...");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        console.log("[Onboarding GPS] Initial coordinates resolved:", latitude, longitude);
+
+        let resolvedCity = "Bratislava";
+        try {
+          const r = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=sk`
+          );
+          if (r.ok) {
+            const data = await r.json();
+            const a = data?.address ?? {};
+            resolvedCity = a.city || a.town || a.village || a.municipality || "Bratislava";
+          }
+        } catch (e) {
+          console.warn("[Onboarding GPS] Reverse geocoding failed, using fallback:", e);
+        }
+
+        // Update local state reactively if profile exists
+        setProfile((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            coords: { lat: latitude, lon: longitude },
+            city: resolvedCity,
+          };
+        });
+
+        // Update database asynchronously
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            latitude,
+            longitude,
+            city: resolvedCity,
+          })
+          .eq("id", authUserId);
+
+        if (error) {
+          console.error("[Onboarding GPS] Failed to save initial coordinates:", error);
+        } else {
+          console.log("[Onboarding GPS] Initial coordinates and city saved successfully.");
+        }
+      },
+      (err) => {
+        console.warn("[Onboarding GPS] Initial location prompt rejected/failed:", err);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, [authUserId]);
+
   const [liveCandidates, setLiveCandidates] = useState<RankedMatch[]>([]);
   const [initiatedMatchIds, setInitiatedMatchIds] = useState<Set<string>>(new Set());
   const [isLoadingMarket, setIsLoadingMarket] = useState(false);
@@ -2223,6 +2285,22 @@ function ProfileForm({
   const [gender, setGender] = useState<Gender | "">("");
   const [targetMarket, setTargetMarket] = useState<"male" | "female" | "all" | "">("");
 
+  // Error flash state
+  const [errorFlash, setErrorFlash] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus input fields on step transitions
+  useEffect(() => {
+    if (step === "SYSTEM_IDENTIFICATION" && nameInputRef.current) {
+      nameInputRef.current.focus();
+    } else if (step === "TEMPORAL_MATRIX" && dateInputRef.current) {
+      dateInputRef.current.focus();
+    }
+  }, [step]);
+
   function calculateAge(birthDateString: string): number {
     if (!birthDateString) return 0;
     const today = new Date();
@@ -2239,15 +2317,55 @@ function ProfileForm({
     setBirthDate(dateString);
     const calculatedAge = calculateAge(dateString);
     setAge(calculatedAge);
+    if (errorMessage) setErrorMessage("");
+  }
+
+  function triggerError(msg: string) {
+    haptic("warning");
+    setErrorMessage(msg);
+    setErrorFlash(true);
+    setTimeout(() => setErrorFlash(false), 200);
   }
 
   const nameTrim = name.trim();
+  const isNameValid = nameTrim.length >= 2;
+  const isDateValid = !!birthDate;
   const isAgeValid = age !== null && age >= 18 && age <= 99;
+  const isAlignmentValid = !!gender && !!targetMarket;
+
+  const progressMap = {
+    SYSTEM_IDENTIFICATION: { bar: "■□□□", percent: "25%" },
+    TEMPORAL_MATRIX: { bar: "■■□□", percent: "50%" },
+    AGE_VERIFICATION: { bar: "■■■□", percent: "75%" },
+    MARKET_ALIGNMENT: { bar: "■■■■", percent: "100%" },
+  };
 
   return (
-    <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center">
+    <div 
+      className={`relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center transition-colors duration-100 ${
+        errorFlash ? "bg-red-950/40 border-2 border-red-500" : ""
+      }`}
+    >
+      {/* ASCII Progress Indicator */}
+      <div className="absolute top-4 right-4 font-mono text-[10px] tracking-widest text-foreground/45">
+        STEP: [{progressMap[step].bar}] {progressMap[step].percent}
+      </div>
+
       {step === "SYSTEM_IDENTIFICATION" && (
-        <div key="step-1" className="animate-kinetic-fade w-full max-w-md">
+        <form 
+          key="step-1" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isNameValid) {
+              haptic("tap");
+              setStep("TEMPORAL_MATRIX");
+              setErrorMessage("");
+            } else {
+              triggerError("ERROR: INVALID_DATA - Name too short");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
               SYSTEM_IDENTIFICATION
@@ -2262,29 +2380,47 @@ function ProfileForm({
               Meno (Username)
             </label>
             <input
+              ref={nameInputRef}
               value={name}
-              onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 30))}
+              onChange={(e) => {
+                setName(e.target.value.toUpperCase().slice(0, 30));
+                if (errorMessage) setErrorMessage("");
+              }}
               placeholder="MENO / PREZÝVKA"
-              autoFocus
               className="w-full border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
             />
           </div>
 
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
           <button
-            disabled={nameTrim.length < 2}
-            onClick={() => {
-              haptic("tap");
-              setStep("TEMPORAL_MATRIX");
-            }}
-            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+            type="submit"
+            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
           >
             CONTINUE
           </button>
-        </div>
+        </form>
       )}
 
       {step === "TEMPORAL_MATRIX" && (
-        <div key="step-2" className="animate-kinetic-fade w-full max-w-md">
+        <form 
+          key="step-2" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isDateValid) {
+              haptic("tap");
+              setStep("AGE_VERIFICATION");
+              setErrorMessage("");
+            } else {
+              triggerError("ERROR: INVALID_DATA - Date required");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
               TEMPORAL_MATRIX
@@ -2299,6 +2435,7 @@ function ProfileForm({
               Dátum narodenia (DD / MM / RRRR)
             </label>
             <input
+              ref={dateInputRef}
               type="date"
               value={birthDate}
               onChange={(e) => handleBirthDateChange(e.target.value)}
@@ -2306,32 +2443,49 @@ function ProfileForm({
             />
           </div>
 
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="flex gap-2 mt-6">
             <button
+              type="button"
               onClick={() => {
                 haptic("tap");
                 setStep("SYSTEM_IDENTIFICATION");
+                setErrorMessage("");
               }}
               className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
             >
               Späť
             </button>
             <button
-              disabled={!birthDate}
-              onClick={() => {
-                haptic("tap");
-                setStep("AGE_VERIFICATION");
-              }}
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               PROCESS_DATES
             </button>
           </div>
-        </div>
+        </form>
       )}
 
       {step === "AGE_VERIFICATION" && (
-        <div key="step-3" className="animate-kinetic-fade w-full max-w-md">
+        <form 
+          key="step-3" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isAgeValid) {
+              haptic("success");
+              setStep("MARKET_ALIGNMENT");
+              setErrorMessage("");
+            } else {
+              triggerError("ERROR: INVALID_DATA - Age criteria failure");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
               AGE_VERIFICATION
@@ -2348,40 +2502,69 @@ function ProfileForm({
                 DETECTED_AGE: [ {age ?? "?"} ]
               </div>
             </div>
-
-            {!isAgeValid && age !== null && (
-              <div className="border-2 border-red-500 bg-red-500/10 p-4 text-center font-mono text-xs text-red-500 font-bold uppercase">
-                ERROR: Vek musí byť v rozmedzí 18 - 99 rokov.
-              </div>
-            )}
           </div>
+
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
 
           <div className="flex gap-2 mt-6">
             <button
+              type="button"
               onClick={() => {
                 haptic("tap");
                 setStep("TEMPORAL_MATRIX");
+                setErrorMessage("");
               }}
               className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
             >
               Späť
             </button>
             <button
-              disabled={!isAgeValid}
-              onClick={() => {
-                haptic("success");
-                setStep("MARKET_ALIGNMENT");
-              }}
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ACKNOWLEDGE_AND_SECURE
             </button>
           </div>
-        </div>
+        </form>
       )}
 
       {step === "MARKET_ALIGNMENT" && (
-        <div key="step-4" className="animate-kinetic-fade w-full max-w-md">
+        <form 
+          key="step-4" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isAlignmentValid) {
+              haptic("success");
+
+              // Calculate orientation based on gender & targetMarket mapping
+              let calculatedOrientation: Orientation = "bi";
+              if (targetMarket === "all" || gender === "other") {
+                calculatedOrientation = "bi";
+              } else if (gender === targetMarket) {
+                calculatedOrientation = "homo";
+              } else {
+                calculatedOrientation = "hetero";
+              }
+
+              onSubmit({
+                name: nameTrim,
+                age: age || 18,
+                birthDate: birthDate,
+                city: "Bratislava", // Default city fallback (updated in real-time by WatchPosition)
+                gender: gender as Gender,
+                orientation: calculatedOrientation,
+                radiusKm: 250,
+              });
+            } else {
+              triggerError("ERROR: INVALID_DATA - Missing alignment settings");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
               MARKET_ALIGNMENT
@@ -2404,9 +2587,11 @@ function ProfileForm({
                 ] as const).map((g) => (
                   <button
                     key={g.value}
+                    type="button"
                     onClick={() => {
                       haptic("tap");
                       setGender(g.value);
+                      if (errorMessage) setErrorMessage("");
                     }}
                     className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       gender === g.value
@@ -2432,9 +2617,11 @@ function ProfileForm({
                 ] as const).map((t) => (
                   <button
                     key={t.value}
+                    type="button"
                     onClick={() => {
                       haptic("tap");
                       setTargetMarket(t.value);
+                      if (errorMessage) setErrorMessage("");
                     }}
                     className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       targetMarket === t.value
@@ -2449,47 +2636,32 @@ function ProfileForm({
             </div>
           </div>
 
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="flex gap-2 mt-6">
             <button
+              type="button"
               onClick={() => {
                 haptic("tap");
                 setStep("AGE_VERIFICATION");
+                setErrorMessage("");
               }}
               className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
             >
               Späť
             </button>
             <button
-              disabled={!gender || !targetMarket}
-              onClick={() => {
-                haptic("success");
-
-                // Calculate orientation based on gender & targetMarket mapping
-                let calculatedOrientation: Orientation = "bi";
-                if (targetMarket === "all" || gender === "other") {
-                  calculatedOrientation = "bi";
-                } else if (gender === targetMarket) {
-                  calculatedOrientation = "homo";
-                } else {
-                  calculatedOrientation = "hetero";
-                }
-
-                onSubmit({
-                  name: nameTrim,
-                  age: age || 18,
-                  birthDate: birthDate,
-                  city: "Bratislava", // Default city fallback (updated in real-time by WatchPosition)
-                  gender: gender as Gender,
-                  orientation: calculatedOrientation,
-                  radiusKm: 250,
-                });
-              }}
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               INITIALIZE_ALGORITHM
             </button>
           </div>
-        </div>
+        </form>
       )}
     </div>
   );
