@@ -2386,11 +2386,11 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
-              IDENTIFIKÁCIA SYSTÉMU
+              PREDSTAV SA
             </div>
           </div>
           <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Zadaj svoje meno pre systémovú identifikáciu rozhrania.
+            Napíš svoje meno alebo prezývku, pod ktorou ťa v aplikácii uvidia ostatní.
           </p>
 
           <div className="text-left space-y-2">
@@ -2441,11 +2441,11 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
-              ČASOVÁ MATRICA
+              KEDY MÁŠ NARODENINY?
             </div>
           </div>
           <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Zadaj dátum svojho narodenia na kalibráciu časového indexu.
+            Potrebujeme vedieť tvoj dátum narodenia, aby sme ti mohli zobraziť ľudí v správnom veku.
           </p>
 
           <div className="text-left space-y-2">
@@ -2483,7 +2483,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              SPRACOVAŤ DÁTUMY
+              ĎALEJ
             </button>
           </div>
         </form>
@@ -2506,18 +2506,18 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
-              OVERENIE VEKU
+              SKONTROLUJ SI VEK
             </div>
           </div>
           <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Systém preveril časové údaje a určil tvoj vek.
+            Podľa dátumu narodenia sme vypočítali tvoj vek. Sedí to?
           </p>
 
           <div className="text-left space-y-4">
             <div className="border-2 border-foreground p-4 bg-foreground/5 font-mono text-center">
-              <p className="text-[10px] text-foreground/50 uppercase tracking-widest mb-1">// DETEKOVANÝ VEK</p>
+              <p className="text-[10px] text-foreground/50 uppercase tracking-widest mb-1">// TVOJ VEK</p>
               <div className="text-2xl font-black tracking-tight text-foreground uppercase">
-                DETEKOVANÝ VEK: [ {age ?? "?"} ]
+                TVOJ VEK: [ {age ?? "?"} ]
               </div>
             </div>
           </div>
@@ -2544,7 +2544,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              POTVRDIŤ A ZABEZPEČIŤ
+              SÚHLASÍM
             </button>
           </div>
         </form>
@@ -2567,17 +2567,17 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
-              PREFERENCIE SPÁJANIA
+              KOHO CHCEŠ SPOZNAŤ?
             </div>
           </div>
           <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
-            Upresni, s kým sa chceš v aplikácii spojiť.
+            Zvoľ svoje pohlavie a vyber si, koho v aplikácii hľadáš.
           </p>
 
           <div className="text-left space-y-4">
             <div>
               <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
-                MOJE POHLAVIE
+                JA SOM
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
@@ -2607,7 +2607,7 @@ function ProfileForm({
 
             <div>
               <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
-                KOHO HĽADÁŠ
+                HĽADÁM
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
@@ -2658,7 +2658,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ĎALEJ SMERNICE
+              ĎALEJ
             </button>
           </div>
         </form>
@@ -2681,9 +2681,12 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
-              ČO JE TVOJ NAJVÄČŠÍ ŽIVOTNÝ CIEĽ, NA KTOROM AKURÁT PRACUJEŠ?
+              NA ČOM AKURÁT PRACUJEŠ?
             </div>
           </div>
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Čo je tvojím najväčším životným cieľom alebo víziou, na ktorú sa teraz najviac sústredíš?
+          </p>
 
           <div className="text-left">
             <textarea
@@ -2720,7 +2723,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ZAZNAMENAŤ SMERNICU 01
+              ULOŽIŤ A ĎALEJ
             </button>
           </div>
         </form>
@@ -2743,9 +2746,12 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
-              AKÉ SPRÁVANIE ALEBO VLASTNOSTI U ĽUDÍ ABSOLÚTNE NETOLERUJEŠ?
+              ČO ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Napíš vlastnosti alebo správanie u ľudí, cez ktoré u teba jednoducho nejde vlak.
+          </p>
 
           <div className="text-left">
             <textarea
@@ -2782,7 +2788,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ZAZNAMENAŤ SMERNICU 02
+              ULOŽIŤ A ĎALEJ
             </button>
           </div>
         </form>
@@ -2827,9 +2833,12 @@ function ProfileForm({
         >
           <div className="mb-5 flex justify-center">
             <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
-              AKO VYZERÁ TVOJ BEŽNÝ DEŇ? (STRATÉGIA VS. CHAOS)
+              AKÝ JE TVOJ BEŽNÝ DEŇ?
             </div>
           </div>
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Povedz nám, či máš radšej striktný plán a stratégiu, alebo radšej riešiš veci za pochodu a užívaš si chaos.
+          </p>
 
           <div className="text-left">
             <textarea
@@ -2866,7 +2875,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              UZAMKNÚŤ SYSTÉMOVÉ SMERNICE
+              DOKONČIŤ PROFIL
             </button>
           </div>
         </form>
