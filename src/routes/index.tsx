@@ -2262,8 +2262,6 @@ function Processing({
 }
 
 // ============ Profile form ============
-type LocStatus = "idle" | "loading" | "ok" | "denied" | "error";
-
 function ProfileForm({
   onSubmit,
   initialName = "",
@@ -2273,7 +2271,13 @@ function ProfileForm({
 }) {
   const haptic = useHaptic();
   const [step, setStep] = useState<
-    "SYSTEM_IDENTIFICATION" | "TEMPORAL_MATRIX" | "AGE_VERIFICATION" | "MARKET_ALIGNMENT"
+    | "SYSTEM_IDENTIFICATION"
+    | "TEMPORAL_MATRIX"
+    | "AGE_VERIFICATION"
+    | "MARKET_ALIGNMENT"
+    | "DIRECTIVE_01"
+    | "DIRECTIVE_02"
+    | "DIRECTIVE_03"
   >("SYSTEM_IDENTIFICATION");
 
   const [name, setName] = useState(initialName.toUpperCase());
@@ -2282,12 +2286,20 @@ function ProfileForm({
   const [gender, setGender] = useState<Gender | "">("");
   const [targetMarket, setTargetMarket] = useState<"male" | "female" | "all" | "">("");
 
+  // Directives states
+  const [directiveGoal, setDirectiveGoal] = useState("");
+  const [directiveRedflags, setDirectiveRedflags] = useState("");
+  const [directiveLifestyle, setDirectiveLifestyle] = useState("");
+
   // Error flash state
   const [errorFlash, setErrorFlash] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const goalInputRef = useRef<HTMLTextAreaElement>(null);
+  const redflagsInputRef = useRef<HTMLTextAreaElement>(null);
+  const lifestyleInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Autofocus input fields on step transitions
   useEffect(() => {
@@ -2295,6 +2307,12 @@ function ProfileForm({
       nameInputRef.current.focus();
     } else if (step === "TEMPORAL_MATRIX" && dateInputRef.current) {
       dateInputRef.current.focus();
+    } else if (step === "DIRECTIVE_01" && goalInputRef.current) {
+      goalInputRef.current.focus();
+    } else if (step === "DIRECTIVE_02" && redflagsInputRef.current) {
+      redflagsInputRef.current.focus();
+    } else if (step === "DIRECTIVE_03" && lifestyleInputRef.current) {
+      lifestyleInputRef.current.focus();
     }
   }, [step]);
 
@@ -2331,10 +2349,13 @@ function ProfileForm({
   const isAlignmentValid = !!gender && !!targetMarket;
 
   const progressMap = {
-    SYSTEM_IDENTIFICATION: { bar: "■□□□", percent: "25%" },
-    TEMPORAL_MATRIX: { bar: "■■□□", percent: "50%" },
-    AGE_VERIFICATION: { bar: "■■■□", percent: "75%" },
-    MARKET_ALIGNMENT: { bar: "■■■■", percent: "100%" },
+    SYSTEM_IDENTIFICATION: { bar: "■□□□□□□", percent: "14%" },
+    TEMPORAL_MATRIX: { bar: "■■□□□□□", percent: "28%" },
+    AGE_VERIFICATION: { bar: "■■■□□□□", percent: "42%" },
+    MARKET_ALIGNMENT: { bar: "■■■■□□□", percent: "57%" },
+    DIRECTIVE_01: { bar: "■■■■■□□", percent: "71%" },
+    DIRECTIVE_02: { bar: "■■■■■■□", percent: "85%" },
+    DIRECTIVE_03: { bar: "■■■■■■■", percent: "100%" },
   };
 
   return (
@@ -2535,27 +2556,9 @@ function ProfileForm({
           onSubmit={(e) => {
             e.preventDefault();
             if (isAlignmentValid) {
-              haptic("success");
-
-              // Calculate orientation based on gender & targetMarket mapping
-              let calculatedOrientation: Orientation = "bi";
-              if (targetMarket === "all" || gender === "other") {
-                calculatedOrientation = "bi";
-              } else if (gender === targetMarket) {
-                calculatedOrientation = "homo";
-              } else {
-                calculatedOrientation = "hetero";
-              }
-
-              onSubmit({
-                name: nameTrim,
-                age: age || 18,
-                birthDate: birthDate,
-                city: "Bratislava", // Default city fallback (updated in real-time by WatchPosition)
-                gender: gender as Gender,
-                orientation: calculatedOrientation,
-                radiusKm: 250,
-              });
+              haptic("tap");
+              setStep("DIRECTIVE_01");
+              setErrorMessage("");
             } else {
               triggerError("ERROR: INVALID_DATA - Missing alignment settings");
             }
@@ -2655,7 +2658,215 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              INITIALIZE_ALGORITHM
+              NEXT_DIRECTIVES
+            </button>
+          </div>
+        </form>
+      )}
+
+      {step === "DIRECTIVE_01" && (
+        <form 
+          key="step-5" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (directiveGoal.trim().length >= 10) {
+              haptic("tap");
+              setStep("DIRECTIVE_02");
+              setErrorMessage("");
+            } else {
+              triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+              ČO JE TVOJ NAJVÄČŠÍ ŽIVOTNÝ CIEĽ, NA KTOROM AKURÁT PRACUJEŠ?
+            </div>
+          </div>
+
+          <div className="text-left border border-foreground/20 bg-card p-6">
+            <textarea
+              ref={goalInputRef}
+              value={directiveGoal}
+              onChange={(e) => {
+                setDirectiveGoal(e.target.value);
+                if (errorMessage) setErrorMessage("");
+              }}
+              placeholder="[ Napíš sem svoju hlavnú víziu alebo na čo sa teraz najviac sústredíš... ]"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+            />
+          </div>
+
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                setStep("MARKET_ALIGNMENT");
+                setErrorMessage("");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+            >
+              RECORD_DIRECTIVE_01
+            </button>
+          </div>
+        </form>
+      )}
+
+      {step === "DIRECTIVE_02" && (
+        <form 
+          key="step-6" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (directiveRedflags.trim().length >= 10) {
+              haptic("tap");
+              setStep("DIRECTIVE_03");
+              setErrorMessage("");
+            } else {
+              triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+              AKÉ SPRÁVANIE ALEBO VLASTNOSTI U ĽUDÍ ABSOLÚTNE NETOLERUJEŠ?
+            </div>
+          </div>
+
+          <div className="text-left border border-foreground/20 bg-card p-6">
+            <textarea
+              ref={redflagsInputRef}
+              value={directiveRedflags}
+              onChange={(e) => {
+                setDirectiveRedflags(e.target.value);
+                if (errorMessage) setErrorMessage("");
+              }}
+              placeholder="[ Napíš sem veci, cez ktoré u teba proste nejde vlak... ]"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+            />
+          </div>
+
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                setStep("DIRECTIVE_01");
+                setErrorMessage("");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+            >
+              RECORD_DIRECTIVE_02
+            </button>
+          </div>
+        </form>
+      )}
+
+      {step === "DIRECTIVE_03" && (
+        <form 
+          key="step-7" 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (directiveLifestyle.trim().length >= 10) {
+              haptic("success");
+              setErrorMessage("");
+
+              // Calculate orientation based on gender & targetMarket mapping
+              let calculatedOrientation: Orientation = "bi";
+              if (targetMarket === "all" || gender === "other") {
+                calculatedOrientation = "bi";
+              } else if (gender === targetMarket) {
+                calculatedOrientation = "homo";
+              } else {
+                calculatedOrientation = "hetero";
+              }
+
+              onSubmit({
+                name: nameTrim,
+                age: age || 18,
+                birthDate: birthDate,
+                city: "Bratislava", // Default city fallback (updated in real-time by WatchPosition)
+                gender: gender as Gender,
+                orientation: calculatedOrientation,
+                radiusKm: 250,
+                directive_goal: directiveGoal,
+                directive_redflags: directiveRedflags,
+                directive_lifestyle: directiveLifestyle,
+              });
+            } else {
+              triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
+            }
+          }}
+          className="animate-kinetic-fade w-full max-w-md"
+        >
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono text-center w-full">
+              AKO VYZERÁ TVOJ BEŽNÝ DEŇ? (STRATÉGIA VS. CHAOS)
+            </div>
+          </div>
+
+          <div className="text-left border border-foreground/20 bg-card p-6">
+            <textarea
+              ref={lifestyleInputRef}
+              value={directiveLifestyle}
+              onChange={(e) => {
+                setDirectiveLifestyle(e.target.value);
+                if (errorMessage) setErrorMessage("");
+              }}
+              placeholder="[ Napíš, či ideš podľa striktného plánu, alebo riešiš veci za pochodu... ]"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+            />
+          </div>
+
+          {errorMessage && (
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                setStep("DIRECTIVE_02");
+                setErrorMessage("");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              type="submit"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all cursor-pointer"
+            >
+              LOCK_SYSTEM_DIRECTIVES
             </button>
           </div>
         </form>
