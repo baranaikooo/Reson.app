@@ -885,6 +885,9 @@ export type UserProfile = {
   haptic_profile?: "STEALTH" | "TACTILE" | "MECHANICAL";
   geo_density?: "ECO_5KM" | "BALANCED_2KM" | "HIGH_FREQ_500M";
   ui_speed?: "TYPEWRITER_ANIMATED" | "INSTANT_RAW";
+  directive_goal?: string;
+  directive_redflags?: string;
+  directive_lifestyle?: string;
 };
 
 export function haversineKm(
