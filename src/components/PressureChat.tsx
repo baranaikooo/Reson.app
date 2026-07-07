@@ -101,6 +101,43 @@ export function PressureChat({
   const [isTyping, setIsTyping] = useState(!isInstant);
   const [clicked, setClicked] = useState(false);
 
+  // Warning screen states
+  const [showWarning, setShowWarning] = useState(isOnboarding);
+  const [cooldown, setCooldown] = useState(5);
+
+  // Trigger warning sound / haptic on mount
+  useEffect(() => {
+    if (showWarning) {
+      haptic("heavy");
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setShowWarning(false);
+            return 0;
+          }
+          haptic("tick");
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [showWarning, haptic]);
+
+  // Override / trigger on Enter key press
+  useEffect(() => {
+    if (!showWarning) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        haptic("success");
+        setShowWarning(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showWarning, haptic]);
+
   // Gyroscopic orientation listener
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -126,6 +163,7 @@ export function PressureChat({
 
   // Phase 1: Typing Indicator for 3 seconds (bypassed if INSTANT_RAW is active)
   useEffect(() => {
+    if (showWarning) return;
     if (isInstant) {
       setIsTyping(false);
       startTimeRef.current = performance.now();
@@ -140,11 +178,11 @@ export function PressureChat({
     }, 3000);
 
     return () => clearTimeout(typingTimer);
-  }, [haptic, isInstant]);
+  }, [haptic, isInstant, showWarning]);
 
   // Phase 2: Active countdown timer with haptic acceleration ticks
   useEffect(() => {
-    if (isTyping || clicked) return;
+    if (showWarning || isTyping || clicked) return;
 
     const start = performance.now();
     const initialLimit = timeLeft;
@@ -225,6 +263,46 @@ export function PressureChat({
 
   const progressPercent = (timeLeft / totalLimit) * 100;
   const isTimeCritical = timeLeft < 3.0;
+
+  if (showWarning) {
+    return (
+      <div className="fixed inset-0 bg-background z-[200] flex flex-col justify-center items-center p-6 text-center select-none animate-fade-in">
+        <div className="w-full max-w-md border-4 border-red-500 bg-red-950/20 p-6 text-red-500 flex flex-col justify-between items-center space-y-6">
+          <div className="font-mono text-[10px] tracking-widest text-red-500/50 uppercase">
+            [ SYSTEM_ALERT // PRESSURE_TEST_READY ]
+          </div>
+
+          <h2 className="font-mono text-2xl font-black uppercase tracking-tight animate-pulse text-red-500">
+            [ !!! CRITICAL_SYSTEM_ALERT !!! ]
+          </h2>
+
+          <div className="w-full border-t border-red-500/20 my-2" />
+
+          <p className="text-base md:text-lg font-bold font-mono tracking-wide uppercase leading-relaxed text-red-500">
+            VSTUPUJEŠ DO TLAKOVEJ ZÓNY. NASLEDUJE SÉRIA RÝCHLYCH OTÁZOK S OBMEDZENÝM ČASOM NA ODPOVEĎ.
+            <br /><br />
+            UISTI SA, ŽE SA SÚSTREDÍŠ, ODPOVEDÁŠ OKAMŽITE A NEBUDEŠ POČAS NASLEDUJÚCICH MINÚT NIČÍM RUŠENÝ. AKÉKOĽVEK ZAVÁHANIE ALEBO OPRAVOVANIE TEXTU ŤA VYRADÍ.
+          </p>
+
+          <div className="w-full border-t border-red-500/20 my-2" />
+
+          <div className="font-mono text-lg font-bold uppercase tracking-wider text-red-400">
+            LAUNCH_SEQUENCE_IN: [ {String(cooldown).padStart(2, "0")}s ]
+          </div>
+
+          <button
+            onClick={() => {
+              haptic("success");
+              setShowWarning(false);
+            }}
+            className="w-full bg-red-500 text-black hover:bg-red-600 font-mono font-bold text-sm tracking-wider uppercase py-4 transition-all cursor-pointer border-2 border-red-500 active:scale-[0.98]"
+          >
+            OVERRIDE_AND_LAUNCH_NOW
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
