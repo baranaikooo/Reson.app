@@ -2382,20 +2382,20 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Meno je príliš krátke");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
-              IDENTIFIKÁCIA_SYSTÉMU
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+              IDENTIFIKÁCIA SYSTÉMU
             </div>
           </div>
-          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Zadaj svoje meno pre systémovú identifikáciu rozhrania.
           </p>
 
-          <div className="text-left border border-foreground/20 bg-card p-6">
+          <div className="text-left space-y-2">
             <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
-              POUŽÍVATEĽSKÉ MENO
+              MENO
             </label>
             <input
               ref={nameInputRef}
@@ -2437,18 +2437,18 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Dátum je povinný");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
-              ČASOVÁ_MATRICA
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+              ČASOVÁ MATRICA
             </div>
           </div>
-          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Zadaj dátum svojho narodenia na kalibráciu časového indexu.
           </p>
 
-          <div className="text-left border border-foreground/20 bg-card p-6">
+          <div className="text-left space-y-2">
             <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
               Dátum narodenia (DD / MM / RRRR)
             </label>
@@ -2483,7 +2483,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              SPRACOVAŤ_DÁTUMY
+              SPRACOVAŤ DÁTUMY
             </button>
           </div>
         </form>
@@ -2502,22 +2502,22 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Nesplnené kritérium veku");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
-              OVERENIE_VEKU
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+              OVERENIE VEKU
             </div>
           </div>
-          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Systém preveril časové údaje a určil tvoj vek.
           </p>
 
-          <div className="text-left border border-foreground/20 bg-card p-6 space-y-4">
-            <div className="border-2 border-foreground p-6 bg-foreground/5 font-mono text-center">
-              <p className="text-xs text-foreground/50 uppercase tracking-widest mb-2">// DETEKOVANÝ_VEK</p>
+          <div className="text-left space-y-4">
+            <div className="border-2 border-foreground p-4 bg-foreground/5 font-mono text-center">
+              <p className="text-[10px] text-foreground/50 uppercase tracking-widest mb-1">// DETEKOVANÝ VEK</p>
               <div className="text-2xl font-black tracking-tight text-foreground uppercase">
-                DETEKOVANÝ_VEK: [ {age ?? "?"} ]
+                DETEKOVANÝ VEK: [ {age ?? "?"} ]
               </div>
             </div>
           </div>
@@ -2544,7 +2544,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              POTVRDIŤ_A_ZABEZPEČIŤ
+              POTVRDIŤ A ZABEZPEČIŤ
             </button>
           </div>
         </form>
@@ -2563,21 +2563,21 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Chýba nastavenie zaradenia");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono">
-              TRHOVÉ_ZARADENIE
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+              TRHOVÉ ZARADENIE
             </div>
           </div>
-          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-6 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Nastav tvoje rezonančné parametre pre matchmaking trh.
           </p>
 
-          <div className="text-left border border-foreground/20 bg-card p-6 space-y-6">
+          <div className="text-left space-y-4">
             <div>
               <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
-                MOJE_POHLAVIE
+                MOJE POHLAVIE
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
@@ -2593,7 +2593,7 @@ function ProfileForm({
                       setGender(g.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-2.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-2 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       gender === g.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -2607,13 +2607,13 @@ function ProfileForm({
 
             <div>
               <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
-                CIEĽOVÝ_TRH
+                KOHO HĽADÁŠ
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: "male", label: "MUŽI" },
+                  { value: "male", label: "MUŽOV" },
                   { value: "female", label: "ŽENY" },
-                  { value: "all", label: "VŠETCI" },
+                  { value: "all", label: "VŠETKÝCH" },
                 ] as const).map((t) => (
                   <button
                     key={t.value}
@@ -2623,7 +2623,7 @@ function ProfileForm({
                       setTargetMarket(t.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-2.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-2 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
                       targetMarket === t.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -2658,7 +2658,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ĎALEJ_SMERNICE
+              ĎALEJ SMERNICE
             </button>
           </div>
         </form>
@@ -2677,15 +2677,15 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
               ČO JE TVOJ NAJVÄČŠÍ ŽIVOTNÝ CIEĽ, NA KTOROM AKURÁT PRACUJEŠ?
             </div>
           </div>
 
-          <div className="text-left border border-foreground/20 bg-card p-6">
+          <div className="text-left">
             <textarea
               ref={goalInputRef}
               value={directiveGoal}
@@ -2694,7 +2694,7 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš sem svoju hlavnú víziu alebo na čo sa teraz najviac sústredíš... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
@@ -2720,7 +2720,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ZAZNAMENAŤ_SMERNICU_01
+              ZAZNAMENAŤ SMERNICU 01
             </button>
           </div>
         </form>
@@ -2739,15 +2739,15 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
               AKÉ SPRÁVANIE ALEBO VLASTNOSTI U ĽUDÍ ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
 
-          <div className="text-left border border-foreground/20 bg-card p-6">
+          <div className="text-left">
             <textarea
               ref={redflagsInputRef}
               value={directiveRedflags}
@@ -2756,7 +2756,7 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš sem veci, cez ktoré u teba proste nejde vlak... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
@@ -2782,7 +2782,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              ZAZNAMENAŤ_SMERNICU_02
+              ZAZNAMENAŤ SMERNICU 02
             </button>
           </div>
         </form>
@@ -2823,15 +2823,15 @@ function ProfileForm({
               triggerError("ERROR: INVALID_DATA - Minimum 10 znakov");
             }
           }}
-          className="animate-kinetic-fade w-full max-w-md"
+          className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-4 mb-4 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
               AKO VYZERÁ TVOJ BEŽNÝ DEŇ? (STRATÉGIA VS. CHAOS)
             </div>
           </div>
 
-          <div className="text-left border border-foreground/20 bg-card p-6">
+          <div className="text-left">
             <textarea
               ref={lifestyleInputRef}
               value={directiveLifestyle}
@@ -2840,7 +2840,7 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš, či ideš podľa striktného plánu, alebo riešiš veci za pochodu... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
@@ -2866,7 +2866,7 @@ function ProfileForm({
               type="submit"
               className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
             >
-              UZAMKNÚŤ_SYSTÉMOVÉ_SMERNICE
+              UZAMKNÚŤ SYSTÉMOVÉ SMERNICE
             </button>
           </div>
         </form>
