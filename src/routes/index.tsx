@@ -791,8 +791,6 @@ function ResonApp() {
     <Shell>
       {screen === "landing" && (
         <Landing
-          theme={theme}
-          onTheme={setTheme}
           onGoogle={(profile) => {
             haptic("success");
             setGoogleProfile(profile);
@@ -1266,12 +1264,8 @@ function PrimaryButton({
 }
 
 function Landing({
-  theme,
-  onTheme,
   onGoogle,
 }: {
-  theme: ThemeMode;
-  onTheme: (m: ThemeMode) => void;
   onGoogle: (profile: GoogleProfile) => void;
 }) {
   const haptic = useHaptic();
@@ -1287,36 +1281,6 @@ function Landing({
         {/* Terminal Header */}
         <div className="border border-foreground/20 px-4 py-2 font-mono text-[10px] tracking-widest text-foreground/50 mb-4 uppercase">
           RESON // SECURE COGNITIVE
-        </div>
-
-        {/* Theme Toggle option */}
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <button
-            onClick={() => {
-              haptic("tap");
-              onTheme("light");
-            }}
-            className={`px-3 py-1 font-mono text-[9px] tracking-wider uppercase border transition-all ${
-              theme === "light"
-                ? "bg-foreground text-background border-foreground font-bold"
-                : "border-foreground/10 text-foreground/45 hover:text-foreground"
-            }`}
-          >
-            LIGHT
-          </button>
-          <button
-            onClick={() => {
-              haptic("tap");
-              onTheme("dark");
-            }}
-            className={`px-3 py-1 font-mono text-[9px] tracking-wider uppercase border transition-all ${
-              theme === "dark"
-                ? "bg-foreground text-background border-foreground font-bold"
-                : "border-foreground/10 text-foreground/45 hover:text-foreground"
-            }`}
-          >
-            DARK
-          </button>
         </div>
 
         <h1 className="font-sans text-5xl font-black uppercase tracking-tighter text-foreground">
