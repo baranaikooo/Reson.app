@@ -2249,14 +2249,15 @@ function ProfileForm({
   initialName?: string;
 }) {
   const haptic = useHaptic();
-  const [name, setName] = useState(initialName);
+  const [step, setStep] = useState<
+    "SYSTEM_IDENTIFICATION" | "TEMPORAL_MATRIX" | "AGE_VERIFICATION" | "MARKET_ALIGNMENT"
+  >("SYSTEM_IDENTIFICATION");
+
+  const [name, setName] = useState(initialName.toUpperCase());
   const [birthDate, setBirthDate] = useState<string>("");
   const [age, setAge] = useState<number | null>(null);
-  const [city, setCity] = useState("");
   const [gender, setGender] = useState<Gender | "">("");
-  const [orientation, setOrientation] = useState<Orientation | "">("");
-  const [loc, setLoc] = useState<LocStatus>("idle");
-  const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
+  const [targetMarket, setTargetMarket] = useState<"male" | "female" | "all" | "">("");
 
   function calculateAge(birthDateString: string): number {
     if (!birthDateString) return 0;
@@ -2276,264 +2277,256 @@ function ProfileForm({
     setAge(calculatedAge);
   }
 
-  const ageNum = age || 0;
   const nameTrim = name.trim();
-  const valid =
-    nameTrim.length >= 2 &&
-    nameTrim.length <= 30 &&
-    ageNum >= 18 &&
-    ageNum <= 99 &&
-    city.trim().length > 1 &&
-    city.length <= 60 &&
-    gender &&
-    orientation;
-
-  async function useMyLocation() {
-    if (!("geolocation" in navigator)) {
-      setLoc("error");
-      return;
-    }
-    haptic("tap");
-    setLoc("loading");
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        coordsRef.current = { lat: latitude, lon: longitude };
-
-        const ctrl = new AbortController();
-        const tid = setTimeout(() => ctrl.abort(), 7000);
-        try {
-          const r = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=sk`,
-            { headers: { Accept: "application/json" }, signal: ctrl.signal },
-          );
-          if (!r.ok) throw new Error("bad status");
-          const data = await r.json();
-          const a = data?.address ?? {};
-          const guess: string = a.city || a.town || a.village || a.municipality || a.county || "";
-          if (guess) {
-            setCity(guess.slice(0, 60));
-            setLoc("ok");
-            haptic("success");
-          } else {
-            throw new Error("empty guess");
-          }
-        } catch {
-          // Robust coordinate fallback to bypass rate limits or offline states
-          let fallbackCity = "Bratislava";
-          if (latitude > 47 && latitude < 50 && longitude > 16 && longitude < 235) {
-            if (longitude < 18.5) fallbackCity = "Bratislava";
-            else if (longitude < 20.5) fallbackCity = "Banská Bystrica";
-            else fallbackCity = "Košice";
-          } else {
-            fallbackCity = "Praha";
-          }
-          setCity(fallbackCity);
-          setLoc("ok");
-          haptic("success");
-        } finally {
-          clearTimeout(tid);
-        }
-      },
-      (err) => {
-        setLoc(err.code === err.PERMISSION_DENIED ? "denied" : "error");
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-    );
-  }
-
-  const Pill = ({
-    active,
-    label,
-    sub,
-    onClick,
-  }: {
-    active: boolean;
-    label: string;
-    sub?: string;
-    onClick: () => void;
-  }) => (
-    <button
-      onClick={() => {
-        haptic("tap");
-        onClick();
-      }}
-      className={`flex flex-col items-center justify-center border px-4 py-4 text-center transition-all active:scale-[0.97] ${
-        active
-          ? "border-foreground bg-foreground/10 text-foreground font-bold"
-          : "border-foreground/10 bg-foreground/[0.02] text-foreground/75 hover:bg-foreground/5"
-      }`}
-    >
-      <span className="text-base font-bold tracking-wide">{label}</span>
-      {sub && <span className="mt-0.5 text-xs font-mono text-foreground/50">{sub}</span>}
-    </button>
-  );
-
-  const locText: Record<LocStatus, string> = {
-    idle: "Použiť moju polohu",
-    loading: "Zisťujem polohu…",
-    ok: "Doplnené z polohy ✓",
-    denied: "Povoľ prístup k polohe v prehliadači",
-    error: "Nepodarilo sa — napíš mesto ručne",
-  };
+  const isAgeValid = age !== null && age >= 18 && age <= 99;
 
   return (
-    <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
-      <div className="relative z-10 w-full max-w-md">
-        <div className="mb-5 flex justify-center">
-          <div className="border border-foreground/20 px-3 py-1 font-mono text-[9px] tracking-widest text-foreground/50 uppercase">
-            // FÁZA 1 // IDENTIFIKÁCIA
+    <div className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 text-center">
+      {step === "SYSTEM_IDENTIFICATION" && (
+        <div key="step-1" className="animate-kinetic-fade w-full max-w-md">
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
+              SYSTEM_IDENTIFICATION
+            </div>
+          </div>
+          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Zadajte svoje meno pre systémovú identifikáciu rozhrania.
+          </p>
+
+          <div className="text-left border border-foreground/20 bg-card p-6">
+            <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
+              Meno (Username)
+            </label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 30))}
+              placeholder="MENO / PREZÝVKA"
+              autoFocus
+              className="w-full border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
+            />
+          </div>
+
+          <button
+            disabled={nameTrim.length < 2}
+            onClick={() => {
+              haptic("tap");
+              setStep("TEMPORAL_MATRIX");
+            }}
+            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+          >
+            CONTINUE
+          </button>
+        </div>
+      )}
+
+      {step === "TEMPORAL_MATRIX" && (
+        <div key="step-2" className="animate-kinetic-fade w-full max-w-md">
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
+              TEMPORAL_MATRIX
+            </div>
+          </div>
+          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Zadajte dátum svojho narodenia na kalibráciu časového indexu.
+          </p>
+
+          <div className="text-left border border-foreground/20 bg-card p-6">
+            <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
+              Dátum narodenia (DD / MM / RRRR)
+            </label>
+            <input
+              type="date"
+              value={birthDate}
+              onChange={(e) => handleBirthDateChange(e.target.value)}
+              className="w-full border-2 border-foreground bg-foreground/5 p-3 text-lg text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
+            />
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => {
+                haptic("tap");
+                setStep("SYSTEM_IDENTIFICATION");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              disabled={!birthDate}
+              onClick={() => {
+                haptic("tap");
+                setStep("AGE_VERIFICATION");
+              }}
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+            >
+              PROCESS_DATES
+            </button>
           </div>
         </div>
-        <h2 className="font-sans text-3xl font-black uppercase tracking-tight text-foreground">
-          Základné Údaje
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-xs text-foreground/60 leading-relaxed font-mono uppercase">
-          Tieto informácie slúžia na vyhľadanie vhodných partnerov vo vašom okolí.
-        </p>
+      )}
 
-        <div className="mt-8 text-left border border-foreground/20 bg-card p-6">
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
-                Meno{" "}
-                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
-                  // Ako ťa majú oslovovať
-                </span>
-              </label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value.slice(0, 30))}
-                placeholder="ako ti hovoria"
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-4 text-lg text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
-              />
+      {step === "AGE_VERIFICATION" && (
+        <div key="step-3" className="animate-kinetic-fade w-full max-w-md">
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
+              AGE_VERIFICATION
             </div>
+          </div>
+          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Systém preveril časové údaje a určil váš vek.
+          </p>
 
-            <div>
-              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
-                Dátum narodenia{" "}
-                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
-                  // Pre automatické overenie veku
-                </span>
-              </label>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => handleBirthDateChange(e.target.value)}
-                className="w-full border border-foreground/10 bg-foreground/5 px-4 py-4 text-lg text-foreground outline-none focus:border-foreground placeholder:text-foreground/30 font-mono"
-              />
-              {age !== null && (
-                <div className="mt-2 text-xs font-mono">
-                  {age < 18 ? (
-                    <span className="text-red-500 font-bold uppercase">
-                      Chyba: Musíte mať aspoň 18 rokov (Aktuálne: {age})
-                    </span>
-                  ) : (
-                    <span className="text-foreground/60">
-                      Vypočítaný vek: <strong className="text-foreground">{age} rokov</strong>
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
-                Mesto{" "}
-                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
-                  // Kde sa práve nachádzaš
-                </span>
-              </label>
-              <div className="flex items-center gap-3 border border-foreground/10 bg-foreground/5 px-4 py-4">
-                <MapPin className="size-5 text-foreground/50" />
-                <input
-                  value={city}
-                  onChange={(e) => {
-                    setCity(e.target.value.slice(0, 60));
-                    if (loc !== "idle") setLoc("idle");
-                  }}
-                  placeholder="napr. Bratislava"
-                  className="w-full bg-transparent text-lg text-foreground outline-none placeholder:text-foreground/30 font-mono"
-                />
+          <div className="text-left border border-foreground/20 bg-card p-6 space-y-4">
+            <div className="border-2 border-foreground p-6 bg-foreground/5 font-mono text-center">
+              <p className="text-sm text-foreground/50 uppercase tracking-widest mb-2">// DETECTED_AGE</p>
+              <div className="text-3xl font-black tracking-tight text-foreground uppercase">
+                DETECTED_AGE: [ {age ?? "?"} ]
               </div>
-              <button
-                onClick={useMyLocation}
-                disabled={loc === "loading"}
-                className="mt-2 inline-flex items-center gap-2 border border-foreground/20 bg-foreground/5 px-4 py-2.5 text-xs font-bold text-foreground hover:bg-foreground/10 disabled:opacity-60 font-mono uppercase tracking-wider"
-              >
-                <MapPin className="size-3" /> {locText[loc]}
-              </button>
             </div>
 
+            {!isAgeValid && age !== null && (
+              <div className="border-2 border-red-500 bg-red-500/10 p-4 text-center font-mono text-xs text-red-500 font-bold uppercase">
+                ERROR: Vek musí byť v rozmedzí 18 - 99 rokov.
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => {
+                haptic("tap");
+                setStep("TEMPORAL_MATRIX");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              disabled={!isAgeValid}
+              onClick={() => {
+                haptic("success");
+                setStep("MARKET_ALIGNMENT");
+              }}
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+            >
+              ACKNOWLEDGE_AND_SECURE
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "MARKET_ALIGNMENT" && (
+        <div key="step-4" className="animate-kinetic-fade w-full max-w-md">
+          <div className="mb-5 flex justify-center">
+            <div className="border-2 border-foreground p-4 mb-4 uppercase text-xl font-bold tracking-wider font-mono">
+              MARKET_ALIGNMENT
+            </div>
+          </div>
+          <p className="mb-6 font-mono text-xs text-foreground/50 uppercase tracking-widest leading-relaxed">
+            Nastavte rezonančné parametre pre matchmaking trh.
+          </p>
+
+          <div className="text-left border border-foreground/20 bg-card p-6 space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
-                Identita{" "}
-                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
-                  // Rodová polarizácia
-                </span>
+              <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
+                MY_GENDER
               </label>
               <div className="grid grid-cols-3 gap-2">
-                <Pill active={gender === "male"} label="Muž" onClick={() => setGender("male")} />
-                <Pill
-                  active={gender === "female"}
-                  label="Žena"
-                  onClick={() => setGender("female")}
-                />
-                <Pill active={gender === "other"} label="Iné" onClick={() => setGender("other")} />
+                {([
+                  { value: "male", label: "MALE" },
+                  { value: "female", label: "FEMALE" },
+                  { value: "other", label: "NON_BINARY" },
+                ] as const).map((g) => (
+                  <button
+                    key={g.value}
+                    onClick={() => {
+                      haptic("tap");
+                      setGender(g.value);
+                    }}
+                    className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                      gender === g.value
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
+                    }`}
+                  >
+                    {g.label}
+                  </button>
+                ))}
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-bold uppercase tracking-wider text-foreground/70 font-mono">
-                Orientácia{" "}
-                <span className="text-[11px] text-foreground/45 font-normal ml-1.5">
-                  // Sexuálna komplementarita
-                </span>
+              <label className="mb-2 block text-lg font-bold uppercase tracking-wider text-foreground/75 font-mono">
+                TARGET_MARKET
               </label>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <Pill
-                  active={orientation === "hetero"}
-                  label="Hetero"
-                  sub="opačné"
-                  onClick={() => setOrientation("hetero")}
-                />
-                <Pill
-                  active={orientation === "homo"}
-                  label="Homo"
-                  sub="rovnaké"
-                  onClick={() => setOrientation("homo")}
-                />
-                <Pill
-                  active={orientation === "bi"}
-                  label="Bi"
-                  sub="obe"
-                  onClick={() => setOrientation("bi")}
-                />
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { value: "male", label: "MALE" },
+                  { value: "female", label: "FEMALE" },
+                  { value: "all", label: "ALL" },
+                ] as const).map((t) => (
+                  <button
+                    key={t.value}
+                    onClick={() => {
+                      haptic("tap");
+                      setTargetMarket(t.value);
+                    }}
+                    className={`border-2 py-3.5 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                      targetMarket === t.value
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        <button
-          disabled={!valid}
-          onClick={() =>
-            valid &&
-            onSubmit({
-              name: nameTrim,
-              age: ageNum,
-              birthDate: birthDate,
-              city: city.trim(),
-              gender: gender as Gender,
-              orientation: orientation as Orientation,
-              coords: coordsRef.current ?? undefined,
-              radiusKm: 250,
-            })
-          }
-          className="mt-6 w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all"
-        >
-          POKRAČOVAŤ
-        </button>
-      </div>
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => {
+                haptic("tap");
+                setStep("AGE_VERIFICATION");
+              }}
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm"
+            >
+              Späť
+            </button>
+            <button
+              disabled={!gender || !targetMarket}
+              onClick={() => {
+                haptic("success");
+
+                // Calculate orientation based on gender & targetMarket mapping
+                let calculatedOrientation: Orientation = "bi";
+                if (targetMarket === "all" || gender === "other") {
+                  calculatedOrientation = "bi";
+                } else if (gender === targetMarket) {
+                  calculatedOrientation = "homo";
+                } else {
+                  calculatedOrientation = "hetero";
+                }
+
+                onSubmit({
+                  name: nameTrim,
+                  age: age || 18,
+                  birthDate: birthDate,
+                  city: "Bratislava", // Default city fallback (updated in real-time by WatchPosition)
+                  gender: gender as Gender,
+                  orientation: calculatedOrientation,
+                  radiusKm: 250,
+                });
+              }}
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all cursor-pointer"
+            >
+              INITIALIZE_ALGORITHM
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
