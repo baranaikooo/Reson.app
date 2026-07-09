@@ -69,6 +69,7 @@ import {
   openCamera,
   openMic,
   pickAudioMime,
+  pickVideoMime,
   recordStreamForMs,
   stopStream,
   makeMockToneWavUrl,
@@ -1627,6 +1628,10 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const previewRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const stableFramesRef = useRef(0);
+  const challengeStepRef = useRef<"center" | "turn_right" | "turn_left" | "done" | "idle">("idle");
+
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [phase, setPhase] = useState<
     "idle" | "countdown" | "recording" | "verifying" | "ready" | "error"
@@ -1636,6 +1641,12 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
   const [errMsg, setErrMsg] = useState("");
   const [faceModel, setFaceModel] = useState<any>(null);
   const [modelLoading, setModelLoading] = useState(true);
+  const [challengeStep, setChallengeStep] = useState<"center" | "turn_right" | "turn_left" | "done" | "idle">("idle");
+
+  const updateChallengeStep = (val: "center" | "turn_right" | "turn_left" | "done" | "idle") => {
+    challengeStepRef.current = val;
+    setChallengeStep(val);
+  };
 
   useEffect(() => {
     let active = true;
@@ -1691,55 +1702,11 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     });
   }, [phase, recordedUrl]);
 
-  function checkCameraFeedQuality(video: HTMLVideoElement): boolean {
-    try {
-      const canvas = document.createElement("canvas");
-      canvas.width = 64;
-      canvas.height = 64;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return true;
-      ctx.drawImage(video, 0, 0, 64, 64);
-      const imgData = ctx.getImageData(0, 0, 64, 64);
-      const data = imgData.data;
-
-      let sum = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-        sum += brightness;
-      }
-      const avgBrightness = sum / (data.length / 4);
-
-      if (avgBrightness < 15 || avgBrightness > 245) {
-        console.warn("[liveness] extreme brightness check fallback triggered:", avgBrightness);
-        return false;
-      }
-
-      let varianceSum = 0;
-      const pixelCount = data.length / 4;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-        varianceSum += Math.abs(brightness - avgBrightness);
-      }
-      const avgVariance = varianceSum / pixelCount;
-      if (avgVariance < 10) {
-        console.warn("[liveness] flat detail fallback trigger:", avgVariance);
-        return false;
-      }
-      return true;
-    } catch (e) {
-      return true;
-    }
-  }
-
   async function runScan() {
     haptic("tap");
     setPhase("countdown");
+    updateChallengeStep("center");
+    stableFramesRef.current = 0;
 
     try {
       const s = await openCamera({
@@ -1757,46 +1724,141 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
       }
 
       setPhase("recording");
-      const { blob } = await recordStreamForMs(streamRef.current, 3000, "video");
-      haptic("phase");
 
-      if (blob.size > 100) {
-        const url = URL.createObjectURL(blob);
-        setRecordedUrl(url);
-        setPhase("verifying");
-        await new Promise((r) => setTimeout(r, 1800));
+      const preferred = pickVideoMime();
+      const mediaRecorder = createMediaRecorder(s, preferred, "video");
+      const chunks: Blob[] = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start(250);
 
-        let faceDetected = false;
+      let scanning = true;
+      let frameId: number;
 
-        if (faceModel && videoRef.current) {
-          try {
-            const predictions = await faceModel.estimateFaces(videoRef.current, false);
-            faceDetected = predictions.length > 0;
-          } catch (detErr) {
-            faceDetected = checkCameraFeedQuality(videoRef.current);
+      const checkFrame = async () => {
+        if (!scanning) return;
+
+        if (videoRef.current && videoRef.current.readyState >= 2) {
+          if (faceModel) {
+            try {
+              const predictions = await faceModel.estimateFaces(videoRef.current, false);
+              if (predictions.length === 1) {
+                const landmarks = predictions[0].landmarks;
+                const rightEar = landmarks[4];
+                const leftEar = landmarks[5];
+                const nose = landmarks[2];
+
+                if (rightEar && leftEar && nose) {
+                  const noseToRight = Math.abs(nose[0] - rightEar[0]);
+                  const noseToLeft = Math.abs(nose[0] - leftEar[0]);
+                  const ratio = noseToRight / (noseToLeft + 1e-5);
+
+                  const step = challengeStepRef.current;
+                  if (step === "center") {
+                    if (ratio > 0.65 && ratio < 1.55) {
+                      stableFramesRef.current++;
+                      if (stableFramesRef.current >= 8) {
+                        haptic("tap");
+                        stableFramesRef.current = 0;
+                        updateChallengeStep("turn_right");
+                      }
+                    } else {
+                      stableFramesRef.current = Math.max(0, stableFramesRef.current - 1);
+                    }
+                  } else if (step === "turn_right") {
+                    if (ratio < 0.45) {
+                      stableFramesRef.current++;
+                      if (stableFramesRef.current >= 4) {
+                        haptic("tap");
+                        stableFramesRef.current = 0;
+                        updateChallengeStep("turn_left");
+                      }
+                    }
+                  } else if (step === "turn_left") {
+                    if (ratio > 2.2) {
+                      stableFramesRef.current++;
+                      if (stableFramesRef.current >= 4) {
+                        haptic("success");
+                        stableFramesRef.current = 0;
+                        updateChallengeStep("done");
+                        scanning = false;
+                        finishRecording();
+                      }
+                    }
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn("[liveness] frame analysis skipped:", err);
+            }
+          } else {
+            stableFramesRef.current++;
+            if (stableFramesRef.current >= 20) {
+              haptic("success");
+              updateChallengeStep("done");
+              scanning = false;
+              finishRecording();
+            }
           }
-        } else {
-          if (videoRef.current) faceDetected = checkCameraFeedQuality(videoRef.current);
-          else faceDetected = true;
         }
 
-        stopStream(streamRef.current);
-        streamRef.current = null;
-        setStream(null);
+        if (scanning) {
+          frameId = requestAnimationFrame(checkFrame);
+        }
+      };
 
-        if (faceDetected) {
-          haptic("success");
-          setPhase("ready");
+      frameId = requestAnimationFrame(checkFrame);
+
+      const timeoutId = setTimeout(() => {
+        if (scanning) {
+          scanning = false;
+          cancelAnimationFrame(frameId);
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+            mediaRecorderRef.current.stop();
+          }
+          if (streamRef.current) stopStream(streamRef.current);
+          streamRef.current = null;
+          setStream(null);
+          setErrMsg("Časový limit vypršal. Skús znova a pomaly otoč hlavu podľa pokynov.");
+          setPhase("error");
+          updateChallengeStep("idle");
+        }
+      }, 25000);
+
+      function finishRecording() {
+        clearTimeout(timeoutId);
+        cancelAnimationFrame(frameId);
+
+        setPhase("verifying");
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+          mediaRecorderRef.current.onstop = () => {
+            const mimeType = mediaRecorderRef.current?.mimeType || "video/webm";
+            const blob = chunks.length
+              ? new Blob(chunks, { type: mimeType })
+              : new Blob([], { type: mimeType });
+
+            if (blob.size > 100) {
+              const url = URL.createObjectURL(blob);
+              setRecordedUrl(url);
+              setPhase("ready");
+            } else {
+              setErrMsg("Chyba: Záznam videa je prázdny. Skús znovu.");
+              setPhase("error");
+            }
+
+            if (streamRef.current) stopStream(streamRef.current);
+            streamRef.current = null;
+            setStream(null);
+          };
+          mediaRecorderRef.current.stop();
         } else {
-          setErrMsg(
-            "Overenie zlyhalo. Na videu sa nepodarilo nájsť reálnu ľudskú tvár. Uisti sa, že tvoj objektív nie je zakrytý, je v miestnosti dostatok svetla a tvoju tvár je jasne vidieť.",
-          );
+          if (streamRef.current) stopStream(streamRef.current);
+          streamRef.current = null;
+          setStream(null);
           setPhase("error");
         }
-      } else {
-        if (streamRef.current) stopStream(streamRef.current);
-        setErrMsg("Nahrávanie sa nepodarilo. Skús znovu.");
-        setPhase("error");
       }
     } catch (err) {
       if (streamRef.current) stopStream(streamRef.current);
@@ -1810,6 +1872,10 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
     setRecordedUrl(null);
     setErrMsg("");
     setPhase("idle");
+    updateChallengeStep("idle");
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
     stopStream(streamRef.current);
     streamRef.current = null;
     setStream(null);
@@ -1822,19 +1888,57 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           LIVE SNIPPET
         </h2>
         <p className="text-sm text-foreground/60 leading-relaxed mb-6">
-          Krátky 3-sekundový video-snippet, ktorý slúži ako verifikácia vašej reálnej identity.
+          Krátky video-snippet, ktorý slúži ako verifikácia vašej reálnej identity.
         </p>
 
         <div className="relative my-6 grid place-items-center">
           <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25 bg-black">
             {phase !== "ready" && stream && (
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                className="w-full h-full object-contain"
-                style={{ transform: "scaleX(-1)" }}
-              />
+              <div className="relative w-full h-full">
+                <video
+                  ref={videoRef}
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                  style={{ transform: "scaleX(-1)" }}
+                />
+                {/* Dashed guide oval */}
+                <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
+                  <svg className="w-[85%] h-[80%] text-foreground/40" viewBox="0 0 100 100">
+                    <ellipse
+                      cx="50"
+                      cy="50"
+                      rx="38"
+                      ry="45"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 3"
+                      className={`transition-colors duration-300 ${
+                        challengeStep === "center" ? "text-green-500 animate-pulse" : "text-foreground/40"
+                      }`}
+                    />
+                  </svg>
+                </div>
+
+                {/* Active Step Indicator Overlay */}
+                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[9px] font-mono leading-tight">
+                  <div className="font-bold text-foreground mb-1 tracking-wider uppercase">
+                    [ BIOMETRICKÝ SKEN ]
+                  </div>
+                  <div className="flex flex-col gap-0.5 text-left text-foreground/75 uppercase font-mono">
+                    <div className={challengeStep === "center" ? "text-green-400 font-bold" : "text-foreground/45"}>
+                      {challengeStep === "center" ? "● " : "○ "}1. Pozri priamo do kamery
+                    </div>
+                    <div className={challengeStep === "turn_right" ? "text-green-400 font-bold" : "text-foreground/45"}>
+                      {challengeStep === "turn_right" ? "● " : "○ "}2. Pomaly otoč hlavu doprava
+                    </div>
+                    <div className={challengeStep === "turn_left" ? "text-green-400 font-bold" : "text-foreground/45"}>
+                      {challengeStep === "turn_left" ? "● " : "○ "}3. Pomaly otoč hlavu doľava
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
             {phase !== "ready" && !stream && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/5 text-foreground/20">
@@ -1867,7 +1971,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 <span className="font-mono text-5xl text-foreground font-black">{countdown}</span>
               </div>
             )}
-            {phase === "recording" && (
+            {phase === "recording" && challengeStep === "done" && (
               <div className="absolute inset-x-0 top-3 mx-auto w-fit bg-red-600 px-3 py-1 font-mono text-[9px] tracking-widest text-white uppercase font-bold">
                 ● REC
               </div>
@@ -1885,7 +1989,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
         <p className="font-mono text-xs tracking-widest text-foreground/50 uppercase mb-4">
           {phase === "idle" && "[ NEAKTÍVNY ]"}
           {phase === "countdown" && "[ PRIPRAV SA ]"}
-          {phase === "recording" && "[ NAHRÁVAM ]"}
+          {phase === "recording" && `[ ${challengeStep === "center" ? "KROK 1: CENTROVANIE" : challengeStep === "turn_right" ? "KROK 2: OTOČENIE VPRAVO" : "KROK 3: OTOČENIE VĽAVO"} ]`}
           {phase === "verifying" && "[ VERIFIKÁCIA ]"}
           {phase === "ready" && "[ PRIPRAVENÝ ]"}
           {phase === "error" && "[ CHYBA OVERENIA ]"}
@@ -1904,7 +2008,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
               className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
             >
               <Camera className="size-5" />
-              {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "NAHRAŤ SNIPPET"}
+              {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "SPUSTIŤ TEST"}
             </button>
           )}
           {phase === "ready" && (
