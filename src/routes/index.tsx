@@ -1183,9 +1183,18 @@ function ResonApp() {
 
               if (!profile) throw new Error("Profile not initialized");
 
+              // Retrieve the absolute source of truth for the logged-in user ID to prevent RLS mismatches
+              const { data: { user: currentUser } } = await supabase.auth.getUser();
+              const targetUserId = currentUser?.id || authUserId;
+
+              if (!targetUserId) {
+                throw new Error("Používateľská relácia sa nenašla. Prihláste sa znova.");
+              }
+
               // Build the final UserProfile
               const updated: UserProfile = {
                 ...profile,
+                id: targetUserId,
                 cognitiveDepth: cognitiveDepth || 0.5,
                 conscientiousness: conscientiousness || 0.5,
                 extraversion: extraversion || 0.5,
@@ -1200,14 +1209,14 @@ function ResonApp() {
               // Backend Sync: Batch Upload Videos
               let publicVideoUrls: string[] = [];
 
-              if (updated.id !== "00000000-0000-0000-0000-000000000001") {
+              if (targetUserId !== "00000000-0000-0000-0000-000000000001") {
                 if (updated.videoUrls && updated.videoUrls.length > 0) {
                   const uploadPromises = updated.videoUrls.map(async (url, idx) => {
                     if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
                     try {
                       const res = await fetch(url);
                       const blob = await res.blob();
-                      const uploadedUrl = await uploadSnippetVideo(updated.id as string, idx + 1, blob);
+                      const uploadedUrl = await uploadSnippetVideo(targetUserId, idx + 1, blob);
                       return { slot: idx + 1, url: uploadedUrl };
                     } catch (fetchErr) {
                       console.error(`[Onboarding] Failed to upload snippet ${idx + 1}:`, fetchErr);
@@ -1235,7 +1244,7 @@ function ResonApp() {
                 }
 
                 // Backend Sync: Save Profile
-                await saveUserProfile(updated.id as string, updated, publicVideoUrls);
+                await saveUserProfile(targetUserId, updated, publicVideoUrls);
               } else {
                 console.warn("[Demo Mode] Skipping backend upload because user is not signed in.");
               }
