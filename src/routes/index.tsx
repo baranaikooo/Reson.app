@@ -102,6 +102,7 @@ import { RadarChart } from "@/components/RadarChart";
 import { AssetDossier } from "@/components/AssetDossier";
 import { SystemConfig } from "@/components/SystemConfig";
 import { SnippetsOnboarding } from "@/components/SnippetsOnboarding";
+import { getVideoBlob, clearVideoBlobs } from "@/lib/indexeddb";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -287,6 +288,7 @@ function clearOnboardingStorage() {
   localStorage.removeItem("reson:onboarding_previewE");
   localStorage.removeItem("reson:onboarding_hesitated");
   localStorage.removeItem("reson:onboarding_answers");
+  clearVideoBlobs().catch((err) => console.error("Failed to clear video blobs from IndexedDB:", err));
 }
 
 function ResonApp() {
@@ -1214,8 +1216,11 @@ function ResonApp() {
                   const uploadPromises = updated.videoUrls.map(async (url, idx) => {
                     if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
                     try {
-                      const res = await fetch(url);
-                      const blob = await res.blob();
+                      let blob = await getVideoBlob(`snippet_${idx + 1}`);
+                      if (!blob) {
+                        const res = await fetch(url);
+                        blob = await res.blob();
+                      }
                       const uploadedUrl = await uploadSnippetVideo(targetUserId, idx + 1, blob);
                       return { slot: idx + 1, url: uploadedUrl };
                     } catch (fetchErr) {

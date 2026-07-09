@@ -2,6 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import { X, Camera, Upload } from "lucide-react";
 import { useHaptic } from "@/hooks/use-haptics";
 import { openCamera, recordStreamForMs, stopStream, attachStreamToVideo } from "@/lib/media";
+import { saveVideoBlob, getVideoBlob, clearVideoBlobs } from "@/lib/indexeddb";
+
+async function syncSnippetsToDB(urls: string[]) {
+  try {
+    await clearVideoBlobs();
+    const active = urls.filter(Boolean);
+    for (let i = 0; i < active.length; i++) {
+      const res = await fetch(active[i]);
+      const blob = await res.blob();
+      await saveVideoBlob(`snippet_${i + 1}`, blob);
+    }
+  } catch (err) {
+    console.error("[syncSnippetsToDB] Failed to sync blobs:", err);
+  }
+}
 
 interface SnippetsOnboardingProps {
   onDone: (urls: string[]) => void;
@@ -12,6 +27,23 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
 
   // Initialize snippets list as empty slots
   const [snippets, setSnippets] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadFromDB() {
+      const loaded: string[] = [];
+      for (let idx = 0; idx < 4; idx++) {
+        const blob = await getVideoBlob(`snippet_${idx + 1}`);
+        if (blob) {
+          loaded[idx] = URL.createObjectURL(blob);
+        }
+      }
+      const filtered = loaded.filter(Boolean);
+      if (filtered.length > 0) {
+        setSnippets(filtered);
+      }
+    }
+    loadFromDB().catch((err) => console.error("Failed to load from IDB on mount:", err));
+  }, []);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [recordingState, setRecordingState] = useState<
@@ -111,7 +143,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       setSnippets((prev) => {
         const next = [...prev];
         next[index] = videoUrl;
-        return next;
+        const filtered = next.filter(Boolean);
+        syncSnippetsToDB(filtered).catch(console.error);
+        return filtered;
       });
 
       haptic("success");
@@ -170,7 +204,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       setSnippets((prev) => {
         const next = [...prev];
         next[index] = videoUrl;
-        return next;
+        const filtered = next.filter(Boolean);
+        syncSnippetsToDB(filtered).catch(console.error);
+        return filtered;
       });
       haptic("success");
       setActiveUploadIndex(null);
@@ -181,13 +217,14 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
     haptic("warning");
     setSnippets((prev) => {
       const next = [...prev];
-      // Do not remove index 0 if it is the liveness video to prevent breaking basic flow
       if (index === 0) {
         next[0] = "";
       } else {
         next[index] = "";
       }
-      return next.filter(Boolean);
+      const filtered = next.filter(Boolean);
+      syncSnippetsToDB(filtered).catch(console.error);
+      return filtered;
     });
   }
 
