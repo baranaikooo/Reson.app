@@ -279,9 +279,9 @@ export function PressureChat({
           <div className="w-full border-t border-red-500/20 my-2" />
 
           <p className="text-base md:text-lg font-bold font-mono tracking-wide uppercase leading-relaxed text-red-500">
-            VSTUPUJEŠ DO TLAKOVEJ ZÓNY. NASLEDUJE SÉRIA RÝCHLYCH OTÁZOK S OBMEDZENÝM ČASOM NA ODPOVEĎ.
+            VSTUPUJEŠ DO TLAKOVEJ ZÓNY S RÝCHLYMI OTÁZKAMI A OBMEDZENÝM ČASOM.
             <br /><br />
-            UISTI SA, ŽE SA SÚSTREDÍŠ, ODPOVEDÁŠ OKAMŽITE A NEBUDEŠ POČAS NASLEDUJÚCICH MINÚT NIČÍM RUŠENÝ. AKÉKOĽVEK ZAVÁHANIE ALEBO OPRAVOVANIE TEXTU ŤA VYRADÍ.
+            SÚSTREĎ SA, ODPOVEDAJ OKAMŽITE A BEZ OPRAVOVANIA, INAK BUDEŠ VYRADENÝ.
           </p>
 
           <div className="w-full border-t border-red-500/20 my-2" />
