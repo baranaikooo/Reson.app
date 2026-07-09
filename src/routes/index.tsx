@@ -263,6 +263,32 @@ function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
   return [mode, setMode];
 }
 
+function clearOnboardingStorage() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("reson:active_screen");
+  localStorage.removeItem("reson:profile_step");
+  localStorage.removeItem("reson:profile_name");
+  localStorage.removeItem("reson:profile_birthDate");
+  localStorage.removeItem("reson:profile_age");
+  localStorage.removeItem("reson:profile_gender");
+  localStorage.removeItem("reson:profile_targetMarket");
+  localStorage.removeItem("reson:profile_directiveGoal");
+  localStorage.removeItem("reson:profile_directiveRedflags");
+  localStorage.removeItem("reson:profile_directiveLifestyle");
+  localStorage.removeItem("reson:onboarding_livenessVideoUrl");
+  localStorage.removeItem("reson:onboarding_profile_draft");
+  localStorage.removeItem("reson:onboarding_cognitiveDepth");
+  localStorage.removeItem("reson:onboarding_conscientiousness");
+  localStorage.removeItem("reson:onboarding_extraversion");
+  localStorage.removeItem("reson:onboarding_attachmentStyle");
+  localStorage.removeItem("reson:onboarding_avgResponseTime");
+  localStorage.removeItem("reson:onboarding_topPriority");
+  localStorage.removeItem("reson:onboarding_previewC");
+  localStorage.removeItem("reson:onboarding_previewE");
+  localStorage.removeItem("reson:onboarding_hesitated");
+  localStorage.removeItem("reson:onboarding_answers");
+}
+
 function ResonApp() {
   const [theme, setTheme] = useTheme();
   const themeLoadedRef = useRef(false);
@@ -274,28 +300,178 @@ function ResonApp() {
 
   const [screen, setScreen] = useState<Screen>("landing");
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile | null>(null);
-  const [answers, setAnswers] = useState<Answers>({});
-  const [livenessVideoUrl, setLivenessVideoUrl] = useState<string | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  
+  const [answers, setAnswers] = useState<Answers>(() => {
+    if (typeof window === "undefined") return {};
+    const saved = localStorage.getItem("reson:onboarding_answers");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [livenessVideoUrl, setLivenessVideoUrl] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("reson:onboarding_livenessVideoUrl");
+  });
+
+  const [profile, setProfile] = useState<UserProfile | null>(() => {
+    if (typeof window === "undefined") return null;
+    const saved = localStorage.getItem("reson:onboarding_profile_draft");
+    return saved ? JSON.parse(saved) : null;
+  });
+
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("reson:activeConversationId");
+  });
+
   const [sortBy, setSortBy] = useState<"ev" | "distance">("ev");
 
   // Psychometric EV variables
-  const [cognitiveDepth, setCognitiveDepth] = useState<number>(0.5);
-  const [conscientiousness, setConscientiousness] = useState<number>(0.5);
-  const [extraversion, setExtraversion] = useState<number>(0.5);
-  const [attachmentStyle, setAttachmentStyle] = useState<string>("Secure");
-  const [avgResponseTime, setAvgResponseTime] = useState<number>(3.0);
-  const [topPriority, setTopPriority] = useState<string>("");
-  const [previewC, setPreviewC] = useState<number>(0.5);
-  const [previewE, setPreviewE] = useState<number>(0.5);
-  const [hesitated, setHesitated] = useState<boolean>(false);
+  const [cognitiveDepth, setCognitiveDepth] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.5;
+    const saved = localStorage.getItem("reson:onboarding_cognitiveDepth");
+    return saved ? Number(saved) : 0.5;
+  });
+  const [conscientiousness, setConscientiousness] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.5;
+    const saved = localStorage.getItem("reson:onboarding_conscientiousness");
+    return saved ? Number(saved) : 0.5;
+  });
+  const [extraversion, setExtraversion] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.5;
+    const saved = localStorage.getItem("reson:onboarding_extraversion");
+    return saved ? Number(saved) : 0.5;
+  });
+  const [attachmentStyle, setAttachmentStyle] = useState<string>(() => {
+    if (typeof window === "undefined") return "Secure";
+    return localStorage.getItem("reson:onboarding_attachmentStyle") || "Secure";
+  });
+  const [avgResponseTime, setAvgResponseTime] = useState<number>(() => {
+    if (typeof window === "undefined") return 3.0;
+    const saved = localStorage.getItem("reson:onboarding_avgResponseTime");
+    return saved ? Number(saved) : 3.0;
+  });
+  const [topPriority, setTopPriority] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("reson:onboarding_topPriority") || "";
+  });
+  const [previewC, setPreviewC] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.5;
+    const saved = localStorage.getItem("reson:onboarding_previewC");
+    return saved ? Number(saved) : 0.5;
+  });
+  const [previewE, setPreviewE] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.5;
+    const saved = localStorage.getItem("reson:onboarding_previewE");
+    return saved ? Number(saved) : 0.5;
+  });
+  const [hesitated, setHesitated] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("reson:onboarding_hesitated") === "true";
+  });
   const [redemptionQuota, setRedemptionQuota] = useState<number>(0);
+
+  // Sync to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined" && screen && screen !== "landing") {
+      localStorage.setItem("reson:active_screen", screen);
+    }
+  }, [screen]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_answers", JSON.stringify(answers));
+    }
+  }, [answers]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (livenessVideoUrl) {
+        localStorage.setItem("reson:onboarding_livenessVideoUrl", livenessVideoUrl);
+      } else {
+        localStorage.removeItem("reson:onboarding_livenessVideoUrl");
+      }
+    }
+  }, [livenessVideoUrl]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (profile) {
+        localStorage.setItem("reson:onboarding_profile_draft", JSON.stringify(profile));
+      } else {
+        localStorage.removeItem("reson:onboarding_profile_draft");
+      }
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (activeConversationId) {
+        localStorage.setItem("reson:activeConversationId", activeConversationId);
+      } else {
+        localStorage.removeItem("reson:activeConversationId");
+      }
+    }
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_cognitiveDepth", String(cognitiveDepth));
+    }
+  }, [cognitiveDepth]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_conscientiousness", String(conscientiousness));
+    }
+  }, [conscientiousness]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_extraversion", String(extraversion));
+    }
+  }, [extraversion]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_attachmentStyle", attachmentStyle);
+    }
+  }, [attachmentStyle]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_avgResponseTime", String(avgResponseTime));
+    }
+  }, [avgResponseTime]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_topPriority", topPriority);
+    }
+  }, [topPriority]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_previewC", String(previewC));
+    }
+  }, [previewC]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_previewE", String(previewE));
+    }
+  }, [previewE]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reson:onboarding_hesitated", String(hesitated));
+    }
+  }, [hesitated]);
 
   const reduceRedemptionQuota = () => {
     setRedemptionQuota((prev) => {
@@ -353,13 +529,50 @@ function ResonApp() {
         const existingProfile = await fetchUserProfile(user.id);
         if (existingProfile) {
           setProfile(existingProfile);
-          setScreen("autoMatch");
+          const savedScreen = localStorage.getItem("reson:active_screen") as Screen;
+          const validMainScreens: Screen[] = ["chamber", "noOne", "messages", "settings", "profile-dossier", "thread"];
+          if (savedScreen && validMainScreens.includes(savedScreen)) {
+            setScreen(savedScreen);
+          } else {
+            setScreen("autoMatch");
+          }
+          clearOnboardingStorage();
         } else {
-          setScreen("liveness");
+          const savedScreen = localStorage.getItem("reson:active_screen") as Screen;
+          const validOnboardingScreens: Screen[] = [
+            "liveness",
+            "profile",
+            "snippets-onboarding",
+            "briefing",
+            "mirror",
+            "bankroll",
+            "pressure",
+            "processing",
+          ];
+          if (savedScreen && validOnboardingScreens.includes(savedScreen)) {
+            setScreen(savedScreen);
+          } else {
+            setScreen("liveness");
+          }
         }
       } catch (err: any) {
         console.error("[Auth Debug] fetchUserProfile crashed:", err);
-        setScreen("liveness");
+        const savedScreen = localStorage.getItem("reson:active_screen") as Screen;
+        const validOnboardingScreens: Screen[] = [
+          "liveness",
+          "profile",
+          "snippets-onboarding",
+          "briefing",
+          "mirror",
+          "bankroll",
+          "pressure",
+          "processing",
+        ];
+        if (savedScreen && validOnboardingScreens.includes(savedScreen)) {
+          setScreen(savedScreen);
+        } else {
+          setScreen("liveness");
+        }
       } finally {
         setIsAuthenticating(false);
       }
@@ -404,6 +617,7 @@ function ResonApp() {
           setAuthUserId(null);
           setScreen("landing");
           themeLoadedRef.current = false;
+          clearOnboardingStorage();
         }
       } else {
         setGoogleProfile(null);
@@ -411,6 +625,7 @@ function ResonApp() {
         setAuthUserId(null);
         setScreen("landing");
         themeLoadedRef.current = false;
+        clearOnboardingStorage();
       }
     });
 
@@ -2278,18 +2493,79 @@ function ProfileForm({
     | "DIRECTIVE_01"
     | "DIRECTIVE_02"
     | "DIRECTIVE_03"
-  >("SYSTEM_IDENTIFICATION");
+  >(() => {
+    if (typeof window === "undefined") return "SYSTEM_IDENTIFICATION";
+    return (localStorage.getItem("reson:profile_step") as any) || "SYSTEM_IDENTIFICATION";
+  });
 
-  const [name, setName] = useState(initialName.toUpperCase());
-  const [birthDate, setBirthDate] = useState<string>("");
-  const [age, setAge] = useState<number | null>(null);
-  const [gender, setGender] = useState<Gender | "">("");
-  const [targetMarket, setTargetMarket] = useState<"male" | "female" | "all" | "">("");
+  const [name, setName] = useState(() => {
+    if (typeof window === "undefined") return initialName.toUpperCase();
+    return localStorage.getItem("reson:profile_name") || initialName.toUpperCase();
+  });
+  const [birthDate, setBirthDate] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("reson:profile_birthDate") || "";
+  });
+  const [age, setAge] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const saved = localStorage.getItem("reson:profile_age");
+    return saved ? Number(saved) : null;
+  });
+  const [gender, setGender] = useState<Gender | "">(() => {
+    if (typeof window === "undefined") return "";
+    return (localStorage.getItem("reson:profile_gender") as Gender) || "";
+  });
+  const [targetMarket, setTargetMarket] = useState<"male" | "female" | "all" | "">(() => {
+    if (typeof window === "undefined") return "";
+    return (localStorage.getItem("reson:profile_targetMarket") as any) || "";
+  });
 
   // Directives states
-  const [directiveGoal, setDirectiveGoal] = useState("");
-  const [directiveRedflags, setDirectiveRedflags] = useState("");
-  const [directiveLifestyle, setDirectiveLifestyle] = useState("");
+  const [directiveGoal, setDirectiveGoal] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("reson:profile_directiveGoal") || "";
+  });
+  const [directiveRedflags, setDirectiveRedflags] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("reson:profile_directiveRedflags") || "";
+  });
+  const [directiveLifestyle, setDirectiveLifestyle] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("reson:profile_directiveLifestyle") || "";
+  });
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem("reson:profile_step", step);
+  }, [step]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_name", name);
+  }, [name]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_birthDate", birthDate);
+  }, [birthDate]);
+  useEffect(() => {
+    if (age !== null) {
+      localStorage.setItem("reson:profile_age", String(age));
+    } else {
+      localStorage.removeItem("reson:profile_age");
+    }
+  }, [age]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_gender", gender);
+  }, [gender]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_targetMarket", targetMarket);
+  }, [targetMarket]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_directiveGoal", directiveGoal);
+  }, [directiveGoal]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_directiveRedflags", directiveRedflags);
+  }, [directiveRedflags]);
+  useEffect(() => {
+    localStorage.setItem("reson:profile_directiveLifestyle", directiveLifestyle);
+  }, [directiveLifestyle]);
 
   // Error flash state
   const [errorFlash, setErrorFlash] = useState(false);
