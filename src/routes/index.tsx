@@ -1572,10 +1572,10 @@ function Landing({
           RESON // SECURE COGNITIVE
         </div>
 
-        <h1 className="font-sans text-5xl font-black uppercase tracking-tighter text-foreground">
+        <h1 className="font-sans text-3xl font-black uppercase tracking-tighter text-foreground">
           Reson
         </h1>
-        <div className="mt-4 text-sm font-medium leading-relaxed text-foreground/75 font-mono min-h-[75px]">
+        <div className="mt-4 text-xs font-medium leading-relaxed text-foreground/75 font-mono min-h-[75px]">
           <EncryptedText
             text="SPOZNAJ DRUHÝCH SKÔR, NEŽ ICH UVIDÍŠ."
             encryptedClassName="text-foreground/30"
@@ -1883,16 +1883,16 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center text-center animate-fade-up">
-      <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card flex flex-col items-center">
-        <h2 className="font-mono text-lg tracking-widest uppercase font-bold text-foreground mb-2">
+      <div className="border border-foreground/20 p-6 max-w-sm w-full bg-card flex flex-col items-center">
+        <h2 className="font-mono text-sm tracking-widest uppercase font-bold text-foreground mb-2">
           LIVE SNIPPET
         </h2>
-        <p className="text-sm text-foreground/60 leading-relaxed mb-6">
+        <p className="text-xs text-foreground/60 leading-relaxed mb-4">
           Krátky video-snippet, ktorý slúži ako verifikácia vašej reálnej identity.
         </p>
 
-        <div className="relative my-6 grid place-items-center">
-          <div className="relative w-56 aspect-[3/4] overflow-hidden border border-foreground/25 bg-black">
+        <div className="relative my-4 grid place-items-center">
+          <div className="relative w-48 aspect-[3/4] overflow-hidden border border-foreground/25 bg-black">
             {phase !== "ready" && stream && (
               <div className="relative w-full h-full">
                 <video
@@ -1922,7 +1922,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 </div>
 
                 {/* Active Step Indicator Overlay */}
-                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[9px] font-mono leading-tight">
+                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[8px] font-mono leading-tight">
                   <div className="font-bold text-foreground mb-1 tracking-wider uppercase">
                     [ BIOMETRICKÝ SKEN ]
                   </div>
@@ -1944,13 +1944,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
               <div className="absolute inset-0 grid place-items-center bg-foreground/5 text-foreground/20">
                 {modelLoading ? (
                   <div className="flex flex-col items-center gap-3">
-                    <div className="size-6 animate-spin border border-foreground border-t-transparent" />
-                    <span className="text-[9px] tracking-wider text-foreground/80 font-mono uppercase">
+                    <div className="size-5 animate-spin border border-foreground border-t-transparent" />
+                    <span className="text-[8px] tracking-wider text-foreground/80 font-mono uppercase">
                       ANALYZÁTOR...
                     </span>
                   </div>
                 ) : (
-                  <User className="size-16 animate-pulse" />
+                  <User className="size-12 animate-pulse" />
                 )}
               </div>
             )}
@@ -1968,17 +1968,17 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             )}
             {phase === "countdown" && (
               <div className="absolute inset-0 grid place-items-center bg-foreground/10 backdrop-blur-sm">
-                <span className="font-mono text-5xl text-foreground font-black">{countdown}</span>
+                <span className="font-mono text-3xl text-foreground font-black">{countdown}</span>
               </div>
             )}
             {phase === "recording" && challengeStep === "done" && (
-              <div className="absolute inset-x-0 top-3 mx-auto w-fit bg-red-600 px-3 py-1 font-mono text-[9px] tracking-widest text-white uppercase font-bold">
+              <div className="absolute inset-x-0 top-3 mx-auto w-fit bg-red-600 px-2 py-0.5 font-mono text-[8px] tracking-widest text-white uppercase font-bold">
                 ● REC
               </div>
             )}
             {phase === "verifying" && (
               <div className="absolute inset-0 bg-foreground/10 pointer-events-none grid place-items-center">
-                <span className="text-[9px] font-mono tracking-widest text-foreground animate-pulse font-bold">
+                <span className="text-[8px] font-mono tracking-widest text-foreground animate-pulse font-bold">
                   OVERUJEM...
                 </span>
               </div>
@@ -1986,7 +1986,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           </div>
         </div>
 
-        <p className="font-mono text-xs tracking-widest text-foreground/50 uppercase mb-4">
+        <p className="font-mono text-[10px] tracking-widest text-foreground/50 uppercase mb-3">
           {phase === "idle" && "[ NEAKTÍVNY ]"}
           {phase === "countdown" && "[ PRIPRAV SA ]"}
           {phase === "recording" && `[ ${challengeStep === "center" ? "KROK 1: CENTROVANIE" : challengeStep === "turn_right" ? "KROK 2: OTOČENIE VPRAVO" : "KROK 3: OTOČENIE VĽAVO"} ]`}
@@ -1995,7 +1995,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           {phase === "error" && "[ CHYBA OVERENIA ]"}
         </p>
 
-        {phase === "error" && <p className="text-xs text-red-500 mb-6 leading-relaxed">{errMsg}</p>}
+        {phase === "error" && <p className="text-[10px] text-red-500 mb-4 leading-relaxed">{errMsg}</p>}
 
         <div className="w-full space-y-2">
           {(phase === "idle" || phase === "error") && (
@@ -2005,9 +2005,9 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 if (phase === "error") retake();
                 else runScan();
               }}
-              className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
             >
-              <Camera className="size-5" />
+              <Camera className="size-4" />
               {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "SPUSTIŤ TEST"}
             </button>
           )}
@@ -2015,13 +2015,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             <>
               <button
                 onClick={() => onDone(recordedUrl)}
-                className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all"
+                className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all"
               >
                 POKRAČOVAŤ
               </button>
               <button
                 onClick={retake}
-                className="w-full border border-foreground/20 py-3.5 text-sm tracking-widest text-foreground/60 hover:bg-foreground/5 font-bold font-mono uppercase"
+                className="w-full border border-foreground/20 py-2.5 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-bold font-mono uppercase"
               >
                 ZRUŠIŤ
               </button>
@@ -2036,24 +2036,24 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
 function Briefing({ onBegin }: { onBegin: () => void }) {
   return (
     <div className="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
-      <div className="border border-foreground/20 p-8 max-w-sm w-full bg-card flex flex-col items-center">
-        <div className="font-mono text-[11px] tracking-widest text-foreground/50 uppercase mb-4">
+      <div className="border border-foreground/20 p-6 max-w-sm w-full bg-card flex flex-col items-center">
+        <div className="font-mono text-[9px] tracking-widest text-foreground/50 uppercase mb-3">
           // PSYCHOMETRICKÁ KALIBRÁCIA · ~2 MIN
         </div>
-        <h2 className="font-sans text-2xl font-black uppercase tracking-tight text-foreground mb-4">
+        <h2 className="font-sans text-lg font-black uppercase tracking-tight text-foreground mb-3">
           Kalibrácia profilu
         </h2>
-        <p className="text-sm leading-relaxed text-foreground/80 mb-6">
+        <p className="text-xs leading-relaxed text-foreground/80 mb-5">
           Prejdi 3 zážitkovými testami: dopĺňanie metafor, alokácia životných hodnôt a reakcia na
           náhlu konfliktnú situáciu.
         </p>
-        <p className="text-xs leading-relaxed text-foreground/50 font-mono mb-8 uppercase">
+        <p className="text-[10px] leading-relaxed text-foreground/50 font-mono mb-6 uppercase">
           Tento proces vypočíta tvoju rezonančnú kompatibilitu na základe psychologického
           očakávania.
         </p>
         <button
           onClick={onBegin}
-          className="w-full bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 transition-all"
+          className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all"
         >
           ZAČAŤ KALIBRÁCIU
         </button>
