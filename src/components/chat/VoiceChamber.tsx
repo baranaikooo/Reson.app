@@ -421,7 +421,7 @@ export function Chamber({
                 muted
                 playsInline
                 className="size-full object-contain bg-black"
-                style={{ transform: "scaleX(-1)", filter: `blur(${blurPx}px)` }}
+                style={{ filter: `blur(${blurPx}px)` }}
               />
               <span className="absolute bottom-0.5 right-0.5 bg-background/60 px-1 font-mono text-[6px] tracking-widest text-foreground/70 uppercase">
                 TY
