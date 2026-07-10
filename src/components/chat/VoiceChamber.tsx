@@ -624,7 +624,7 @@ export function Chamber({
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/90 backdrop-blur-md p-6">
           <div className="w-full max-w-md border border-foreground/10 bg-card p-10 text-center animate-fade-up">
             <Wave size={140} intense />
-            <h3 className="mt-6 text-xl font-light tracking-wider uppercase">
+            <h3 className="mt-6 text-lg font-light tracking-wider uppercase">
               Vyhodnocovanie voľby
             </h3>
             <p className="mt-3 text-sm text-foreground/60 font-light">
@@ -644,7 +644,7 @@ export function Chamber({
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/95 backdrop-blur-md p-6">
           <div className="w-full max-w-md border border-foreground/10 bg-card p-10 text-center animate-fade-up">
             <X className="mx-auto size-12 text-foreground mb-4" />
-            <h3 className="text-2xl font-light tracking-wider text-foreground">
+            <h3 className="text-xl font-light tracking-wider text-foreground">
               SPÁROVANIE ZLYHALO
             </h3>
             <p className="mt-4 text-sm text-foreground/60 font-light leading-relaxed">

@@ -237,7 +237,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
           <span className="size-2 rounded-full bg-foreground/30 animate-pulse" />
           <span>FÁZA 0.5: MULTIPLE LIVE SNIPPETS</span>
         </div>
-        <h2 className="font-sans text-lg font-black tracking-tight text-foreground uppercase leading-none">
+        <h2 className="font-sans text-sm font-bold tracking-tight text-foreground uppercase leading-none">
           Pridajte video slučku
         </h2>
         <p className="text-xs text-foreground/75 leading-relaxed font-sans font-medium">

@@ -172,7 +172,7 @@ function AppSplash() {
       <div className="size-16 rounded-full border border-foreground/10 bg-foreground/[0.02] flex items-center justify-center animate-pulse">
         <span className="size-4 rounded-full bg-foreground/40 animate-ping" />
       </div>
-      <p className="mt-6 font-mono text-[9px] tracking-[0.32em] text-foreground/45 uppercase">
+      <p className="mt-6 font-mono text-[10px] tracking-[0.32em] text-foreground/45 uppercase">
         RESON // SYSTÉM SA INICIALIZUJE
       </p>
     </div>
@@ -1461,12 +1461,12 @@ function BottomNav({
           <span className={is ? "text-background" : "text-foreground/55"}>{icon}</span>
         </span>
         <span
-          className={`font-mono text-[9px] font-bold tracking-widest uppercase ${is ? "text-foreground" : "text-foreground/45"}`}
+          className={`font-mono text-[10px] font-bold tracking-widest uppercase ${is ? "text-foreground" : "text-foreground/45"}`}
         >
           {label}
         </span>
         {!!badge && badge > 0 && (
-          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[9px] font-bold text-background bg-foreground ring-2 ring-card font-mono">
+          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[10px] font-bold text-background bg-foreground ring-2 ring-card font-mono">
             {badge}
           </span>
         )}
@@ -1573,7 +1573,7 @@ function Landing({
           RESON // SECURE COGNITIVE
         </div>
 
-        <h1 className="font-sans text-3xl font-black uppercase tracking-tighter text-foreground">
+        <h1 className="font-sans text-lg font-bold uppercase tracking-tighter text-foreground">
           Reson
         </h1>
         <div className="mt-4 text-xs font-medium leading-relaxed text-foreground/75 font-mono min-h-[75px]">
@@ -1591,7 +1591,7 @@ function Landing({
               revealDelayMs={60}
             />
           </span>
-          <span className="block mt-3 text-[9px] text-foreground/35 uppercase tracking-wider">
+          <span className="block mt-3 text-[10px] text-foreground/35 uppercase tracking-wider">
             // EV(Compatibility) = 0.6 * Similarity(depth, conscientiousness) + 0.4 *
             Complementarity(extraversion)
           </span>
@@ -2038,10 +2038,10 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
   return (
     <div className="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
       <div className="border border-foreground/20 p-6 max-w-sm w-full bg-card flex flex-col items-center">
-        <div className="font-mono text-[9px] tracking-widest text-foreground/50 uppercase mb-3">
+        <div className="font-mono text-[10px] tracking-widest text-foreground/50 uppercase mb-3">
           // PSYCHOMETRICKÁ KALIBRÁCIA · ~2 MIN
         </div>
-        <h2 className="font-sans text-lg font-black uppercase tracking-tight text-foreground mb-3">
+        <h2 className="font-sans text-sm font-bold uppercase tracking-tight text-foreground mb-3">
           Kalibrácia profilu
         </h2>
         <p className="text-xs leading-relaxed text-foreground/80 mb-5">
@@ -2167,11 +2167,11 @@ function MatchCard({
           </div>
         </div>
         <div className="min-w-0 pr-16">
-          <h3 className="text-lg font-bold text-foreground leading-tight">
+          <h3 className="text-sm font-bold text-foreground leading-tight">
             {match.name},{" "}
             <span className="text-foreground/60 font-light">{match.age}</span>
           </h3>
-          <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
+          <p className="font-mono text-[10px] tracking-widest text-foreground/45 uppercase mt-0.5 flex flex-wrap items-center gap-1.5">
             <span>{match.city}</span>
             {match.distanceKm !== undefined && (
               <>
@@ -2303,7 +2303,7 @@ function Dashboard({
             zaznamenal váš útek a dočasne vám znížil skóre dôveryhodnosti. Môžete si ho však
             odpracovať späť – stačí, ak zvládnete ďalšie interakcie bez toho, aby ste ušli.
           </p>
-          <div className="mt-3 flex items-center justify-between text-[9px] tracking-widest text-red-500/80 uppercase font-mono border-t border-red-500/10 pt-3">
+          <div className="mt-3 flex items-center justify-between text-[10px] tracking-widest text-red-500/80 uppercase font-mono border-t border-red-500/10 pt-3">
             <span>Zostávajúce čestné interakcie:</span>
             <span className="font-bold bg-red-500/20 px-2 py-0.5 text-red-400">
               {profile.redemptionQuota} / 3
@@ -2313,7 +2313,7 @@ function Dashboard({
       ) : null}
 
       {/* Sort options */}
-      <div className="mb-6 flex justify-between items-center border border-foreground/10 bg-card p-3 rounded-none font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+      <div className="mb-6 flex justify-between items-center border border-foreground/10 bg-card p-3 rounded-none font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
         <span>Zoradiť podľa:</span>
         <div className="flex gap-2">
           <button
@@ -2346,10 +2346,10 @@ function Dashboard({
       </div>
 
       <div className="space-y-2 mb-8">
-        <p className="font-mono text-[9px] tracking-widest text-foreground/45 uppercase">
+        <p className="font-mono text-[10px] tracking-widest text-foreground/45 uppercase">
           // Tvoje dnešné spojenia
         </p>
-        <h2 className="font-sans text-3xl font-black tracking-tight text-foreground leading-tight uppercase">
+        <h2 className="font-sans text-lg font-bold tracking-tight text-foreground leading-tight uppercase">
           Algoritmus pre teba vybral
         </h2>
         <p className="text-xs text-foreground/50 leading-relaxed font-mono">
@@ -2520,7 +2520,7 @@ function Test({ onComplete }: { onComplete: (a: FullAnswers) => void }) {
 
       <div className="bento-card-glow p-7">
         <p
-          className="font-sans text-xl leading-relaxed text-foreground/95 uppercase"
+          className="font-sans text-sm font-bold leading-relaxed text-foreground/95 uppercase"
           style={{ letterSpacing: "-0.005em" }}
         >
           {s.text}
@@ -2912,7 +2912,7 @@ function ProfileForm({
           <div className="text-left space-y-4">
             <div className="border-2 border-foreground p-4 bg-foreground/5 font-mono text-center">
               <p className="text-[10px] text-foreground/50 uppercase tracking-widest mb-1">// TVOJ VEK</p>
-              <div className="text-xl font-black tracking-tight text-foreground uppercase">
+              <div className="text-lg font-bold tracking-tight text-foreground uppercase">
                 TVOJ VEK: [ {age ?? "?"} ]
               </div>
             </div>
@@ -3313,7 +3313,7 @@ function NoOne({ onMessages }: { onMessages: (() => void) | null }) {
       <Blobs variant="warm" />
       <div className="relative z-10 flex flex-col items-center">
         <span className="text-5xl">🌌</span>
-        <h3 className="mt-4 font-sans text-2xl font-black tracking-tight text-foreground uppercase">
+        <h3 className="mt-4 font-sans text-lg font-bold tracking-tight text-foreground uppercase">
           Zatiaľ tu pre teba nikto nie je
         </h3>
         <p className="mt-3 max-w-md text-sm text-muted-foreground">
