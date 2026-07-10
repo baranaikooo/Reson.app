@@ -20,6 +20,11 @@ CREATE POLICY update_profile ON public.profiles
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
+CREATE POLICY delete_profile ON public.profiles
+    FOR DELETE
+    TO authenticated
+    USING (auth.uid() = id);
+
 -- 2. Psychometric Ledger Policies
 CREATE POLICY insert_ledger ON public.psychometric_ledger
     FOR INSERT
