@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Camera, Upload, Eye, EyeOff, Loader2 } from "lucide-react";
 import { UserProfile } from "@/lib/resonance";
 import { useHaptic } from "@/hooks/use-haptics";
@@ -756,9 +757,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     </div>
 
       {/* Recording Overlay Modal */}
-      {recordingIndex !== null && (
+      {recordingIndex !== null && createPortal(
         <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[150] flex flex-col justify-center items-center p-4">
-          <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative">
+          <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative animate-fade-up">
             <div className="mb-4 font-mono text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
               [ ROZHRANIE CCTV KAMERY ]
             </div>
@@ -802,12 +803,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {isUploading && (
+      {isUploading && createPortal(
         <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[200] flex flex-col justify-center items-center p-4">
-          <div className="w-full max-w-xs border border-foreground/20 bg-card p-6 rounded-none text-center space-y-4">
+          <div className="w-full max-w-xs border border-foreground/20 bg-card p-6 rounded-none text-center space-y-4 animate-fade-up">
             <Loader2 className="size-8 animate-spin text-foreground mx-auto animate-pulse" />
             <h3 className="font-sans text-sm font-bold uppercase text-foreground">
               Spracovanie videa...
@@ -817,7 +819,8 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               (môže to trvať niekoľko sekúnd)
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
