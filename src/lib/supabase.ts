@@ -165,10 +165,10 @@ export async function uploadSnippetVideo(
   userId: string,
   slotIndex: number,
   blob: Blob,
-): Promise<string | null> {
+): Promise<{ url: string | null; error: string | null }> {
   if (userId === "00000000-0000-0000-0000-000000000001") {
     console.warn(`[Supabase] Skipping video upload for Demo User (slot ${slotIndex})`);
-    return null;
+    return { url: null, error: "Demo User" };
   }
 
   const fileName = `${userId}/snippet_${slotIndex}_${Date.now()}.webm`;
@@ -187,12 +187,12 @@ export async function uploadSnippetVideo(
 
   if (error) {
     console.error(`[Supabase] Upload failed for slot ${slotIndex}:`, error);
-    return null; // Return null instead of throwing to prevent Promise.all from failing entirely
+    return { url: null, error: error.message || JSON.stringify(error) };
   }
 
   const { data: publicUrlData } = supabase.storage.from("media-snippets").getPublicUrl(data.path);
 
-  return publicUrlData.publicUrl;
+  return { url: publicUrlData.publicUrl, error: null };
 }
 
 export async function loadBanditState() {
