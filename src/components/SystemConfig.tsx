@@ -253,14 +253,11 @@ export function SystemConfig({
 
   async function executeDataWipe() {
     if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
-      const { error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", user.id);
+      const { error } = await supabase.rpc("delete_own_user");
 
       if (error) {
-        console.error("[settings] failed to delete profile from database:", error);
-        setFreezeMessage("Chyba: Nepodarilo sa zmazať profil z databázy. Detail: " + (error.message || JSON.stringify(error)));
+        console.error("[settings] failed to delete account from database:", error);
+        setFreezeMessage("Chyba: Nepodarilo sa zmazať účet z databázy. Detail: " + (error.message || JSON.stringify(error)));
         setShowWipeConfirm(false);
         return;
       }
