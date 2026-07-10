@@ -97,3 +97,11 @@ ALTER TABLE public.psychometric_ledger
 ALTER TABLE public.media_snippets DROP CONSTRAINT IF EXISTS media_snippets_user_id_fkey;
 ALTER TABLE public.media_snippets 
   ADD CONSTRAINT media_snippets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+-- 6. Add secure RPC function to delete caller's auth.users account (cascades to profile)
+CREATE OR REPLACE FUNCTION public.delete_own_user()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
