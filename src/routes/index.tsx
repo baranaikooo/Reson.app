@@ -1923,7 +1923,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 </div>
 
                 {/* Active Step Indicator Overlay */}
-                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[8px] font-mono leading-tight">
+                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[10px] font-mono leading-normal">
                   <div className="font-bold text-foreground mb-1 tracking-wider uppercase">
                     [ BIOMETRICKÝ SKEN ]
                   </div>
@@ -1946,7 +1946,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 {modelLoading ? (
                   <div className="flex flex-col items-center gap-3">
                     <div className="size-5 animate-spin border border-foreground border-t-transparent" />
-                    <span className="text-[8px] tracking-wider text-foreground/80 font-mono uppercase">
+                    <span className="text-[10px] tracking-wider text-foreground/80 font-mono uppercase">
                       ANALYZÁTOR...
                     </span>
                   </div>
@@ -1973,13 +1973,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
               </div>
             )}
             {phase === "recording" && challengeStep === "done" && (
-              <div className="absolute inset-x-0 top-3 mx-auto w-fit bg-red-600 px-2 py-0.5 font-mono text-[8px] tracking-widest text-white uppercase font-bold">
+              <div className="absolute inset-x-0 top-3 mx-auto w-fit bg-red-600 px-2 py-0.5 font-mono text-[10px] tracking-widest text-white uppercase font-bold">
                 ● REC
               </div>
             )}
             {phase === "verifying" && (
               <div className="absolute inset-0 bg-foreground/10 pointer-events-none grid place-items-center">
-                <span className="text-[8px] font-mono tracking-widest text-foreground animate-pulse font-bold">
+                <span className="text-[10px] font-mono tracking-widest text-foreground animate-pulse font-bold">
                   OVERUJEM...
                 </span>
               </div>
@@ -1996,7 +1996,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
           {phase === "error" && "[ CHYBA OVERENIA ]"}
         </p>
 
-        {phase === "error" && <p className="text-[10px] text-red-500 mb-4 leading-relaxed">{errMsg}</p>}
+        {phase === "error" && <p className="text-xs text-red-500 mb-4 leading-relaxed">{errMsg}</p>}
 
         <div className="w-full space-y-2">
           {(phase === "idle" || phase === "error") && (
@@ -2006,7 +2006,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 if (phase === "error") retake();
                 else runScan();
               }}
-              className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Camera className="size-4" />
               {modelLoading ? "ČAKAJTE..." : phase === "error" ? "SKÚSIŤ ZNOVU" : "SPUSTIŤ TEST"}
@@ -2016,13 +2016,13 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
             <>
               <button
                 onClick={() => onDone(recordedUrl)}
-                className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all"
+                className="w-full bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
               >
                 POKRAČOVAŤ
               </button>
               <button
                 onClick={retake}
-                className="w-full border border-foreground/20 py-2.5 text-xs tracking-widest text-foreground/60 hover:bg-foreground/5 font-bold font-mono uppercase"
+                className="w-full border border-foreground/20 py-3 text-sm tracking-widest text-foreground/60 hover:bg-foreground/5 font-bold font-mono uppercase cursor-pointer"
               >
                 ZRUŠIŤ
               </button>
@@ -2054,7 +2054,7 @@ function Briefing({ onBegin }: { onBegin: () => void }) {
         </p>
         <button
           onClick={onBegin}
-          className="w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all"
+          className="w-full bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
         >
           ZAČAŤ KALIBRÁCIU
         </button>
@@ -2240,7 +2240,7 @@ function MatchCard({
           haptic("medium");
           onSelectMatch(match.id);
         }}
-        className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-3.5 active:scale-[0.99] transition-all text-xs tracking-widest uppercase hover:bg-foreground/90 cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-4 active:scale-[0.99] transition-all text-sm tracking-widest uppercase hover:bg-foreground/90 cursor-pointer"
       >
         <MessageCircle className="size-4" />
         <span>
@@ -2411,7 +2411,7 @@ function Dashboard({
         <button
           type="button"
           onClick={onMessages}
-          className="mt-6 w-full border border-foreground/20 bg-foreground/[0.02] py-4 text-xs tracking-widest text-foreground/70 hover:bg-foreground/5 transition-all uppercase font-mono"
+          className="mt-6 w-full border border-foreground/20 bg-foreground/[0.02] py-4 text-sm tracking-widest text-foreground/70 hover:bg-foreground/5 transition-all uppercase font-mono cursor-pointer"
         >
           Zobraziť uložené konverzácie
         </button>
@@ -2781,16 +2781,16 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono">
               PREDSTAV SA
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Napíš svoje meno alebo prezývku, pod ktorou ťa v aplikácii uvidia ostatní.
           </p>
 
           <div className="text-left space-y-2">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+            <label className="mb-2 block text-sm font-bold uppercase tracking-widest text-foreground/75 font-mono">
               MENO
             </label>
             <input
@@ -2806,14 +2806,14 @@ function ProfileForm({
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
 
           <button
             type="submit"
-            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
+            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
           >
             POKRAČOVAŤ
           </button>
@@ -2836,16 +2836,16 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono">
               KEDY MÁŠ NARODENINY?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Potrebujeme vedieť tvoj dátum narodenia, aby sme ti mohli zobraziť ľudí v správnom veku.
           </p>
 
           <div className="text-left space-y-2">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+            <label className="mb-2 block text-sm font-bold uppercase tracking-widest text-foreground/75 font-mono">
               Dátum narodenia (DD / MM / RRRR)
             </label>
             <input
@@ -2858,7 +2858,7 @@ function ProfileForm({
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -2871,13 +2871,13 @@ function ProfileForm({
                 setStep("SYSTEM_IDENTIFICATION");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ĎALEJ
             </button>
@@ -2901,11 +2901,11 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono">
               SKONTROLUJ SI VEK
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Podľa dátumu narodenia sme vypočítali tvoj vek. Sedí to?
           </p>
 
@@ -2919,7 +2919,7 @@ function ProfileForm({
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -2932,13 +2932,13 @@ function ProfileForm({
                 setStep("TEMPORAL_MATRIX");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               SÚHLASÍM
             </button>
@@ -2962,17 +2962,17 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono">
               KOHO CHCEŠ SPOZNAŤ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Zvoľ svoje pohlavie a vyber si, koho v aplikácii hľadáš.
           </p>
 
           <div className="text-left space-y-4">
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-widest text-foreground/75 font-mono">
                 JA SOM
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -2989,7 +2989,7 @@ function ProfileForm({
                       setGender(g.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-2 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-3 text-[13px] font-bold tracking-wider font-mono cursor-pointer transition-all ${
                       gender === g.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -3002,7 +3002,7 @@ function ProfileForm({
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-foreground/75 font-mono">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-widest text-foreground/75 font-mono">
                 HĽADÁM
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -3019,7 +3019,7 @@ function ProfileForm({
                       setTargetMarket(t.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`border-2 py-2 text-xs font-bold tracking-widest font-mono cursor-pointer transition-all ${
+                    className={`border-2 py-3 text-[13px] font-bold tracking-wider font-mono cursor-pointer transition-all ${
                       targetMarket === t.value
                         ? "border-foreground bg-foreground text-background"
                         : "border-foreground/10 bg-transparent text-foreground/60 hover:bg-foreground/5"
@@ -3033,7 +3033,7 @@ function ProfileForm({
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -3046,13 +3046,13 @@ function ProfileForm({
                 setStep("AGE_VERIFICATION");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ĎALEJ
             </button>
@@ -3076,11 +3076,11 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               NA ČOM AKURÁT PRACUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Čo je tvojím najväčším životným cieľom alebo víziou, na ktorú sa teraz najviac sústredíš?
           </p>
 
@@ -3093,12 +3093,12 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš sem svoju hlavnú víziu alebo na čo sa teraz najviac sústredíš... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-base text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -3111,13 +3111,13 @@ function ProfileForm({
                 setStep("MARKET_ALIGNMENT");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ULOŽIŤ A ĎALEJ
             </button>
@@ -3141,11 +3141,11 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               ČO ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Napíš vlastnosti alebo správanie u ľudí, cez ktoré u teba jednoducho nejde vlak.
           </p>
 
@@ -3158,12 +3158,12 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš sem veci, cez ktoré u teba proste nejde vlak... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-base text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -3176,13 +3176,13 @@ function ProfileForm({
                 setStep("DIRECTIVE_01");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ULOŽIŤ A ĎALEJ
             </button>
@@ -3228,11 +3228,11 @@ function ProfileForm({
           className="animate-kinetic-fade w-full max-w-md border border-foreground/20 bg-card p-6 md:p-8 text-center flex flex-col items-stretch"
         >
           <div className="mb-5 flex justify-center">
-            <div className="border-2 border-foreground p-3 mb-2 uppercase text-xs font-bold tracking-widest font-mono text-center w-full">
+            <div className="border-2 border-foreground p-3 mb-2 uppercase text-sm font-bold tracking-widest font-mono text-center w-full">
               AKÝ JE TVOJ BEŽNÝ DEŇ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
             Povedz nám, či máš radšej striktný plán a stratégiu, alebo radšej riešiš veci za pochodu a užívaš si chaos.
           </p>
 
@@ -3245,12 +3245,12 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="[ Napíš, či ideš podľa striktného plánu, alebo riešiš veci za pochodu... ]"
-              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
+              className="w-full h-32 border-2 border-foreground bg-foreground/5 p-3 text-base text-foreground outline-none focus:bg-foreground/10 font-mono resize-none"
             />
           </div>
 
           {errorMessage && (
-            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-xs text-red-500 font-bold uppercase tracking-wider animate-pulse">
+            <div className="mt-4 border-2 border-red-500 bg-red-500/10 p-3 text-center font-mono text-sm text-red-500 font-bold uppercase tracking-wider animate-pulse">
               {errorMessage}
             </div>
           )}
@@ -3263,13 +3263,13 @@ function ProfileForm({
                 setStep("DIRECTIVE_02");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-4 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-sm tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               DOKONČIŤ PROFIL
             </button>
@@ -3427,7 +3427,7 @@ function MessagesList({
 
       <button
         onClick={onFindNew}
-        className="mt-8 w-full border border-foreground/30 bg-foreground/[0.05] py-4 text-xs tracking-[0.3em] text-foreground hover:bg-foreground/[0.1]"
+        className="mt-8 w-full border border-foreground/30 bg-foreground/[0.05] py-4 text-sm tracking-[0.3em] text-foreground hover:bg-foreground/[0.1] cursor-pointer"
       >
         NÁJSŤ ĎALŠIU REZONANCIU
       </button>
