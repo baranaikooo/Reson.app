@@ -1963,6 +1963,7 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 muted
                 playsInline
                 className="w-full h-full object-contain"
+                style={{ transform: "scaleX(-1)" }}
               />
             )}
             {phase === "countdown" && (
@@ -2149,6 +2150,7 @@ function MatchCard({
               muted
               playsInline
               className="size-full object-contain bg-black blur-[5px]"
+              style={{ transform: "scaleX(-1)" }}
             />
           ) : (
             <img

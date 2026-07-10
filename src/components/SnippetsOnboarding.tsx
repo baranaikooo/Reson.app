@@ -267,6 +267,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
                       }
                     }}
                     className="size-full object-contain bg-black rounded-none transition-all duration-300"
+                    style={{ transform: "scaleX(-1)" }}
                   />
                   <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
                     <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
