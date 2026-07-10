@@ -1,9 +1,19 @@
--- Drop existing restrictive ALL policies
-DROP POLICY IF EXISTS profiles_owner_policy ON public.profiles;
-DROP POLICY IF EXISTS write_ledger_owner ON public.psychometric_ledger;
-DROP POLICY IF EXISTS snippets_owner_policy ON public.media_snippets;
+-- 1. Dynamic Drop of ALL active policies on profiles, psychometric_ledger, and media_snippets
+DO $$
+DECLARE
+    pol record;
+BEGIN
+    FOR pol IN 
+        SELECT policyname, tablename 
+        FROM pg_policies 
+        WHERE schemaname = 'public' 
+          AND tablename IN ('profiles', 'psychometric_ledger', 'media_snippets')
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, pol.tablename);
+    END LOOP;
+END $$;
 
--- 1. Profiles Table Policies
+-- 2. Profiles Table Policies
 CREATE POLICY select_profile ON public.profiles
     FOR SELECT
     TO authenticated
@@ -25,7 +35,12 @@ CREATE POLICY delete_profile ON public.profiles
     TO authenticated
     USING (auth.uid() = id);
 
--- 2. Psychometric Ledger Policies
+-- 3. Psychometric Ledger Policies
+CREATE POLICY select_ledger ON public.psychometric_ledger
+    FOR SELECT
+    TO authenticated
+    USING (auth.uid() = user_id);
+
 CREATE POLICY insert_ledger ON public.psychometric_ledger
     FOR INSERT
     TO authenticated
@@ -37,7 +52,7 @@ CREATE POLICY update_ledger ON public.psychometric_ledger
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
--- 3. Media Snippets Policies
+-- 4. Media Snippets Policies
 CREATE POLICY select_snippets ON public.media_snippets
     FOR SELECT
     TO authenticated
@@ -59,7 +74,7 @@ CREATE POLICY delete_snippets ON public.media_snippets
     TO authenticated
     USING (auth.uid() = user_id);
 
--- 4. Recreate Dependent Foreign Keys with ON DELETE CASCADE
+-- 5. Recreate Dependent Foreign Keys with ON DELETE CASCADE
 ALTER TABLE public.matches DROP CONSTRAINT IF EXISTS matches_user_p_fkey;
 ALTER TABLE public.matches DROP CONSTRAINT IF EXISTS matches_user_q_fkey;
 ALTER TABLE public.matches 
