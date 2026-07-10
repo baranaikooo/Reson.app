@@ -268,11 +268,11 @@ export function PressureChat({
     return (
       <div className="fixed inset-0 bg-background z-[200] flex flex-col justify-center items-center p-6 text-center select-none animate-fade-in">
         <div className="w-full max-w-sm border-2 border-red-500 bg-red-950/20 p-5 text-red-500 flex flex-col justify-between items-center space-y-4">
-          <div className="font-mono text-[9px] tracking-widest text-red-500/50 uppercase">
+          <div className="font-mono text-[10px] tracking-widest text-red-500/50 uppercase">
             [ SYSTEM_ALERT // PRESSURE_TEST_READY ]
           </div>
 
-          <h2 className="font-mono text-lg font-black uppercase tracking-tight animate-pulse text-red-500">
+          <h2 className="font-mono text-sm font-bold uppercase tracking-tight animate-pulse text-red-500">
             [ !!! CRITICAL_SYSTEM_ALERT !!! ]
           </h2>
 
@@ -286,7 +286,7 @@ export function PressureChat({
 
           <div className="w-full border-t border-red-500/20 my-1" />
 
-          <div className="font-mono text-xs font-bold uppercase tracking-wider text-red-400">
+          <div className="font-mono text-sm font-bold uppercase tracking-wider text-red-400">
             LAUNCH_SEQUENCE_IN: [ {String(cooldown).padStart(2, "0")}s ]
           </div>
 
@@ -295,7 +295,7 @@ export function PressureChat({
               haptic("success");
               setShowWarning(false);
             }}
-            className="w-full bg-red-500 text-black hover:bg-red-600 font-mono font-bold text-xs tracking-wider uppercase py-3 transition-all cursor-pointer border-2 border-red-500 active:scale-[0.98]"
+            className="w-full bg-red-500 text-black hover:bg-red-600 font-mono font-bold text-sm tracking-wider uppercase py-4 transition-all cursor-pointer border-2 border-red-500 active:scale-[0.98]"
           >
             OVERRIDE_AND_LAUNCH_NOW
           </button>
@@ -348,9 +348,9 @@ export function PressureChat({
             {scenario.sender.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-foreground/90">{scenario.sender}</h4>
+            <h4 className="text-sm font-semibold text-foreground/90">{scenario.sender}</h4>
             <p
-              className={`text-[9px] uppercase tracking-widest font-mono ${isTyping ? "text-foreground/40 animate-pulse" : isTimeCritical ? "text-red-500" : "text-foreground/60"}`}
+              className={`text-[10px] uppercase tracking-widest font-mono ${isTyping ? "text-foreground/40 animate-pulse" : isTimeCritical ? "text-red-500" : "text-foreground/60"}`}
             >
               {isTyping ? "píše..." : isTimeCritical ? "kritická odozva" : "aktívny"}
             </p>
@@ -376,9 +376,9 @@ export function PressureChat({
               />
             </div>
           ) : (
-            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-3.5 py-2.5 text-foreground text-xs font-bold leading-relaxed self-start animate-fade-in">
+            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-3.5 py-2.5 text-foreground text-[13px] font-bold leading-relaxed self-start animate-fade-in">
               {scenario.message}
-              <span className="block text-[8px] text-foreground/35 text-right mt-1 font-mono">
+              <span className="block text-[9px] text-foreground/35 text-right mt-1 font-mono">
                 doručené
               </span>
             </div>
@@ -387,7 +387,7 @@ export function PressureChat({
 
         {/* Input Simulation Footer */}
         <div className="bg-foreground/[0.01] border-t border-foreground/10 px-5 py-3 flex items-center gap-2.5">
-          <div className="flex-1 bg-foreground/[0.03] px-3.5 py-1.5 border border-foreground/10 text-[10px] text-foreground/30 italic font-mono">
+          <div className="flex-1 bg-foreground/[0.03] px-3.5 py-1.5 border border-foreground/10 text-xs text-foreground/30 italic font-mono">
             Zvoľ odpoveď pre odoslanie...
           </div>
           <div className="bg-foreground/5 p-1.5 text-foreground/30">
@@ -402,7 +402,7 @@ export function PressureChat({
           Čakaj na správu...
         </p>
       ) : (
-        <div className="border border-white bg-black text-white p-3 mb-3 uppercase text-center font-mono text-xs font-bold tracking-wider">
+        <div className="border border-foreground bg-foreground/10 text-foreground p-3 mb-3 uppercase text-center font-mono text-xs font-bold tracking-wider">
           Máš jeden dotyk! Prvý dotyk odosiela:
         </div>
       )}
@@ -415,9 +415,9 @@ export function PressureChat({
             type="button"
             disabled={clicked || isTyping}
             onClick={() => handleSelect(opt.style)}
-            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-5 py-3 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200"
+            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-5 py-3.5 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 cursor-pointer"
           >
-            <p className="text-xs font-bold leading-relaxed text-foreground">{opt.text}</p>
+            <p className="text-[13px] font-bold leading-relaxed text-foreground">{opt.text}</p>
           </button>
         ))}
       </div>
