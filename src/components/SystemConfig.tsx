@@ -276,7 +276,7 @@ export function SystemConfig({
     <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-2xl tracking-tight text-foreground font-black uppercase">
+        <h1 className="font-sans text-lg tracking-tight text-foreground font-bold uppercase">
           NASTAVENIA ÚČTU
         </h1>
         <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON v0.9</span>

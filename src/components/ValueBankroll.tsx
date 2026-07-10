@@ -96,12 +96,12 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
           </div>
           <div>
             <h4 className="font-sans font-bold text-foreground text-xs uppercase">Tvoje body</h4>
-            <p className="text-[10px] text-foreground/50 font-mono">// Rozdeľ presne 100 bodov</p>
+            <p className="text-xs text-foreground/50 font-mono">// Rozdeľ presne 100 bodov</p>
           </div>
         </div>
         <div className="text-right">
-          <span className="font-mono text-2xl font-black text-foreground">{remainingChips}</span>
-          <span className="text-[9px] text-foreground/50 uppercase font-mono block">zostáva</span>
+          <span className="font-mono text-xl font-black text-foreground">{remainingChips}</span>
+          <span className="text-[10px] text-foreground/50 uppercase font-mono block">zostáva</span>
         </div>
       </div>
 
