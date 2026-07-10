@@ -27,10 +27,10 @@ export function BlindVote({ onVote }: BlindVoteProps) {
 
         {/* Text Details */}
         <div className="text-center space-y-2">
-          <h3 className="font-sans font-black text-xl tracking-tight text-foreground uppercase">
+          <h3 className="font-sans font-bold text-lg tracking-tight text-foreground uppercase">
             Prisoner's Dilemma
           </h3>
-          <p className="font-mono text-[9px] tracking-widest text-red-500 uppercase font-bold">
+          <p className="font-mono text-xs tracking-widest text-red-500 uppercase font-bold">
             Slepé hlasovanie o budúcnosti
           </p>
           <p className="text-xs text-foreground/60 leading-relaxed pt-2 font-mono uppercase">
@@ -40,7 +40,7 @@ export function BlindVote({ onVote }: BlindVoteProps) {
         </div>
 
         {/* Rules visual list */}
-        <div className="bg-foreground/5 border border-foreground/10 p-4 text-left space-y-2 font-mono text-[11px]">
+        <div className="bg-foreground/5 border border-foreground/10 p-4 text-left space-y-2 font-mono text-xs">
           <div className="flex gap-2.5 items-start">
             <span className="text-foreground font-bold text-xs pt-0.5">✓</span>
             <p className="text-foreground/75 leading-relaxed">
@@ -62,7 +62,7 @@ export function BlindVote({ onVote }: BlindVoteProps) {
           <button
             type="button"
             onClick={() => handleVote("unlock")}
-            className="w-full flex items-center justify-center gap-3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-foreground/90 active:scale-[0.99] transition-all"
+            className="w-full flex items-center justify-center gap-3 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 active:scale-[0.99] transition-all cursor-pointer"
           >
             <Key className="size-4" />
             <span>ODOMKNÚŤ PROFIL (COOPERATE)</span>
@@ -71,7 +71,7 @@ export function BlindVote({ onVote }: BlindVoteProps) {
           <button
             type="button"
             onClick={() => handleVote("cancel")}
-            className="w-full flex items-center justify-center gap-3 border border-red-500/30 bg-red-500/5 text-red-500 font-mono font-bold text-xs tracking-widest uppercase py-4 hover:bg-red-500/10 active:scale-[0.99] transition-all"
+            className="w-full flex items-center justify-center gap-3 border border-red-500/30 bg-red-500/5 text-red-500 font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-red-500/10 active:scale-[0.99] transition-all cursor-pointer"
           >
             <Trash2 className="size-4" />
             <span>ZRUŠIŤ MATCH (DEFECT)</span>
