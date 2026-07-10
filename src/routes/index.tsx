@@ -1923,19 +1923,19 @@ function Liveness({ onDone }: { onDone: (videoUrl: string | null) => void }) {
                 </div>
 
                 {/* Active Step Indicator Overlay */}
-                <div className="absolute inset-x-2 bottom-3 bg-black/85 border border-foreground/15 p-2 text-center text-[10px] font-mono leading-normal">
-                  <div className="font-bold text-foreground mb-1 tracking-wider uppercase">
+                <div className="absolute inset-x-1 bottom-1.5 bg-black/85 border border-foreground/15 px-1.5 py-1 text-center text-[7px] font-mono leading-tight">
+                  <div className="font-bold text-foreground mb-0.5 tracking-wider uppercase">
                     [ BIOMETRICKÝ SKEN ]
                   </div>
-                  <div className="flex flex-col gap-0.5 text-left text-foreground/75 uppercase font-mono">
+                  <div className="flex flex-col gap-0 text-left text-foreground/75 uppercase font-mono">
                     <div className={challengeStep === "center" ? "text-green-400 font-bold" : "text-foreground/45"}>
-                      {challengeStep === "center" ? "● " : "○ "}1. Pozri priamo do kamery
+                      {challengeStep === "center" ? "● " : "○ "}1. Pozri do kamery
                     </div>
                     <div className={challengeStep === "turn_right" ? "text-green-400 font-bold" : "text-foreground/45"}>
-                      {challengeStep === "turn_right" ? "● " : "○ "}2. Pomaly otoč hlavu doprava
+                      {challengeStep === "turn_right" ? "● " : "○ "}2. Otoč hlavu doprava
                     </div>
                     <div className={challengeStep === "turn_left" ? "text-green-400 font-bold" : "text-foreground/45"}>
-                      {challengeStep === "turn_left" ? "● " : "○ "}3. Pomaly otoč hlavu doľava
+                      {challengeStep === "turn_left" ? "● " : "○ "}3. Otoč hlavu doľava
                     </div>
                   </div>
                 </div>
