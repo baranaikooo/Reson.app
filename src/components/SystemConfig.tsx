@@ -261,7 +261,7 @@ export function SystemConfig({
 
         if (error) {
           console.error("[settings] failed to delete profile from database:", error);
-          alert("Chyba: Nepodarilo sa zmazať profil z databázy.");
+          alert("Chyba: Nepodarilo sa zmazať profil z databázy. Detail: " + (error.message || JSON.stringify(error)));
           return;
         }
       }
