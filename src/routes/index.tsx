@@ -2784,7 +2784,7 @@ function ProfileForm({
               PREDSTAV SA
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Napíš svoje meno alebo prezývku, pod ktorou ťa v aplikácii uvidia ostatní.
           </p>
 
@@ -2800,7 +2800,7 @@ function ProfileForm({
                 if (errorMessage) setErrorMessage("");
               }}
               placeholder="MENO / PREZÝVKA"
-              className="w-full border-2 border-foreground bg-foreground/5 p-2.5 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
+              className="w-full border-2 border-foreground bg-foreground/5 p-3 text-base text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
             />
           </div>
 
@@ -2812,7 +2812,7 @@ function ProfileForm({
 
           <button
             type="submit"
-            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+            className="mt-6 w-full bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
           >
             POKRAČOVAŤ
           </button>
@@ -2839,7 +2839,7 @@ function ProfileForm({
               KEDY MÁŠ NARODENINY?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Potrebujeme vedieť tvoj dátum narodenia, aby sme ti mohli zobraziť ľudí v správnom veku.
           </p>
 
@@ -2852,7 +2852,7 @@ function ProfileForm({
               type="date"
               value={birthDate}
               onChange={(e) => handleBirthDateChange(e.target.value)}
-              className="w-full border-2 border-foreground bg-foreground/5 p-2.5 text-sm text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
+              className="w-full border-2 border-foreground bg-foreground/5 p-3 text-base text-foreground outline-none focus:bg-foreground/10 font-mono uppercase"
             />
           </div>
 
@@ -2904,14 +2904,14 @@ function ProfileForm({
               SKONTROLUJ SI VEK
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Podľa dátumu narodenia sme vypočítali tvoj vek. Sedí to?
           </p>
 
           <div className="text-left space-y-4">
             <div className="border-2 border-foreground p-4 bg-foreground/5 font-mono text-center">
               <p className="text-[10px] text-foreground/50 uppercase tracking-widest mb-1">// TVOJ VEK</p>
-              <div className="text-lg font-black tracking-tight text-foreground uppercase">
+              <div className="text-xl font-black tracking-tight text-foreground uppercase">
                 TVOJ VEK: [ {age ?? "?"} ]
               </div>
             </div>
@@ -2931,13 +2931,13 @@ function ProfileForm({
                 setStep("TEMPORAL_MATRIX");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               SÚHLASÍM
             </button>
@@ -2965,7 +2965,7 @@ function ProfileForm({
               KOHO CHCEŠ SPOZNAŤ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Zvoľ svoje pohlavie a vyber si, koho v aplikácii hľadáš.
           </p>
 
@@ -3079,7 +3079,7 @@ function ProfileForm({
               NA ČOM AKURÁT PRACUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Čo je tvojím najväčším životným cieľom alebo víziou, na ktorú sa teraz najviac sústredíš?
           </p>
 
@@ -3110,13 +3110,13 @@ function ProfileForm({
                 setStep("MARKET_ALIGNMENT");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ULOŽIŤ A ĎALEJ
             </button>
@@ -3144,7 +3144,7 @@ function ProfileForm({
               ČO ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Napíš vlastnosti alebo správanie u ľudí, cez ktoré u teba jednoducho nejde vlak.
           </p>
 
@@ -3175,13 +3175,13 @@ function ProfileForm({
                 setStep("DIRECTIVE_01");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               ULOŽIŤ A ĎALEJ
             </button>
@@ -3231,7 +3231,7 @@ function ProfileForm({
               AKÝ JE TVOJ BEŽNÝ DEŇ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-[9px] text-foreground/50 uppercase tracking-widest leading-relaxed">
+          <p className="mb-5 font-mono text-[11px] text-foreground/50 uppercase tracking-widest leading-relaxed">
             Povedz nám, či máš radšej striktný plán a stratégiu, alebo radšej riešiš veci za pochodu a užívaš si chaos.
           </p>
 
@@ -3262,13 +3262,13 @@ function ProfileForm({
                 setStep("DIRECTIVE_02");
                 setErrorMessage("");
               }}
-              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
+              className="w-1/3 border border-foreground/20 bg-card text-foreground font-mono font-bold py-3.5 hover:bg-foreground/5 transition-all cursor-pointer uppercase text-xs tracking-widest"
             >
               SPÄŤ
             </button>
             <button
               type="submit"
-              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 transition-all cursor-pointer"
+              className="w-2/3 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 transition-all cursor-pointer"
             >
               DOKONČIŤ PROFIL
             </button>
