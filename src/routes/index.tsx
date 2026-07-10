@@ -1215,27 +1215,28 @@ function ResonApp() {
               if (targetUserId !== "00000000-0000-0000-0000-000000000001") {
                 if (updated.videoUrls && updated.videoUrls.length > 0) {
                   const uploadPromises = updated.videoUrls.map(async (url, idx) => {
-                    if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
+                    if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url, error: null };
                     try {
                       let blob = await getVideoBlob(`snippet_${idx + 1}`);
                       if (!blob) {
                         const res = await fetch(url);
                         blob = await res.blob();
                       }
-                      const uploadedUrl = await uploadSnippetVideo(targetUserId, idx + 1, blob);
-                      return { slot: idx + 1, url: uploadedUrl };
-                    } catch (fetchErr) {
+                      const uploadRes = await uploadSnippetVideo(targetUserId, idx + 1, blob);
+                      return { slot: idx + 1, url: uploadRes.url, error: uploadRes.error };
+                    } catch (fetchErr: any) {
                       console.error(`[Onboarding] Failed to upload snippet ${idx + 1}:`, fetchErr);
-                      return { slot: idx + 1, url: null };
+                      return { slot: idx + 1, url: null, error: fetchErr.message || String(fetchErr) };
                     }
                   });
                   const results = await Promise.all(uploadPromises);
 
-                  const failedCount = results.filter((r) => r.url === null).length;
-                  if (failedCount > 0) {
-                    console.warn(`[Onboarding] ${failedCount} video snippet uploads failed.`);
+                  const failedUploads = results.filter((r) => r.url === null);
+                  if (failedUploads.length > 0) {
+                    console.warn(`[Onboarding] ${failedUploads.length} video snippet uploads failed.`);
+                    const firstErr = failedUploads[0].error || "Neznáma chyba";
                     alert(
-                      "Niektoré videá sa nepodarilo nahrať. Budete ich môcť pridať neskôr vo vašom profile.",
+                      `Niektoré videá sa nepodarilo nahrať. Budete ich môcť pridať neskôr vo vašom profile. Detail chyby: ${firstErr}`,
                     );
                   }
 
