@@ -20,10 +20,10 @@ export function LegalPage({
           <ArrowLeft className="size-4" /> NASTAVENIA
         </button>
       </div>
-      <h1 className="mb-2 font-sans text-2xl tracking-tight text-foreground font-black uppercase">
+      <h1 className="mb-2 font-sans text-lg tracking-tight text-foreground font-bold uppercase">
         {title}
       </h1>
-      <p className="mb-6 font-mono text-[10px] tracking-widest text-muted-foreground">
+      <p className="mb-6 font-mono text-xs tracking-widest text-muted-foreground">
         POSLEDNÁ AKTUALIZÁCIA · JÚN 2026
       </p>
 
