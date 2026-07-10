@@ -145,7 +145,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
           type="button"
           disabled={allocatedSum !== totalChips}
           onClick={handleConfirm}
-          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all cursor-pointer"
         >
           {allocatedSum === totalChips ? (
             <>
@@ -153,7 +153,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
               <span>ULOŽIŤ PRIORITNÝ PROFIL</span>
             </>
           ) : (
-            <span className="font-mono text-xs tracking-widest">ROZDEĽ EŠTE {remainingChips} BODOV</span>
+            <span className="font-mono text-sm tracking-widest">ROZDEĽ EŠTE {remainingChips} BODOV</span>
           )}
         </button>
       </div>

@@ -148,10 +148,10 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
 
       {/* Main card */}
       <div className="border border-foreground/20 bg-card p-6 relative overflow-hidden mb-5">
-        <p className="font-mono text-[9px] tracking-wider text-foreground/45 uppercase mb-2">
+        <p className="font-mono text-xs tracking-wider text-foreground/60 uppercase mb-2">
           // Dokonči vetu podľa svojho pocitu
         </p>
-        <h3 className="font-sans text-base font-bold leading-relaxed text-foreground uppercase">
+        <h3 className="font-sans text-sm font-bold leading-relaxed text-foreground uppercase">
           &ldquo;{currentMetaphor.text}&rdquo;
         </h3>
       </div>
@@ -165,13 +165,13 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
               key={idx}
               type="button"
               onClick={() => handleSelect(idx)}
-              className={`w-full text-left border px-5 py-3 transition-all duration-200 active:scale-[0.98] ${
+              className={`w-full text-left border px-5 py-3.5 transition-all duration-200 active:scale-[0.98] cursor-pointer ${
                 isSelected
                   ? "border-foreground bg-foreground/10 text-foreground font-bold"
                   : "border-foreground/10 bg-foreground/[0.02] text-foreground/75 hover:bg-foreground/5"
               }`}
             >
-              <p className="text-xs font-medium leading-relaxed">{opt.text}</p>
+              <p className="text-[13px] font-bold leading-relaxed">{opt.text}</p>
             </button>
           );
         })}
@@ -183,7 +183,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
           type="button"
           disabled={selectedIdx === null}
           onClick={handleNext}
-          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3 hover:bg-foreground/90 disabled:opacity-20 active:scale-[0.99] transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-sm tracking-widest uppercase py-4 hover:bg-foreground/90 disabled:opacity-20 active:scale-[0.99] transition-all cursor-pointer"
         >
           <span>{step === metaphors.length - 1 ? "DOKONČIŤ KVÍZ" : "ĎALŠIA OTÁZKA"}</span>
           <ArrowRight className="size-4" />
