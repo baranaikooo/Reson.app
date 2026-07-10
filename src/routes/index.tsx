@@ -3080,9 +3080,6 @@ function ProfileForm({
               NA ČOM AKURÁT PRACUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
-            Čo je tvojím najväčším životným cieľom alebo víziou, na ktorú sa teraz najviac sústredíš?
-          </p>
 
           <div className="text-left">
             <textarea
@@ -3145,9 +3142,6 @@ function ProfileForm({
               ČO ABSOLÚTNE NETOLERUJEŠ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
-            Napíš vlastnosti alebo správanie u ľudí, cez ktoré u teba jednoducho nejde vlak.
-          </p>
 
           <div className="text-left">
             <textarea
@@ -3232,9 +3226,6 @@ function ProfileForm({
               AKÝ JE TVOJ BEŽNÝ DEŇ?
             </div>
           </div>
-          <p className="mb-5 font-mono text-xs text-foreground/60 uppercase tracking-wider leading-relaxed">
-            Povedz nám, či máš radšej striktný plán a stratégiu, alebo radšej riešiš veci za pochodu a užívaš si chaos.
-          </p>
 
           <div className="text-left">
             <textarea
