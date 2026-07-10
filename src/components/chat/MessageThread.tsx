@@ -284,7 +284,7 @@ export function MessageThread({
                 <span className="font-semibold text-foreground text-sm tracking-tight">
                   {match.name}
                 </span>
-                <span className="font-mono text-[9px] tracking-widest text-foreground/50 uppercase">
+                <span className="font-mono text-[10px] tracking-widest text-foreground/50 uppercase">
                   BLUR: {conversation.blurLevel}%
                 </span>
               </div>
@@ -367,7 +367,7 @@ export function MessageThread({
                 )}
                 <p className="break-words">{m.text}</p>
                 <span
-                  className={`block mt-1.5 text-right font-mono text-[9px] ${mine ? "text-background/60" : "text-foreground/40"}`}
+                  className={`block mt-1.5 text-right font-mono text-[10px] ${mine ? "text-background/60" : "text-foreground/40"}`}
                 >
                   {new Date(m.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
@@ -455,7 +455,7 @@ export function MessageThread({
       {pressureActive && (
         <div className="fixed inset-0 bg-background/95 backdrop-blur-md z-[110] flex flex-col justify-center items-center p-4">
           <div className="w-full max-w-md border border-foreground/20 bg-card p-6 relative">
-            <div className="mb-4 flex items-center justify-between font-mono text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
+            <div className="mb-4 flex items-center justify-between font-mono text-[10px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
               <span>⚠️ NÁŠĽAPNÁ MÍNA DETEKOVANÁ</span>
               <span>TLAKOVÝ TEST</span>
             </div>
