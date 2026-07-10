@@ -58,3 +58,27 @@ CREATE POLICY delete_snippets ON public.media_snippets
     FOR DELETE
     TO authenticated
     USING (auth.uid() = user_id);
+
+-- 4. Recreate Dependent Foreign Keys with ON DELETE CASCADE
+ALTER TABLE public.matches DROP CONSTRAINT IF EXISTS matches_user_p_fkey;
+ALTER TABLE public.matches DROP CONSTRAINT IF EXISTS matches_user_q_fkey;
+ALTER TABLE public.matches 
+  ADD CONSTRAINT matches_user_p_fkey FOREIGN KEY (user_p) REFERENCES public.profiles(id) ON DELETE CASCADE;
+ALTER TABLE public.matches 
+  ADD CONSTRAINT matches_user_q_fkey FOREIGN KEY (user_q) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE public.messages DROP CONSTRAINT IF EXISTS messages_sender_id_fkey;
+ALTER TABLE public.messages 
+  ADD CONSTRAINT messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE public.blind_votes DROP CONSTRAINT IF EXISTS blind_votes_user_id_fkey;
+ALTER TABLE public.blind_votes 
+  ADD CONSTRAINT blind_votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE public.psychometric_ledger DROP CONSTRAINT IF EXISTS psychometric_ledger_user_id_fkey;
+ALTER TABLE public.psychometric_ledger 
+  ADD CONSTRAINT psychometric_ledger_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE public.media_snippets DROP CONSTRAINT IF EXISTS media_snippets_user_id_fkey;
+ALTER TABLE public.media_snippets 
+  ADD CONSTRAINT media_snippets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
