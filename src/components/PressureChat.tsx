@@ -267,26 +267,26 @@ export function PressureChat({
   if (showWarning) {
     return (
       <div className="fixed inset-0 bg-background z-[200] flex flex-col justify-center items-center p-6 text-center select-none animate-fade-in">
-        <div className="w-full max-w-md border-4 border-red-500 bg-red-950/20 p-6 text-red-500 flex flex-col justify-between items-center space-y-6">
-          <div className="font-mono text-[10px] tracking-widest text-red-500/50 uppercase">
+        <div className="w-full max-w-sm border-2 border-red-500 bg-red-950/20 p-5 text-red-500 flex flex-col justify-between items-center space-y-4">
+          <div className="font-mono text-[9px] tracking-widest text-red-500/50 uppercase">
             [ SYSTEM_ALERT // PRESSURE_TEST_READY ]
           </div>
 
-          <h2 className="font-mono text-2xl font-black uppercase tracking-tight animate-pulse text-red-500">
+          <h2 className="font-mono text-lg font-black uppercase tracking-tight animate-pulse text-red-500">
             [ !!! CRITICAL_SYSTEM_ALERT !!! ]
           </h2>
 
-          <div className="w-full border-t border-red-500/20 my-2" />
+          <div className="w-full border-t border-red-500/20 my-1" />
 
-          <p className="text-base md:text-lg font-bold font-mono tracking-wide uppercase leading-relaxed text-red-500">
+          <p className="text-xs font-bold font-mono tracking-wide uppercase leading-relaxed text-red-500">
             VSTUPUJEŠ DO TLAKOVEJ ZÓNY S RÝCHLYMI OTÁZKAMI A OBMEDZENÝM ČASOM.
             <br /><br />
             SÚSTREĎ SA, ODPOVEDAJ OKAMŽITE A BEZ OPRAVOVANIA, INAK BUDEŠ VYRADENÝ.
           </p>
 
-          <div className="w-full border-t border-red-500/20 my-2" />
+          <div className="w-full border-t border-red-500/20 my-1" />
 
-          <div className="font-mono text-lg font-bold uppercase tracking-wider text-red-400">
+          <div className="font-mono text-xs font-bold uppercase tracking-wider text-red-400">
             LAUNCH_SEQUENCE_IN: [ {String(cooldown).padStart(2, "0")}s ]
           </div>
 
@@ -295,7 +295,7 @@ export function PressureChat({
               haptic("success");
               setShowWarning(false);
             }}
-            className="w-full bg-red-500 text-black hover:bg-red-600 font-mono font-bold text-sm tracking-wider uppercase py-4 transition-all cursor-pointer border-2 border-red-500 active:scale-[0.98]"
+            className="w-full bg-red-500 text-black hover:bg-red-600 font-mono font-bold text-xs tracking-wider uppercase py-3 transition-all cursor-pointer border-2 border-red-500 active:scale-[0.98]"
           >
             OVERRIDE_AND_LAUNCH_NOW
           </button>
@@ -305,7 +305,7 @@ export function PressureChat({
   }
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8 animate-fade-up">
+    <div className="mx-auto w-full max-w-md px-4 py-6 animate-fade-up">
       {/* Top Header */}
       <div className="flex items-center justify-between text-xs tracking-widest text-red-500/80 uppercase font-mono mb-4">
         <span className="flex items-center gap-1">
@@ -319,7 +319,7 @@ export function PressureChat({
       </div>
 
       {/* Shrinking Progress Bar */}
-      <div className="h-1.5 w-full bg-foreground/5 overflow-hidden mb-8">
+      <div className="h-1.5 w-full bg-foreground/5 overflow-hidden mb-6">
         <div
           className={`h-full transition-all duration-75 ${
             isTyping
@@ -334,7 +334,7 @@ export function PressureChat({
 
       {/* Fake Chat Screen Interface */}
       <div
-        className={`border transition-all duration-300 overflow-hidden mb-8 flex flex-col h-80 justify-between ${
+        className={`border transition-all duration-300 overflow-hidden mb-6 flex flex-col h-72 justify-between ${
           isTyping
             ? "border-foreground/10 bg-card"
             : isTimeCritical
@@ -343,14 +343,14 @@ export function PressureChat({
         }`}
       >
         {/* Chat Header */}
-        <div className="bg-foreground/[0.03] border-b border-foreground/10 px-6 py-4 flex items-center gap-3">
-          <div className="size-8 bg-foreground text-background flex items-center justify-center font-bold text-xs font-mono">
+        <div className="bg-foreground/[0.03] border-b border-foreground/10 px-5 py-3 flex items-center gap-2.5">
+          <div className="size-7 bg-foreground text-background flex items-center justify-center font-bold text-xs font-mono">
             {scenario.sender.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-foreground/90">{scenario.sender}</h4>
+            <h4 className="text-xs font-semibold text-foreground/90">{scenario.sender}</h4>
             <p
-              className={`text-[10px] uppercase tracking-widest font-mono ${isTyping ? "text-foreground/40 animate-pulse" : isTimeCritical ? "text-red-500" : "text-foreground/60"}`}
+              className={`text-[9px] uppercase tracking-widest font-mono ${isTyping ? "text-foreground/40 animate-pulse" : isTimeCritical ? "text-red-500" : "text-foreground/60"}`}
             >
               {isTyping ? "píše..." : isTimeCritical ? "kritická odozva" : "aktívny"}
             </p>
@@ -358,10 +358,10 @@ export function PressureChat({
         </div>
 
         {/* Chat Feed */}
-        <div className="p-6 flex-1 flex flex-col justify-end overflow-y-auto space-y-4">
+        <div className="p-5 flex-1 flex flex-col justify-end overflow-y-auto space-y-3">
           {isTyping ? (
             /* typing animation bubble */
-            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-4 py-3 self-start flex items-center gap-1.5">
+            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-3.5 py-2.5 self-start flex items-center gap-1.5">
               <span
                 className="size-1.5 animate-bounce bg-foreground/40"
                 style={{ animationDelay: "0ms" }}
@@ -376,9 +376,9 @@ export function PressureChat({
               />
             </div>
           ) : (
-            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-4 py-3 text-foreground text-base md:text-lg font-bold leading-relaxed self-start animate-fade-in">
+            <div className="max-w-[85%] bg-foreground/5 border border-foreground/10 px-3.5 py-2.5 text-foreground text-xs font-bold leading-relaxed self-start animate-fade-in">
               {scenario.message}
-              <span className="block text-[10px] text-foreground/35 text-right mt-1.5 font-mono">
+              <span className="block text-[8px] text-foreground/35 text-right mt-1 font-mono">
                 doručené
               </span>
             </div>
@@ -386,38 +386,38 @@ export function PressureChat({
         </div>
 
         {/* Input Simulation Footer */}
-        <div className="bg-foreground/[0.01] border-t border-foreground/10 px-6 py-4 flex items-center gap-3">
-          <div className="flex-1 bg-foreground/[0.03] px-4 py-2 border border-foreground/10 text-xs text-foreground/30 italic font-mono">
+        <div className="bg-foreground/[0.01] border-t border-foreground/10 px-5 py-3 flex items-center gap-2.5">
+          <div className="flex-1 bg-foreground/[0.03] px-3.5 py-1.5 border border-foreground/10 text-[10px] text-foreground/30 italic font-mono">
             Zvoľ odpoveď pre odoslanie...
           </div>
-          <div className="bg-foreground/5 p-2 text-foreground/30">
-            <Send className="size-4" />
+          <div className="bg-foreground/5 p-1.5 text-foreground/30">
+            <Send className="size-3.5" />
           </div>
         </div>
       </div>
 
       {/* Decision Prompt Label */}
       {isTyping ? (
-        <p className="text-center font-mono text-base md:text-lg tracking-wider text-foreground/50 uppercase mb-4 animate-pulse">
+        <p className="text-center font-mono text-xs tracking-wider text-foreground/50 uppercase mb-3 animate-pulse">
           Čakaj na správu...
         </p>
       ) : (
-        <div className="border-2 border-white bg-black text-white p-4 mb-4 uppercase text-center font-mono text-base md:text-lg font-bold tracking-wider">
+        <div className="border border-white bg-black text-white p-3 mb-3 uppercase text-center font-mono text-xs font-bold tracking-wider">
           Máš jeden dotyk! Prvý dotyk odosiela:
         </div>
       )}
 
       {/* Choices Grid (Strict One-Tap Submit) */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {scenario.options.map((opt, idx) => (
           <button
             key={idx}
             type="button"
             disabled={clicked || isTyping}
             onClick={() => handleSelect(opt.style)}
-            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-6 py-4 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200"
+            className="w-full text-left border border-foreground/10 bg-foreground/[0.02] px-5 py-3 hover:bg-foreground/5 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all duration-200"
           >
-            <p className="text-base md:text-lg font-bold leading-relaxed text-foreground">{opt.text}</p>
+            <p className="text-xs font-bold leading-relaxed text-foreground">{opt.text}</p>
           </button>
         ))}
       </div>
