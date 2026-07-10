@@ -67,6 +67,11 @@ export function SystemConfig({
     user.ui_speed || (localStorage.getItem("reson_ui_speed") as any) || "TYPEWRITER_ANIMATED"
   );
 
+  // Confirmation states to avoid native blocking alerts/confirms (which Capacitor can ignore)
+  const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [freezeMessage, setFreezeMessage] = useState<string | null>(null);
+
   // Sync initial database settings to state and local storage on mount/update
   useEffect(() => {
     if (user.haptic_profile) {
@@ -217,7 +222,7 @@ export function SystemConfig({
 
       if (error) {
         console.error("[settings] failed to toggle freeze in database:", error);
-        alert("Chyba: Nepodarilo sa zmeniť stav profilu v databáze.");
+        setFreezeMessage("Chyba: Nepodarilo sa zmeniť stav profilu v databáze.");
         setIsFrozen(!nextState); // rollback
         return;
       }
@@ -225,55 +230,49 @@ export function SystemConfig({
 
     onUpdateUser((prev) => (prev ? { ...prev, status: nextState ? "FROZEN" : "ACTIVE" } : null));
 
-    alert(
+    setFreezeMessage(
       nextState
-        ? "SKRYTIE PROFILU AKTÍVNE: Váš profil je dočasne skrytý pred ostatnými. Vaša doterajšia kompatibilita zostáva zachovaná."
-        : "PROFIL JE AKTÍVNY: Váš profil je znova viditeľný pre ostatných.",
+        ? "SKRYTIE PROFILU AKTÍVNE: Váš profil je dočasne skrytý pred ostatnými."
+        : "PROFIL JE AKTÍVNY: Váš profil je znova viditeľný pre ostatných."
     );
+    setTimeout(() => {
+      setFreezeMessage(null);
+    }, 4000);
   }
 
   // Account Management
-  async function handleLogout() {
-    haptic("warning");
-    if (confirm("Naozaj sa chcete odhlásiť?")) {
-      try {
-        localStorage.clear();
-      } catch {
-        /* ignore */
-      }
-      await supabase.auth.signOut();
-      location.reload();
+  async function executeLogout() {
+    try {
+      localStorage.clear();
+    } catch {
+      /* ignore */
     }
+    await supabase.auth.signOut();
+    location.reload();
   }
 
-  async function handleDataWipe() {
-    haptic("destructive");
-    if (
-      confirm(
-        "UPOZORNENIE: Chystáte sa natrvalo zmazať svoj profil. Všetky informácie, výsledky testov a správy budú permanentne vymazané. Táto akcia je NEVRATNÁ. Chcete pokračovať?",
-      )
-    ) {
-      if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
-        const { error } = await supabase
-          .from("profiles")
-          .delete()
-          .eq("id", user.id);
+  async function executeDataWipe() {
+    if (user.id && user.id !== "00000000-0000-0000-0000-000000000001") {
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", user.id);
 
-        if (error) {
-          console.error("[settings] failed to delete profile from database:", error);
-          alert("Chyba: Nepodarilo sa zmazať profil z databázy. Detail: " + (error.message || JSON.stringify(error)));
-          return;
-        }
+      if (error) {
+        console.error("[settings] failed to delete profile from database:", error);
+        setFreezeMessage("Chyba: Nepodarilo sa zmazať profil z databázy. Detail: " + (error.message || JSON.stringify(error)));
+        setShowWipeConfirm(false);
+        return;
       }
-
-      try {
-        localStorage.clear();
-      } catch {
-        /* ignore */
-      }
-      await supabase.auth.signOut();
-      location.reload();
     }
+
+    try {
+      localStorage.clear();
+    } catch {
+      /* ignore */
+    }
+    await supabase.auth.signOut();
+    location.reload();
   }
 
   return (
@@ -505,42 +504,110 @@ export function SystemConfig({
         </div>
       </div>
 
+      {/* Action Notification Banner */}
+      {freezeMessage && (
+        <div className="border border-foreground bg-foreground/10 p-3 text-center font-mono text-[9px] font-bold text-foreground uppercase tracking-widest animate-pulse">
+          {freezeMessage}
+        </div>
+      )}
+
       {/* Account Liquidity & Wiping Actions */}
       <div className="border border-red-500/25 bg-red-500/5 p-5 rounded-none space-y-3">
         <p className="font-mono text-[9px] tracking-widest text-red-500/80 uppercase">
           SPRAVOVANIE ÚČTU
         </p>
 
-        <div className="grid grid-cols-3 gap-2">
-          {/* MARKET FREEZE */}
-          <button
-            onClick={handleToggleFreeze}
-            className={`flex flex-col items-center justify-center border py-2.5 font-mono text-[8px] font-bold tracking-wider transition-all rounded-none bg-card ${
-              isFrozen
-                ? "border-blue-500 text-blue-500 bg-blue-500/5"
-                : "border-foreground/20 text-foreground hover:bg-foreground/5"
-            }`}
-          >
-            <Snowflake className="size-4 mb-1" />
-            {isFrozen ? "[ ODKRYŤ PROFIL ]" : "[ SKRYŤ PROFIL ]"}
-          </button>
+        {showWipeConfirm && (
+          <div className="border border-red-500 bg-red-950/20 p-4 space-y-3 select-none">
+            <p className="font-mono text-[9px] text-red-500 uppercase text-center font-bold tracking-wider">
+              !!! TRVALÉ VYMAZANIE PROFILU !!!
+            </p>
+            <p className="font-sans text-[10px] text-red-400 leading-normal text-center uppercase font-medium">
+              Všetky informácie, výsledky testov a správy budú permanentne vymazané. Táto akcia je nevratná.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={executeDataWipe}
+                className="w-1/2 bg-red-600 hover:bg-red-700 text-white font-mono text-[9px] font-bold py-2 uppercase border border-red-500 active:scale-95 transition-all cursor-pointer"
+              >
+                ZMAZAŤ
+              </button>
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setShowWipeConfirm(false);
+                }}
+                className="w-1/2 border border-foreground/20 hover:bg-foreground/5 text-foreground font-mono text-[9px] font-bold py-2 uppercase active:scale-95 transition-all cursor-pointer"
+              >
+                ZRUŠIŤ
+              </button>
+            </div>
+          </div>
+        )}
 
-          {/* SIGN OUT */}
-          <button
-            onClick={handleLogout}
-            className="flex flex-col items-center justify-center border border-foreground/20 hover:border-foreground/40 py-2.5 font-mono text-[8px] font-bold tracking-wider text-foreground rounded-none bg-card hover:bg-foreground/5 transition-all"
-          >
-            <LogOut className="size-4 mb-1" />[ ODHLÁSIŤ ]
-          </button>
+        {showLogoutConfirm && (
+          <div className="border border-foreground/20 bg-card p-4 space-y-3 select-none">
+            <p className="font-mono text-[9px] text-foreground uppercase text-center font-bold tracking-wider">
+              Naozaj sa chcete odhlásiť?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={executeLogout}
+                className="w-1/2 bg-foreground text-background font-mono text-[9px] font-bold py-2 uppercase active:scale-95 transition-all cursor-pointer"
+              >
+                ODHLÁSIŤ
+              </button>
+              <button
+                onClick={() => {
+                  haptic("tap");
+                  setShowLogoutConfirm(false);
+                }}
+                className="w-1/2 border border-foreground/20 hover:bg-foreground/5 text-foreground font-mono text-[9px] font-bold py-2 uppercase active:scale-95 transition-all cursor-pointer"
+              >
+                ZRUŠIŤ
+              </button>
+            </div>
+          </div>
+        )}
 
-          {/* DATA WIPE */}
-          <button
-            onClick={handleDataWipe}
-            className="flex flex-col items-center justify-center border border-red-500/40 hover:border-red-500/60 py-2.5 font-mono text-[8px] font-bold tracking-wider text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all"
-          >
-            <Trash2 className="size-4 mb-1" />[ ZMAZAŤ ÚČET ]
-          </button>
-        </div>
+        {!showWipeConfirm && !showLogoutConfirm && (
+          <div className="grid grid-cols-3 gap-2">
+            {/* MARKET FREEZE */}
+            <button
+              onClick={handleToggleFreeze}
+              className={`flex flex-col items-center justify-center border py-2.5 font-mono text-[8px] font-bold tracking-wider transition-all rounded-none bg-card ${
+                isFrozen
+                  ? "border-blue-500 text-blue-500 bg-blue-500/5"
+                  : "border-foreground/20 text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <Snowflake className="size-4 mb-1" />
+              {isFrozen ? "[ ODKRYŤ PROFIL ]" : "[ SKRYŤ PROFIL ]"}
+            </button>
+
+            {/* SIGN OUT */}
+            <button
+              onClick={() => {
+                haptic("warning");
+                setShowLogoutConfirm(true);
+              }}
+              className="flex flex-col items-center justify-center border border-foreground/20 hover:border-foreground/40 py-2.5 font-mono text-[8px] font-bold tracking-wider text-foreground rounded-none bg-card hover:bg-foreground/5 transition-all cursor-pointer"
+            >
+              <LogOut className="size-4 mb-1" />[ ODHLÁSIŤ ]
+            </button>
+
+            {/* DATA WIPE */}
+            <button
+              onClick={() => {
+                haptic("destructive");
+                setShowWipeConfirm(true);
+              }}
+              className="flex flex-col items-center justify-center border border-red-500/40 hover:border-red-500/60 py-2.5 font-mono text-[8px] font-bold tracking-wider text-red-600 rounded-none bg-card hover:bg-red-500/10 transition-all cursor-pointer"
+            >
+              <Trash2 className="size-4 mb-1" />[ ZMAZAŤ ÚČET ]
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
