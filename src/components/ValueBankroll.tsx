@@ -89,36 +89,36 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
       </div>
 
       {/* Utilitarian Chips Box Indicator */}
-      <div className="border border-foreground/20 bg-card p-6 mb-8 flex items-center justify-between">
+      <div className="border border-foreground/20 bg-card p-4 mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-foreground/10 p-3 text-foreground">
-            <Coins className="size-6" />
+          <div className="bg-foreground/10 p-2 text-foreground">
+            <Coins className="size-5" />
           </div>
           <div>
-            <h4 className="font-sans font-bold text-foreground text-base uppercase">Tvoje body</h4>
-            <p className="text-xs text-foreground/50 font-mono">// Rozdeľ presne 100 bodov</p>
+            <h4 className="font-sans font-bold text-foreground text-xs uppercase">Tvoje body</h4>
+            <p className="text-[10px] text-foreground/50 font-mono">// Rozdeľ presne 100 bodov</p>
           </div>
         </div>
         <div className="text-right">
-          <span className="font-mono text-4xl font-black text-foreground">{remainingChips}</span>
-          <span className="text-xs text-foreground/50 uppercase font-mono block">zostáva</span>
+          <span className="font-mono text-2xl font-black text-foreground">{remainingChips}</span>
+          <span className="text-[9px] text-foreground/50 uppercase font-mono block">zostáva</span>
         </div>
       </div>
 
       {/* Sliders Container */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {CATEGORIES.map((cat) => {
           const val = allocations[cat.id] || 0;
           return (
-            <div key={cat.id} className="border border-foreground/10 bg-card p-4 space-y-3">
+            <div key={cat.id} className="border border-foreground/10 bg-card p-3.5 space-y-2">
               <div className="flex items-start justify-between">
                 <div className="space-y-0.5 pr-2">
-                  <h5 className="text-base font-bold text-foreground uppercase">
+                  <h5 className="text-xs font-bold text-foreground uppercase">
                     {cat.label}
                   </h5>
-                  <p className="text-sm text-foreground/55 leading-relaxed font-mono">{cat.desc}</p>
+                  <p className="text-xs text-foreground/55 leading-relaxed font-mono">{cat.desc}</p>
                 </div>
-                <div className="bg-foreground/10 px-3 py-1.5 font-mono text-base font-bold text-foreground">
+                <div className="bg-foreground/10 px-2 py-1 font-mono text-xs font-bold text-foreground">
                   {val}
                 </div>
               </div>
@@ -140,20 +140,20 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
       </div>
 
       {/* Action Button */}
-      <div className="mt-8">
+      <div className="mt-6">
         <button
           type="button"
           disabled={allocatedSum !== totalChips}
           onClick={handleConfirm}
-          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-lg tracking-wider uppercase py-4.5 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold text-xs tracking-widest uppercase py-3.5 hover:bg-foreground/90 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.99] transition-all"
         >
           {allocatedSum === totalChips ? (
             <>
-              <Check className="size-5" />
+              <Check className="size-4" />
               <span>ULOŽIŤ PRIORITNÝ PROFIL</span>
             </>
           ) : (
-            <span className="font-mono text-lg tracking-wider">ROZDEĽ EŠTE {remainingChips} BODOV</span>
+            <span className="font-mono text-xs tracking-widest">ROZDEĽ EŠTE {remainingChips} BODOV</span>
           )}
         </button>
       </div>

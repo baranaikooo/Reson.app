@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Camera, Upload } from "lucide-react";
 import { useHaptic } from "@/hooks/use-haptics";
 import { openCamera, recordStreamForMs, stopStream, attachStreamToVideo } from "@/lib/media";
@@ -236,10 +237,10 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
           <span className="size-2 rounded-full bg-foreground/30 animate-pulse" />
           <span>FÁZA 0.5: MULTIPLE LIVE SNIPPETS</span>
         </div>
-        <h2 className="font-sans text-2xl font-black tracking-tight text-foreground uppercase leading-none">
+        <h2 className="font-sans text-lg font-black tracking-tight text-foreground uppercase leading-none">
           Pridajte video slučku
         </h2>
-        <p className="text-sm md:text-base text-foreground/75 leading-relaxed font-sans font-medium">
+        <p className="text-xs text-foreground/75 leading-relaxed font-sans font-medium">
           Základné informácie boli kalibrované. Pre overenie identity a algoritmický náhľad na trh vyžadujeme nahrať aspoň 1 krátke 3-sekundové video. Ak chcete, môžete pridať celkovo až 4 video slučky.
         </p>
       </div>
@@ -337,7 +338,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
             haptic("success");
             onDone(activeSnippets);
           }}
-          className="w-full border-2 border-foreground py-4.5 text-lg font-bold tracking-wider text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
+          className="w-full border-2 border-foreground py-3.5 text-xs font-bold tracking-widest text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
         >
           [ POKRAČOVAŤ K SEMANTICKÉMU ZRKADLU ]
         </button>
@@ -347,9 +348,9 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       </div>
 
       {/* Recording Overlay Modal */}
-      {recordingIndex !== null && (
+      {recordingIndex !== null && createPortal(
         <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-[150] flex flex-col justify-center items-center p-4">
-          <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative">
+          <div className="w-full max-w-sm border border-foreground/20 bg-card p-6 rounded-none relative animate-fade-up">
             <div className="mb-4 text-[9px] tracking-widest text-red-500 font-bold uppercase animate-pulse">
               [ CCTV CAMERA RECORDER INTERFACE ]
             </div>
@@ -389,7 +390,8 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
