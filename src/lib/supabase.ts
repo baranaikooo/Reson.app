@@ -227,11 +227,10 @@ export async function saveUserProfile(
     return;
   }
 
-  // 1. Upsert Profile
-  const { error: profileError } = await supabase
+  // 1. Update Profile (pre-created by auth trigger)
+  const { error: profileUpdateError, count: profileCount } = await supabase
     .from("profiles")
-    .upsert({
-      id: userId,
+    .update({
       name: profileData.name || "Používateľ",
       age: profileData.age || 18,
       birth_date: profileData.birthDate || "2000-01-01",
@@ -245,7 +244,6 @@ export async function saveUserProfile(
       current_thesis: profileData.currentThesis || "",
       similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
       liveness_verified: true,
-      // Optional psychometric metrics if present
       cognitive_depth: profileData.cognitiveDepth,
       conscientiousness: profileData.conscientiousness,
       extraversion: profileData.extraversion,
@@ -256,45 +254,98 @@ export async function saveUserProfile(
       directive_goal: profileData.directive_goal || "",
       directive_redflags: profileData.directive_redflags || "",
       directive_lifestyle: profileData.directive_lifestyle || "",
-    });
+    }, { count: "exact" })
+    .eq("id", userId);
 
-  if (profileError) {
-    console.error("[Supabase] Profile upsert failed:", profileError);
-    throw profileError;
+  // If update fails or affects 0 rows, fallback to clean insert
+  if (profileUpdateError || profileCount === 0) {
+    console.warn("[Supabase] Profile update failed or row not found. Trying insert fallback...", profileUpdateError);
+    const { error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        id: userId,
+        name: profileData.name || "Používateľ",
+        age: profileData.age || 18,
+        birth_date: profileData.birthDate || "2000-01-01",
+        city: profileData.city || "",
+        gender: profileData.gender || "other",
+        orientation: profileData.orientation || "bi",
+        radius_km: profileData.radiusKm || 200,
+        non_negotiable: profileData.nonNegotiable || "",
+        latitude: profileData.coords?.lat,
+        longitude: profileData.coords?.lon,
+        current_thesis: profileData.currentThesis || "",
+        similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
+        liveness_verified: true,
+        cognitive_depth: profileData.cognitiveDepth,
+        conscientiousness: profileData.conscientiousness,
+        extraversion: profileData.extraversion,
+        attachment_style: profileData.attachmentStyle,
+        avg_response_time: profileData.avgResponseTime,
+        top_priority: profileData.topPriority,
+        status: profileData.status || "ACTIVE",
+        directive_goal: profileData.directive_goal || "",
+        directive_redflags: profileData.directive_redflags || "",
+        directive_lifestyle: profileData.directive_lifestyle || "",
+      });
+
+    if (insertError) {
+      console.error("[Supabase] Profile insert fallback failed:", insertError);
+      throw insertError;
+    }
   }
 
-  // 2. Upsert Psychometric Ledger
-  const { error: ledgerError } = await supabase
+  // 2. Update Psychometric Ledger (pre-created by auth trigger)
+  const { error: ledgerUpdateError, count: ledgerCount } = await supabase
     .from("psychometric_ledger")
-    .upsert({
-      user_id: userId,
+    .update({
       primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
       avg_decision_latency: profileData.avgResponseTime || 0,
       ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
-    });
+    }, { count: "exact" })
+    .eq("user_id", userId);
 
-  if (ledgerError) {
-    console.error("[Supabase] Ledger update failed:", ledgerError);
-    throw ledgerError;
+  if (ledgerUpdateError || ledgerCount === 0) {
+    console.warn("[Supabase] Ledger update failed or row not found. Trying insert fallback...", ledgerUpdateError);
+    const { error: ledgerInsertError } = await supabase
+      .from("psychometric_ledger")
+      .insert({
+        user_id: userId,
+        primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
+        avg_decision_latency: profileData.avgResponseTime || 0,
+        ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
+      });
+
+    if (ledgerInsertError) {
+      console.error("[Supabase] Ledger insert fallback failed:", ledgerInsertError);
+      throw ledgerInsertError;
+    }
   }
 
-  // 3. Upsert Media Snippets
+  // 3. Update/Insert Media Snippets
   for (let i = 0; i < videoUrls.length; i++) {
     const url = videoUrls[i];
-    if (!url || url.startsWith("blob:")) continue; // Skip if it's still a local blob
+    if (!url || url.startsWith("blob:")) continue;
 
-    const { error: snippetError } = await supabase.from("media_snippets").upsert(
-      {
-        user_id: userId,
-        slot_index: i + 1,
-        video_url: url,
-      },
-      { onConflict: "user_id, slot_index" },
-    );
+    const { error: snippetUpdateError, count: snippetCount } = await supabase
+      .from("media_snippets")
+      .update({ video_url: url }, { count: "exact" })
+      .eq("user_id", userId)
+      .eq("slot_index", i + 1);
 
-    if (snippetError) {
-      console.error(`[Supabase] Snippet ${i + 1} insert failed:`, snippetError);
-      throw snippetError;
+    if (snippetUpdateError || snippetCount === 0) {
+      const { error: snippetInsertError } = await supabase
+        .from("media_snippets")
+        .insert({
+          user_id: userId,
+          slot_index: i + 1,
+          video_url: url,
+        });
+
+      if (snippetInsertError && !snippetInsertError.message.includes("duplicate key")) {
+        console.error(`[Supabase] Snippet ${i + 1} insert failed:`, snippetInsertError);
+        throw snippetInsertError;
+      }
     }
   }
 }
