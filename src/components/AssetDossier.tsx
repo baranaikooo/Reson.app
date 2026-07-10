@@ -32,9 +32,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Directives local editing states
-  const [nonNegotiable, setNonNegotiable] = useState(user.nonNegotiable || "");
-  const [currentThesis, setCurrentThesis] = useState(user.currentThesis || "");
+  // Directives local editing states (mapped to onboarding questions)
+  const [directiveGoal, setDirectiveGoal] = useState(user.directive_goal || "");
+  const [directiveRedflags, setDirectiveRedflags] = useState(user.directive_redflags || "");
+  const [directiveLifestyle, setDirectiveLifestyle] = useState(user.directive_lifestyle || "");
 
   // Local settings states
   const [distance, setDistance] = useState(user.radiusKm || 200);
@@ -42,6 +43,28 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     user.radiusKm === undefined || user.radiusKm >= 500,
   );
   const [orientation, setOrientation] = useState(user.orientation || "hetero");
+
+  function getTargetMarket(gender: string, orient: string): "male" | "female" | "all" {
+    if (orient === "bi") return "all";
+    if (orient === "homo") {
+      return gender === "female" ? "female" : "male";
+    }
+    // hetero
+    return gender === "female" ? "male" : "female";
+  }
+
+  async function handleTargetMarketChange(newTarget: "male" | "female" | "all") {
+    let calculatedOrientation: "hetero" | "homo" | "bi" = "bi";
+    if (newTarget === "all" || user.gender === "other") {
+      calculatedOrientation = "bi";
+    } else if (user.gender === newTarget) {
+      calculatedOrientation = "homo";
+    } else {
+      calculatedOrientation = "hetero";
+    }
+    setOrientation(calculatedOrientation);
+    saveFilterChange("orientation", calculatedOrientation);
+  }
 
   async function saveFilterChange(key: string, value: any) {
     onUpdateUser((prev) => {
@@ -73,7 +96,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   }
 
   // Save directives changes back to profile
-  async function handleSaveDirectives(field: "nonNegotiable" | "currentThesis", val: string) {
+  async function handleSaveDirectives(field: "directive_goal" | "directive_redflags" | "directive_lifestyle", val: string) {
     onUpdateUser((prev) => {
       if (!prev) return null;
       return {
@@ -83,11 +106,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     });
 
     const userId = user.id;
-    const dbKey = field === "nonNegotiable" ? "non_negotiable" : "current_thesis";
     if (userId && userId !== "00000000-0000-0000-0000-000000000001") {
       const { error } = await supabase
         .from("profiles")
-        .update({ [dbKey]: val })
+        .update({ [field]: val })
         .eq("id", userId);
       if (error) {
         console.error(`[AssetDossier] Failed to update ${field} in DB:`, error);
@@ -632,70 +654,83 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             />
           </div>
 
-          {/* Target Demographic Orientation Dropdown */}
+          {/* Target Demographic Select Dropdown */}
           <div>
             <label className="block text-[8px] text-muted-foreground uppercase mb-1">
-              Koho hľadáš (Sexuálna orientácia)
+              Koho hľadáš
             </label>
             <select
-              value={orientation}
+              value={getTargetMarket(user.gender, orientation)}
               onChange={(e) => {
-                const val = e.target.value as "hetero" | "homo" | "bi";
-                setOrientation(val);
-                saveFilterChange("orientation", val);
+                const val = e.target.value as "male" | "female" | "all";
+                handleTargetMarketChange(val);
               }}
               className="w-full border border-foreground/20 bg-background p-2 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none"
             >
-              <option value="hetero">Heterosexuálna</option>
-              <option value="homo">Homosexuálna</option>
-              <option value="bi">Bisexuálna</option>
+              <option value="male">Mužov</option>
+              <option value="female">Ženy</option>
+              <option value="all">Všetkých</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Brutalist Directives Form Fields */}
+      {/* Brutalist Directives Form Fields (Onboarding Questions) */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
         <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          Moje životné smernice
+          Moje osobné smernice (Kalibrácia)
         </p>
 
-        {/* NON-NEGOTIABLE */}
+        {/* DIRECTIVE_01: GOAL */}
         <div className="space-y-1">
           <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Cez čo u mňa nejde vlak (Zásadná podmienka)</span>
-            <span>{nonNegotiable.length} / 60</span>
+            <span>Na čom akurát pracuješ? (Vízia/Cieľ)</span>
           </div>
-          <input
-            type="text"
-            maxLength={60}
-            value={nonNegotiable}
+          <textarea
+            rows={2}
+            value={directiveGoal}
             onChange={(e) => {
               const val = e.target.value;
-              setNonNegotiable(val);
-              handleSaveDirectives("nonNegotiable", val);
+              setDirectiveGoal(val);
+              handleSaveDirectives("directive_goal", val);
             }}
-            placeholder="Napr. Vernosť, úprimnosť, tolerancia..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none placeholder:text-foreground/30"
+            placeholder="Tvoja hlavná vízia alebo na čo sa teraz najviac sústredíš..."
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
           />
         </div>
 
-        {/* CURRENT THESIS */}
+        {/* DIRECTIVE_02: REDFLAGS */}
         <div className="space-y-1">
           <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Môj pohľad na svet (Stručne o mne)</span>
-            <span>{currentThesis.length} / 100</span>
+            <span>Čo absolútne netoleruješ? (Red flags)</span>
           </div>
           <textarea
-            maxLength={100}
             rows={2}
-            value={currentThesis}
+            value={directiveRedflags}
             onChange={(e) => {
               const val = e.target.value;
-              setCurrentThesis(val);
-              handleSaveDirectives("currentThesis", val);
+              setDirectiveRedflags(val);
+              handleSaveDirectives("directive_redflags", val);
             }}
-            placeholder="Napr. Snažím sa žiť naplno a hľadám niekoho, kto má podobné hodnoty..."
+            placeholder="Vlastnosti alebo správanie u ľudí, cez ktoré u teba nejde vlak..."
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
+          />
+        </div>
+
+        {/* DIRECTIVE_03: LIFESTYLE */}
+        <div className="space-y-1">
+          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
+            <span>Aký je tvoj bežný deň? (Životný štýl)</span>
+          </div>
+          <textarea
+            rows={2}
+            value={directiveLifestyle}
+            onChange={(e) => {
+              const val = e.target.value;
+              setDirectiveLifestyle(val);
+              handleSaveDirectives("directive_lifestyle", val);
+            }}
+            placeholder="Striktný plán, alebo riešenie vecí za pochodu a chaos..."
             className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
           />
         </div>
