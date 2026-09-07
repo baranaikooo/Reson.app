@@ -217,6 +217,68 @@ export async function saveBanditState(weights: any, arms: any, history: any[]) {
   }
 }
 
+export async function recordLivenessVerified(videoUrl?: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) {
+      return { success: false, error: "No active session" };
+    }
+
+    const { error } = await supabase.functions.invoke("verify-liveness", {
+      body: { video_url: videoUrl },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (error) {
+      console.warn("[Supabase] Edge function verify-liveness failed:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error("[Supabase] recordLivenessVerified error:", err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+export async function submitPsychometricsToLedger(
+  profileData: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) {
+      return { success: false, error: "No active session" };
+    }
+
+    const { error } = await supabase.functions.invoke("submit-psychometrics", {
+      body: {
+        attachment_style: profileData.attachmentStyle,
+        avg_response_time: profileData.avgResponseTime,
+        extraversion: profileData.extraversion,
+        cognitive_depth: profileData.cognitiveDepth,
+        conscientiousness: profileData.conscientiousness,
+        hesitated: profileData.hesitated,
+        top_priority: profileData.topPriority,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (error) {
+      console.warn("[Supabase] Edge function submit-psychometrics failed:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error("[Supabase] submitPsychometricsToLedger error:", err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
 export async function saveUserProfile(
   userId: string,
   profileData: any,
@@ -228,33 +290,35 @@ export async function saveUserProfile(
   }
 
   // 1. Update Profile (pre-created by auth trigger)
+  // Note: liveness_verified is locked by DB trigger and must be set via verify-liveness Edge Function
+  const baseProfile = {
+    name: profileData.name || "Používateľ",
+    age: profileData.age || 18,
+    birth_date: profileData.birthDate || "2000-01-01",
+    city: profileData.city || "",
+    gender: profileData.gender || "other",
+    orientation: profileData.orientation || "bi",
+    radius_km: profileData.radiusKm || 200,
+    non_negotiable: profileData.nonNegotiable || "",
+    latitude: profileData.coords?.lat,
+    longitude: profileData.coords?.lon,
+    current_thesis: profileData.currentThesis || "",
+    similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
+    cognitive_depth: profileData.cognitiveDepth,
+    conscientiousness: profileData.conscientiousness,
+    extraversion: profileData.extraversion,
+    attachment_style: profileData.attachmentStyle,
+    avg_response_time: profileData.avgResponseTime,
+    top_priority: profileData.topPriority,
+    status: profileData.status || "ACTIVE",
+    directive_goal: profileData.directive_goal || "",
+    directive_redflags: profileData.directive_redflags || "",
+    directive_lifestyle: profileData.directive_lifestyle || "",
+  };
+
   const { error: profileUpdateError, count: profileCount } = await supabase
     .from("profiles")
-    .update({
-      name: profileData.name || "Používateľ",
-      age: profileData.age || 18,
-      birth_date: profileData.birthDate || "2000-01-01",
-      city: profileData.city || "",
-      gender: profileData.gender || "other",
-      orientation: profileData.orientation || "bi",
-      radius_km: profileData.radiusKm || 200,
-      non_negotiable: profileData.nonNegotiable || "",
-      latitude: profileData.coords?.lat,
-      longitude: profileData.coords?.lon,
-      current_thesis: profileData.currentThesis || "",
-      similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
-      liveness_verified: true,
-      cognitive_depth: profileData.cognitiveDepth,
-      conscientiousness: profileData.conscientiousness,
-      extraversion: profileData.extraversion,
-      attachment_style: profileData.attachmentStyle,
-      avg_response_time: profileData.avgResponseTime,
-      top_priority: profileData.topPriority,
-      status: profileData.status || "ACTIVE",
-      directive_goal: profileData.directive_goal || "",
-      directive_redflags: profileData.directive_redflags || "",
-      directive_lifestyle: profileData.directive_lifestyle || "",
-    }, { count: "exact" })
+    .update(baseProfile, { count: "exact" })
     .eq("id", userId);
 
   // If update fails or affects 0 rows, fallback to clean insert
@@ -264,29 +328,7 @@ export async function saveUserProfile(
       .from("profiles")
       .insert({
         id: userId,
-        name: profileData.name || "Používateľ",
-        age: profileData.age || 18,
-        birth_date: profileData.birthDate || "2000-01-01",
-        city: profileData.city || "",
-        gender: profileData.gender || "other",
-        orientation: profileData.orientation || "bi",
-        radius_km: profileData.radiusKm || 200,
-        non_negotiable: profileData.nonNegotiable || "",
-        latitude: profileData.coords?.lat,
-        longitude: profileData.coords?.lon,
-        current_thesis: profileData.currentThesis || "",
-        similarity_vector: `[${profileData.cognitiveDepth || 0.5},${profileData.conscientiousness || 0.5}]`,
-        liveness_verified: true,
-        cognitive_depth: profileData.cognitiveDepth,
-        conscientiousness: profileData.conscientiousness,
-        extraversion: profileData.extraversion,
-        attachment_style: profileData.attachmentStyle,
-        avg_response_time: profileData.avgResponseTime,
-        top_priority: profileData.topPriority,
-        status: profileData.status || "ACTIVE",
-        directive_goal: profileData.directive_goal || "",
-        directive_redflags: profileData.directive_redflags || "",
-        directive_lifestyle: profileData.directive_lifestyle || "",
+        ...baseProfile,
       });
 
     if (insertError) {
@@ -295,30 +337,19 @@ export async function saveUserProfile(
     }
   }
 
-  // 2. Update Psychometric Ledger (pre-created by auth trigger)
-  const { error: ledgerUpdateError, count: ledgerCount } = await supabase
-    .from("psychometric_ledger")
-    .update({
-      primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
-      avg_decision_latency: profileData.avgResponseTime || 0,
-      ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
-    }, { count: "exact" })
-    .eq("user_id", userId);
+  // 2. Submit Psychometrics via secure JWT-authenticated function (locks psychometric_ledger)
+  try {
+    await submitPsychometricsToLedger(profileData);
+  } catch (ledgerErr) {
+    console.warn("[Supabase] Ledger update via Edge Function notice:", ledgerErr);
+  }
 
-  if (ledgerUpdateError || ledgerCount === 0) {
-    console.warn("[Supabase] Ledger update failed or row not found. Trying insert fallback...", ledgerUpdateError);
-    const { error: ledgerInsertError } = await supabase
-      .from("psychometric_ledger")
-      .insert({
-        user_id: userId,
-        primary_marker: (profileData.attachmentStyle || "UNTESTED").toUpperCase(),
-        avg_decision_latency: profileData.avgResponseTime || 0,
-        ev_score: profileData.extraversion ? profileData.extraversion * 100 : 50,
-      });
-
-    if (ledgerInsertError) {
-      console.error("[Supabase] Ledger insert fallback failed:", ledgerInsertError);
-      throw ledgerInsertError;
+  // 3. If verified during onboarding, record liveness via secure JWT function
+  if (profileData.livenessVerified || profileData.liveness_verified) {
+    try {
+      await recordLivenessVerified();
+    } catch (livenessErr) {
+      console.warn("[Supabase] Liveness recording notice:", livenessErr);
     }
   }
 

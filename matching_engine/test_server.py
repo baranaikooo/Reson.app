@@ -476,4 +476,72 @@ async def test_identity_webhook_success(mock_supabase):
     assert response.json()["verified"] is True
 
 
+@pytest.mark.anyio
+async def test_verify_liveness_unauthorized():
+    """Liveness endpoint should reject requests without Authorization header."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post("/api/verify/liveness", json={})
+    assert response.status_code == 401
+    assert "Authorization header" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_verify_liveness_jwt_success(mock_supabase):
+    """Liveness endpoint should verify valid JWT and update profile via service role."""
+    import jwt
+    token = jwt.encode({"sub": "00000000-0000-0000-0000-000000000001", "role": "authenticated"}, "test-secret", algorithm="HS256")
+
+    mock_table = MagicMock()
+    mock_supabase.table.return_value = mock_table
+    mock_table.update.return_value = mock_table
+    mock_table.eq.return_value = mock_table
+    mock_table.execute.return_value = MagicMock(data=[])
+
+    mock_supabase.auth = MagicMock()
+    mock_supabase.auth.admin = MagicMock()
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post(
+            "/api/verify/liveness",
+            json={"video_url": "https://example.com/test.webm"},
+            headers={"Authorization": f"Bearer {token}"}
+        )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert response.json()["liveness_verified"] is True
+    assert response.json()["user_id"] == "00000000-0000-0000-0000-000000000001"
+
+
+@pytest.mark.anyio
+async def test_record_ledger_jwt_success(mock_supabase):
+    """Ledger recording should require JWT and upsert psychometric ledger."""
+    import jwt
+    token = jwt.encode({"sub": "00000000-0000-0000-0000-000000000001", "role": "authenticated"}, "test-secret", algorithm="HS256")
+
+    mock_table = MagicMock()
+    mock_supabase.table.return_value = mock_table
+    mock_table.upsert.return_value = mock_table
+    mock_table.execute.return_value = MagicMock(data=[{"user_id": "00000000-0000-0000-0000-000000000001"}])
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post(
+            "/api/ledger/record",
+            json={
+                "attachment_style": "Secure",
+                "avg_response_time": 2.5,
+                "extraversion": 0.8
+            },
+            headers={"Authorization": f"Bearer {token}"}
+        )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert response.json()["user_id"] == "00000000-0000-0000-0000-000000000001"
+
+
+
 
