@@ -41,3 +41,9 @@ __pycache__/
 .pytest_cache/
 # Supabase temp
 supabase/.temp/
+
+# Android Build Artifacts & Signing Keys
+*.apk
+*.aab
+*.keystore
+*.jks
