@@ -184,17 +184,25 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       throw error;
     }
 
-    // Retrieve public URL
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("media-snippets").getPublicUrl(filename);
+    // Retrieve signed URL (bucket is private)
+    const { data: signedData, error: signError } = await supabase.storage
+      .from("media-snippets")
+      .createSignedUrl(filename, 60 * 60 * 24 * 7);
+
+    if (signError || !signedData?.signedUrl) {
+      console.error("[dossier] signed url error:", signError);
+      alert("Chyba: Nepodarilo sa vytvoriť autorizovaný odkaz pre video.");
+      throw signError || new Error("Signed URL failed");
+    }
+
+    const videoUrl = signedData.signedUrl;
 
     // Save to Database Table
     const { error: dbError } = await supabase.from("media_snippets").upsert(
       {
         user_id: userId,
         slot_index: index + 1,
-        video_url: publicUrl,
+        video_url: videoUrl,
       },
       { onConflict: "user_id, slot_index" }
     );
@@ -207,7 +215,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
     setSnippets((prev) => {
       const next = [...prev];
-      next[index] = publicUrl;
+      next[index] = videoUrl;
       syncVideoUrls(next);
       return next;
     });

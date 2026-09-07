@@ -17,7 +17,8 @@ import {
   supabase,
   getOrCreateMatch,
   saveChatMessage,
-  fetchChatMessages
+  fetchChatMessages,
+  getSignedMediaUrl
 } from "@/lib/supabase";
 import { VoiceBubble } from "./VoiceBubble";
 
@@ -87,9 +88,13 @@ export function MessageThread({
               table: "messages",
               filter: `match_id=eq.${result.id}`,
             },
-            (payload) => {
+            async (payload) => {
               const newMsg = payload.new;
               if (newMsg.sender_id !== user.id) {
+                let resolvedMediaUrl = newMsg.media_url;
+                if (resolvedMediaUrl && newMsg.duration) {
+                  resolvedMediaUrl = await getSignedMediaUrl("voice-messages", resolvedMediaUrl);
+                }
                 onUpdate((c) => {
                   if (c.messages.some((m) => m.id === newMsg.id)) return c;
                   return {
@@ -101,7 +106,9 @@ export function MessageThread({
                         from: "them",
                         text: newMsg.message_text || "",
                         ts: new Date(newMsg.created_at).getTime(),
-                        media: newMsg.media_url ? { kind: "gif", url: newMsg.media_url } : undefined,
+                        media: resolvedMediaUrl
+                          ? { kind: (newMsg.duration ? "audio" : "gif") as "audio" | "gif", url: resolvedMediaUrl, duration: newMsg.duration }
+                          : undefined,
                       },
                     ],
                     blurLevel: Math.max(0, c.blurLevel - THREAD_BLUR_STEP),
