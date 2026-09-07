@@ -11,7 +11,8 @@ import {
   supabase,
   getOrCreateMatch,
   submitBlindVote,
-  uploadVoiceMessageBlob
+  uploadVoiceMessageBlob,
+  getSignedMediaUrl
 } from "@/lib/supabase";
 
 // Since Wave is heavily used, let's just create a quick local copy of it for Chamber since we can't easily extract it without creating another file and updating all its usages.
@@ -109,14 +110,17 @@ export function Chamber({
         if (error) {
           console.error("[Chamber] Fetching messages error:", error);
         } else if (dbMessages && active) {
-          setMessages(
-            dbMessages.map((m: any) => ({
+          const resolved = await Promise.all(
+            dbMessages.map(async (m: any) => ({
               id: m.id,
               from: m.sender_id === user.id ? "me" : "them",
               duration: m.duration || 0,
-              audioUrl: m.media_url,
+              audioUrl: await getSignedMediaUrl("voice-messages", m.media_url),
             }))
           );
+          if (active) {
+            setMessages(resolved);
+          }
         }
 
         channel = supabase
@@ -129,9 +133,10 @@ export function Chamber({
               table: "messages",
               filter: `match_id=eq.${result.id}`,
             },
-            (payload) => {
+            async (payload) => {
               const newMsg = payload.new;
               if (newMsg.sender_id !== user.id) {
+                const signedAudioUrl = await getSignedMediaUrl("voice-messages", newMsg.media_url);
                 setMessages((prev) => {
                   if (prev.some((x) => x.id === newMsg.id)) return prev;
                   return [
@@ -140,7 +145,7 @@ export function Chamber({
                       id: newMsg.id,
                       from: "them",
                       duration: newMsg.duration || 0,
-                      audioUrl: newMsg.media_url,
+                      audioUrl: signedAudioUrl,
                     },
                   ];
                 });

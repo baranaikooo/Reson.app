@@ -175,7 +175,7 @@ export async function uploadSnippetVideo(
 
   // Self-healing: try to create the bucket in case it is missing (fails silently if no permission/exists)
   try {
-    await supabase.storage.createBucket("media-snippets", { public: true });
+    await supabase.storage.createBucket("media-snippets", { public: false });
   } catch (e) {
     // Ignore error
   }
@@ -190,9 +190,67 @@ export async function uploadSnippetVideo(
     return { url: null, error: error.message || JSON.stringify(error) };
   }
 
-  const { data: publicUrlData } = supabase.storage.from("media-snippets").getPublicUrl(data.path);
+  const { data: signedData, error: signError } = await supabase.storage
+    .from("media-snippets")
+    .createSignedUrl(data.path, 60 * 60 * 24 * 7);
 
-  return { url: publicUrlData.publicUrl, error: null };
+  if (signError || !signedData?.signedUrl) {
+    console.error(`[Supabase] Signed URL generation failed for slot ${slotIndex}:`, signError);
+    return { url: null, error: signError?.message || "Failed to generate signed URL" };
+  }
+
+  return { url: signedData.signedUrl, error: null };
+}
+
+/**
+ * Resolves a storage path or full Supabase URL into a fresh Signed URL.
+ * Supports private buckets: "media-snippets", "voice-messages".
+ * Default expiresIn is 7 days (604800 seconds).
+ */
+export async function getSignedMediaUrl(
+  bucket: string,
+  pathOrUrl?: string | null,
+  expiresInSeconds: number = 60 * 60 * 24 * 7
+): Promise<string> {
+  if (!pathOrUrl) return "";
+  if (pathOrUrl.startsWith("blob:") || pathOrUrl.startsWith("data:")) {
+    return pathOrUrl;
+  }
+
+  // Extract storage path if a full URL was provided
+  let path = pathOrUrl;
+  const publicPrefix = `/storage/v1/object/public/${bucket}/`;
+  const signPrefix = `/storage/v1/object/sign/${bucket}/`;
+
+  if (path.includes(publicPrefix)) {
+    path = path.substring(path.indexOf(publicPrefix) + publicPrefix.length);
+  } else if (path.includes(signPrefix)) {
+    path = path.substring(path.indexOf(signPrefix) + signPrefix.length);
+    if (path.includes("?")) {
+      path = path.split("?")[0];
+    }
+  }
+
+  // If path is still an external URL (not in this bucket), return as is
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(decodeURIComponent(path), expiresInSeconds);
+
+    if (error || !data?.signedUrl) {
+      console.warn(`[getSignedMediaUrl] Failed to sign URL for ${bucket}/${path}:`, error);
+      return pathOrUrl;
+    }
+
+    return data.signedUrl;
+  } catch (err) {
+    console.error(`[getSignedMediaUrl] Error creating signed URL:`, err);
+    return pathOrUrl;
+  }
 }
 
 export async function loadBanditState() {
@@ -414,12 +472,14 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
 
   const videoUrls = ["", "", "", ""];
   if (snippetsData) {
-    snippetsData.forEach((snippet) => {
-      const idx = snippet.slot_index - 1;
-      if (idx >= 0 && idx < 4) {
-        videoUrls[idx] = snippet.video_url;
-      }
-    });
+    await Promise.all(
+      snippetsData.map(async (snippet) => {
+        const idx = snippet.slot_index - 1;
+        if (idx >= 0 && idx < 4) {
+          videoUrls[idx] = await getSignedMediaUrl("media-snippets", snippet.video_url);
+        }
+      })
+    );
   }
 
   return {
@@ -494,13 +554,25 @@ export async function fetchChatMessages(
     return [];
   }
 
-  return data.map((m: any) => ({
-    id: m.id,
-    from: m.sender_id === myUserId ? "me" : "them",
-    text: m.message_text || "",
-    ts: new Date(m.created_at).getTime(),
-    media: m.media_url ? { kind: m.duration ? "audio" : "gif", url: m.media_url, duration: m.duration } : undefined,
-  }));
+  const messagesWithSignedUrls = await Promise.all(
+    (data || []).map(async (m: any) => {
+      let resolvedMediaUrl = m.media_url;
+      if (resolvedMediaUrl && m.duration) {
+        resolvedMediaUrl = await getSignedMediaUrl("voice-messages", resolvedMediaUrl);
+      }
+      return {
+        id: m.id,
+        from: m.sender_id === myUserId ? "me" : "them",
+        text: m.message_text || "",
+        ts: new Date(m.created_at).getTime(),
+        media: resolvedMediaUrl
+          ? { kind: (m.duration ? "audio" : "gif") as "audio" | "gif", url: resolvedMediaUrl, duration: m.duration }
+          : undefined,
+      };
+    })
+  );
+
+  return messagesWithSignedUrls;
 }
 
 export async function getOrCreateMatch(
@@ -535,7 +607,6 @@ export async function getOrCreateMatch(
       user_p,
       user_q,
       ev_score: evScore,
-      is_unlocked: false,
       status: "active",
     })
     .select("id, is_unlocked")
@@ -598,16 +669,18 @@ export async function uploadVoiceMessageBlob(
     throw uploadError;
   }
 
-  const { data: publicUrlData } = supabase.storage
+  const { data: signedData, error: signError } = await supabase.storage
     .from("voice-messages")
-    .getPublicUrl(data.path);
+    .createSignedUrl(data.path, 60 * 60 * 24 * 7);
+
+  const mediaUrl = signedData?.signedUrl || data.path;
 
   const { data: dbData, error: dbError } = await supabase
     .from("messages")
     .insert({
       match_id: matchId,
       sender_id: senderId,
-      media_url: publicUrlData.publicUrl,
+      media_url: mediaUrl,
       duration,
       message_text: null,
     })
@@ -621,5 +694,6 @@ export async function uploadVoiceMessageBlob(
 
   return dbData;
 }
+
 
 

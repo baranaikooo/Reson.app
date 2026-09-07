@@ -267,8 +267,15 @@ async def identity_webhook(
             detail="Missing userId in webhook payload."
         )
 
-    # Validate Webhook Signature
-    secret = os.getenv("IDENTITY_WEBHOOK_SECRET", "super-secret-webhook-key")
+    # Validate Webhook Signature (strictly requiring environment variable, no hardcoded fallback)
+    secret = os.getenv("IDENTITY_WEBHOOK_SECRET")
+    if not secret:
+        print("[webhook] Error: IDENTITY_WEBHOOK_SECRET is not configured on the server.")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Server misconfiguration: IDENTITY_WEBHOOK_SECRET is not configured."
+        )
+
     if not x_identity_signature:
         print("[webhook] Error: Missing X-Identity-Signature header.")
         raise HTTPException(
@@ -276,7 +283,7 @@ async def identity_webhook(
             detail="Missing webhook signature."
         )
 
-    # 1. Standard verification using exact raw body bytes
+    # Standard verification using exact raw body bytes (no alt_payload fallback)
     expected_sig = hmac.new(
         secret.encode(),
         body_bytes,
@@ -284,19 +291,10 @@ async def identity_webhook(
     ).hexdigest()
 
     if not hmac.compare_digest(expected_sig, x_identity_signature):
-        # 2. Fallback verification using concatenated string to keep existing tests/mocks compatible
-        alt_payload = f"{user_id}:{status_val}:{provider}"
-        alt_sig = hmac.new(
-            secret.encode(),
-            alt_payload.encode(),
-            hashlib.sha256
-        ).hexdigest()
-        
-        if not hmac.compare_digest(alt_sig, x_identity_signature):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid webhook signature."
-            )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid webhook signature."
+        )
 
     is_verified = (status_val == "success")
     verified_time = verified_at or "now()" if is_verified else None
