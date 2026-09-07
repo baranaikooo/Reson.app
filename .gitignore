@@ -39,4 +39,5 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
-
+# Supabase temp
+supabase/.temp/
