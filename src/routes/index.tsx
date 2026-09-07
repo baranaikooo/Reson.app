@@ -768,7 +768,12 @@ function ResonApp() {
         let resolvedCity = "Bratislava";
         try {
           const r = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=sk`
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=sk`,
+            {
+              headers: {
+                "User-Agent": "ResonApp/1.0",
+              },
+            }
           );
           if (r.ok) {
             const data = await r.json();
@@ -822,12 +827,6 @@ function ResonApp() {
 
   useEffect(() => {
     if (!profile) return;
-
-    // CACHE FLUSH FOR THIS DEPLOYMENT
-    if (!localStorage.getItem("reson_cache_flushed_v3")) {
-      localStorage.clear();
-      localStorage.setItem("reson_cache_flushed_v3", "true");
-    }
 
     async function fetchLiveMarket() {
       const p = profile;

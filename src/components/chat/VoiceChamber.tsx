@@ -204,7 +204,9 @@ export function Chamber({
       if (micStreamRef.current) stopStream(micStreamRef.current);
       setMessages((m) => {
         m.forEach((x) => {
-          if (x.audioUrl) URL.revokeObjectURL(x.audioUrl);
+          if (x.audioUrl && x.audioUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(x.audioUrl);
+          }
         });
         return m;
       });
