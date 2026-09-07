@@ -51,7 +51,7 @@ export const SCENARIOS = [
     options: [
       { text: "Môj telefón je moje súkromie. Nemám tajnosti.", style: "Avoidant" },
       { text: "Kľudne ti to ukážem, nechcem aby si pochyboval.", style: "Anxious" },
-      { text: "Sú to len veci z práce. Nemusíš to vôbel riešiť.", style: "Secure" },
+      { text: "Sú to len veci z práce. Nemusíš to vôbec riešiť.", style: "Secure" },
     ],
   },
   {
