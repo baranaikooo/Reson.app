@@ -29,8 +29,43 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    const currentStream = cameraStream;
+    return () => {
+      if (currentStream) stopStream(currentStream);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [cameraStream]);
+
+  // Handle app going to background / tab switch
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        if (cameraStream) {
+          stopStream(cameraStream);
+          setCameraStream(null);
+        }
+        setRecordingIndex(null);
+        setRecordingState("idle");
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [cameraStream]);
 
   // Directives local editing states (mapped to onboarding questions)
   const [directiveGoal, setDirectiveGoal] = useState(user.directive_goal || "");
@@ -144,16 +179,23 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       }
     }, 100);
 
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          intervalRef.current = null;
           triggerRecord(stream, index);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+    intervalRef.current = interval;
   }
 
   async function uploadFileAndSave(index: number, blob: Blob | File) {
@@ -242,6 +284,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       console.error("[dossier] recordStreamForMs failed:", err);
       alert("Nahrávanie alebo nahratie na úložisko zlyhalo.");
     } finally {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       stopStream(stream);
       setCameraStream(null);
       setRecordingIndex(null);
@@ -250,6 +296,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
   }
 
   function cancelRecording() {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     if (cameraStream) {
       stopStream(cameraStream);
       setCameraStream(null);
@@ -270,8 +320,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
   async function compressVideo(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
       const video = document.createElement("video");
-      video.src = URL.createObjectURL(file);
+      video.src = objectUrl;
       video.muted = true;
       video.playsInline = true;
       video.style.position = "absolute";
@@ -279,12 +330,19 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       video.style.top = "-9999px";
       document.body.appendChild(video);
 
+      const cleanup = () => {
+        if (video.parentNode) {
+          document.body.removeChild(video);
+        }
+        URL.revokeObjectURL(objectUrl);
+      };
+
       const canvas = document.createElement("canvas");
       canvas.width = 480;
       canvas.height = 640; // 3:4 portrait aspect ratio
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        document.body.removeChild(video);
+        cleanup();
         reject(new Error("Could not get canvas context"));
         return;
       }
@@ -317,7 +375,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
           mediaRecorder.onstop = () => {
             const finalBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "video/mp4" });
-            document.body.removeChild(video);
+            cleanup();
             resolve(finalBlob);
           };
 
@@ -363,13 +421,13 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
             }
           }, maxDuration);
         }).catch(err => {
-          document.body.removeChild(video);
+          cleanup();
           reject(err);
         });
       };
 
       video.onerror = (err) => {
-        document.body.removeChild(video);
+        cleanup();
         reject(err);
       };
     });

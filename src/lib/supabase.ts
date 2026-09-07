@@ -151,7 +151,7 @@ export async function getCurrentUser() {
     error,
   } = await supabase.auth.getUser();
   if (error) {
-    console.error("Get用户 error:", error);
+    console.error("Get user error:", error);
     return null;
   }
   return user;
