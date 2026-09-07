@@ -443,8 +443,26 @@ async def test_submit_pressure_test_success(mock_supabase):
 
 
 @pytest.mark.anyio
-async def test_identity_webhook_success(mock_supabase):
-    """Identity webhook should verify the user and return 200."""
+async def test_identity_webhook_missing_secret(monkeypatch):
+    """Identity webhook should return 500 when IDENTITY_WEBHOOK_SECRET is not configured."""
+    monkeypatch.delenv("IDENTITY_WEBHOOK_SECRET", raising=False)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post("/api/webhooks/identity", json={
+            "userId": "00000000-0000-0000-0000-000000000001",
+            "status": "success",
+            "provider": "FaceTec"
+        }, headers={"x-identity-signature": "some-signature"})
+    assert response.status_code == 500
+    assert "IDENTITY_WEBHOOK_SECRET" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_identity_webhook_success(mock_supabase, monkeypatch):
+    """Identity webhook should verify the user and return 200 using raw body HMAC signature."""
+    secret = "production-test-secret"
+    monkeypatch.setenv("IDENTITY_WEBHOOK_SECRET", secret)
+
     mock_table = MagicMock()
     mock_supabase.table.return_value = mock_table
     mock_table.update.return_value = mock_table
@@ -457,23 +475,31 @@ async def test_identity_webhook_success(mock_supabase):
     mock_auth.admin = MagicMock()
 
     transport = ASGITransport(app=app)
-    
-    # Generate mock signature
-    secret = "super-secret-webhook-key"
-    alt_payload = "00000000-0000-0000-0000-000000000001:success:FaceTec"
-    alt_sig = hmac.new(secret.encode(), alt_payload.encode(), hashlib.sha256).hexdigest()
+
+    import json
+    payload = {
+        "userId": "00000000-0000-0000-0000-000000000001",
+        "status": "success",
+        "provider": "FaceTec",
+        "verifiedAt": "2026-07-01T12:00:00Z"
+    }
+    raw_payload = json.dumps(payload).encode("utf-8")
+    expected_sig = hmac.new(secret.encode(), raw_payload, hashlib.sha256).hexdigest()
 
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        response = await ac.post("/api/webhooks/identity", json={
-            "userId": "00000000-0000-0000-0000-000000000001",
-            "status": "success",
-            "provider": "FaceTec",
-            "verifiedAt": "2026-07-01T12:00:00Z"
-        }, headers={"x-identity-signature": alt_sig})
+        response = await ac.post(
+            "/api/webhooks/identity",
+            content=raw_payload,
+            headers={
+                "Content-Type": "application/json",
+                "x-identity-signature": expected_sig
+            }
+        )
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["verified"] is True
+
 
 
 @pytest.mark.anyio
