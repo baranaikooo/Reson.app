@@ -1522,7 +1522,7 @@ function BottomNav({
       >
         {is && (
           <span
-            className="absolute inset-0 bg-white/90 dark:bg-white/[0.12] shadow-[0_2px_6px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.4)] -z-10 transition-all duration-300"
+            className="absolute inset-0 ios-glass-item-active -z-10 transition-all duration-300"
             style={{ borderRadius: "9999px" }}
           />
         )}
@@ -1557,7 +1557,7 @@ function BottomNav({
     <nav className="fixed inset-x-0 bottom-5 z-40 px-4 flex justify-center pointer-events-none select-none">
       <div
         style={{ borderRadius: "9999px" }}
-        className="pointer-events-auto flex items-center justify-around w-full max-w-[360px] px-2.5 py-1.5 bg-white/85 dark:bg-[#1f1f26]/85 backdrop-blur-2xl backdrop-saturate-180 shadow-[0_12px_36px_rgba(0,0,0,0.07),0_2px_8px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95),inset_0_-1px_1px_rgba(0,0,0,0.03)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_24px_rgba(255,255,255,0.06),0_0_16px_var(--cerebral-glow),inset_0_1px_1.5px_rgba(255,255,255,0.25),inset_0_-1px_1px_rgba(255,255,255,0.06)] transition-all"
+        className="pointer-events-auto ios-liquid-glass flex items-center justify-around w-full max-w-[360px] px-2.5 py-1.5 transition-all"
       >
         <Item
           id="home"
