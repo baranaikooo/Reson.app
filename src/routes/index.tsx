@@ -1518,12 +1518,18 @@ function BottomNav({
     return (
       <button
         onClick={onClick}
-        className="relative flex flex-1 flex-col items-center gap-1 py-1 transition-all active:scale-95 cursor-pointer"
+        className="relative flex flex-1 flex-col items-center justify-center py-1.5 px-1 transition-all active:scale-90 cursor-pointer group"
       >
-        <span className="relative flex items-center justify-center size-8">
+        {is && (
+          <span
+            className="absolute inset-0 bg-foreground/[0.04] dark:bg-white/[0.06] -z-10 transition-all duration-300"
+            style={{ borderRadius: "9999px" }}
+          />
+        )}
+        <span className="relative flex items-center justify-center size-7">
           <span
             className={`transition-colors duration-200 ${
-              is ? "text-cerebral" : "text-foreground/40 hover:text-foreground/70"
+              is ? "text-cerebral" : "text-foreground/45 group-hover:text-foreground/75"
             }`}
           >
             {icon}
@@ -1548,8 +1554,11 @@ function BottomNav({
     );
   };
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/[0.08] bg-background/80 backdrop-blur-xl pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 transition-all">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2">
+    <nav className="fixed inset-x-0 bottom-5 z-40 px-4 flex justify-center pointer-events-none select-none">
+      <div
+        style={{ borderRadius: "9999px" }}
+        className="pointer-events-auto flex items-center justify-around w-full max-w-[360px] px-2 py-1.5 bg-background/60 dark:bg-[#121214]/65 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_20px_50px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.65)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all"
+      >
         <Item
           id="home"
           icon={<Home className="size-5" />}
@@ -1566,7 +1575,6 @@ function BottomNav({
 
         {testDone && (
           <>
-            <div className="w-[1px] h-6 bg-foreground/10 self-center mx-1" />
             <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
             <Item
               id="settings"
@@ -1578,7 +1586,6 @@ function BottomNav({
         )}
         {!testDone && (
           <>
-            <div className="w-[1px] h-6 bg-foreground/10 self-center mx-1" />
             <Item
               id="settings"
               icon={<SettingsIcon className="size-5" />}
