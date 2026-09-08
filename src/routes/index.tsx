@@ -1518,18 +1518,18 @@ function BottomNav({
     return (
       <button
         onClick={onClick}
-        className="relative flex flex-1 flex-col items-center justify-center py-1.5 px-1 transition-all active:scale-90 cursor-pointer group"
+        className="relative flex flex-1 flex-col items-center justify-center py-1.5 px-1.5 transition-all active:scale-90 cursor-pointer group"
       >
         {is && (
           <span
-            className="absolute inset-0 bg-foreground/[0.04] dark:bg-white/[0.06] -z-10 transition-all duration-300"
+            className="absolute inset-0 bg-white/90 dark:bg-white/[0.12] shadow-[0_2px_6px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.4)] -z-10 transition-all duration-300"
             style={{ borderRadius: "9999px" }}
           />
         )}
         <span className="relative flex items-center justify-center size-7">
           <span
             className={`transition-colors duration-200 ${
-              is ? "text-cerebral" : "text-foreground/45 group-hover:text-foreground/75"
+              is ? "text-cerebral drop-shadow-[0_0_6px_var(--cerebral-glow)]" : "text-foreground/45 group-hover:text-foreground/75"
             }`}
           >
             {icon}
@@ -1557,7 +1557,7 @@ function BottomNav({
     <nav className="fixed inset-x-0 bottom-5 z-40 px-4 flex justify-center pointer-events-none select-none">
       <div
         style={{ borderRadius: "9999px" }}
-        className="pointer-events-auto flex items-center justify-around w-full max-w-[360px] px-2 py-1.5 bg-background/60 dark:bg-[#121214]/65 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_20px_50px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.65)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all"
+        className="pointer-events-auto flex items-center justify-around w-full max-w-[360px] px-2.5 py-1.5 bg-white/85 dark:bg-[#1f1f26]/85 backdrop-blur-2xl backdrop-saturate-180 shadow-[0_12px_36px_rgba(0,0,0,0.07),0_2px_8px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95),inset_0_-1px_1px_rgba(0,0,0,0.03)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_24px_rgba(255,255,255,0.06),0_0_16px_var(--cerebral-glow),inset_0_1px_1.5px_rgba(255,255,255,0.25),inset_0_-1px_1px_rgba(255,255,255,0.06)] transition-all"
       >
         <Item
           id="home"
