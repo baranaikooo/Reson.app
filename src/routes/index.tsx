@@ -1482,6 +1482,73 @@ function ResonApp() {
   );
 }
 
+function useIsKeyboardOrInputActive() {
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    function handleFocusIn(e: FocusEvent) {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        setIsActive(true);
+      }
+    }
+
+    function handleFocusOut() {
+      setTimeout(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (
+          !active ||
+          (active.tagName !== "INPUT" &&
+            active.tagName !== "TEXTAREA" &&
+            !active.isContentEditable)
+        ) {
+          setIsActive(false);
+        }
+      }, 100);
+    }
+
+    function handleViewportResize() {
+      if (window.visualViewport) {
+        const isShrunk = window.visualViewport.height < window.innerHeight * 0.75;
+        if (isShrunk) {
+          setIsActive(true);
+        } else {
+          const active = document.activeElement as HTMLElement | null;
+          if (
+            !active ||
+            (active.tagName !== "INPUT" &&
+              active.tagName !== "TEXTAREA" &&
+              !active.isContentEditable)
+          ) {
+            setIsActive(false);
+          }
+        }
+      }
+    }
+
+    window.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("focusout", handleFocusOut);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleViewportResize);
+    }
+
+    return () => {
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("focusout", handleFocusOut);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleViewportResize);
+      }
+    };
+  }, []);
+
+  return isActive;
+}
+
 function BottomNav({
   active,
   unread,
@@ -1501,6 +1568,8 @@ function BottomNav({
   onSettings: () => void;
   onProfile: () => void;
 }) {
+  const isInputActive = useIsKeyboardOrInputActive();
+
   const Item = ({
     id,
     icon,
@@ -1554,7 +1623,13 @@ function BottomNav({
     );
   };
   return (
-    <nav className="fixed inset-x-0 bottom-5 z-40 px-4 flex justify-center pointer-events-none select-none">
+    <nav
+      className={`fixed inset-x-0 bottom-5 z-40 px-4 flex justify-center pointer-events-none select-none transition-all duration-300 ${
+        isInputActive
+          ? "opacity-0 translate-y-16 pointer-events-none"
+          : "opacity-100 translate-y-0"
+      }`}
+    >
       <div
         style={{ borderRadius: "9999px" }}
         className="pointer-events-auto ios-liquid-glass flex items-center justify-around w-full max-w-[360px] px-2.5 py-1.5 transition-all"
