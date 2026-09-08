@@ -1122,11 +1122,51 @@ function ResonApp() {
       )}
       {screen === "snippets-onboarding" && (
         <SnippetsOnboarding
-          onDone={(urls) => {
+          initialSnippets={profile?.videoUrls}
+          onDone={async (urls) => {
             setProfile((prev) => {
               if (!prev) return null;
               return { ...prev, videoUrls: urls };
             });
+
+            // Immediately upload snippets to Supabase Storage and database
+            const targetUserId = authUserId || (await supabase.auth.getUser()).data.user?.id;
+            if (targetUserId && targetUserId !== "00000000-0000-0000-0000-000000000001") {
+              try {
+                const uploadPromises = urls.map(async (url, idx) => {
+                  if (!url || !url.startsWith("blob:")) return { slot: idx + 1, url };
+                  try {
+                    let blob = await getVideoBlob(`snippet_${idx + 1}`);
+                    if (!blob) {
+                      const res = await fetch(url);
+                      blob = await res.blob();
+                    }
+                    const uploadRes = await uploadSnippetVideo(targetUserId, idx + 1, blob);
+                    return { slot: idx + 1, url: uploadRes.url };
+                  } catch (err) {
+                    console.error(`[Onboarding] Snippet ${idx + 1} upload failed:`, err);
+                    return { slot: idx + 1, url: null };
+                  }
+                });
+
+                const results = await Promise.all(uploadPromises);
+                const publicUrls = results
+                  .filter((r) => r.url !== null)
+                  .map((r) => r.url as string);
+
+                if (publicUrls.length > 0) {
+                  setProfile((prev) => (prev ? { ...prev, videoUrls: publicUrls } : null));
+                  const currentProfile = profile || (await fetchUserProfile(targetUserId));
+                  if (currentProfile) {
+                    await saveUserProfile(targetUserId, { ...currentProfile, videoUrls: publicUrls }, publicUrls);
+                  }
+                  console.info("[Onboarding] Snippets successfully persisted to Supabase.");
+                }
+              } catch (err) {
+                console.warn("[Onboarding] Immediate snippet upload failed, will sync later:", err);
+              }
+            }
+
             setScreen("briefing");
           }}
         />

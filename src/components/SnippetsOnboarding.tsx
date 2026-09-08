@@ -20,22 +20,26 @@ async function syncSnippetsToDB(urls: string[]) {
 }
 
 interface SnippetsOnboardingProps {
-  onDone: (urls: string[]) => void;
+  initialSnippets?: string[];
+  onDone: (urls: string[]) => void | Promise<void>;
 }
 
-export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
+export function SnippetsOnboarding({ initialSnippets = [], onDone }: SnippetsOnboardingProps) {
   const haptic = useHaptic();
 
   // Initialize snippets list as empty slots
-  const [snippets, setSnippets] = useState<string[]>([]);
+  const [snippets, setSnippets] = useState<string[]>(initialSnippets || []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    async function loadFromDB() {
-      const loaded: string[] = [];
+    async function loadSnippets() {
+      const loaded: string[] = initialSnippets && initialSnippets.length > 0 ? [...initialSnippets] : [];
       for (let idx = 0; idx < 4; idx++) {
-        const blob = await getVideoBlob(`snippet_${idx + 1}`);
-        if (blob) {
-          loaded[idx] = URL.createObjectURL(blob);
+        if (!loaded[idx]) {
+          const blob = await getVideoBlob(`snippet_${idx + 1}`);
+          if (blob) {
+            loaded[idx] = URL.createObjectURL(blob);
+          }
         }
       }
       const filtered = loaded.filter(Boolean);
@@ -43,8 +47,8 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         setSnippets(filtered);
       }
     }
-    loadFromDB().catch((err) => console.error("Failed to load from IDB on mount:", err));
-  }, []);
+    loadSnippets().catch((err) => console.error("Failed to load snippets on mount:", err));
+  }, [initialSnippets]);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [recordingState, setRecordingState] = useState<
@@ -185,23 +189,24 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
     if (index === null) return;
 
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setActiveUploadIndex(null);
+      return;
+    }
 
-    if (!file.type.startsWith("video/")) {
-      alert("Vyberte validný video súbor.");
+    const isVideo =
+      file.type.startsWith("video/") ||
+      /\.(mp4|mov|webm|mkv|3gp|m4v|avi)$/i.test(file.name);
+
+    if (!isVideo) {
+      alert("Vyberte platný video súbor (napr. MP4, MOV, WEBM).");
+      setActiveUploadIndex(null);
       return;
     }
 
     const videoUrl = URL.createObjectURL(file);
 
-    const tempVideo = document.createElement("video");
-    tempVideo.src = videoUrl;
-    tempVideo.onloadedmetadata = () => {
-      if (tempVideo.duration > 3.2) {
-        alert(
-          "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
-        );
-      }
+    const applyVideo = () => {
       setSnippets((prev) => {
         const next = [...prev];
         next[index] = videoUrl;
@@ -211,6 +216,35 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       });
       haptic("success");
       setActiveUploadIndex(null);
+    };
+
+    let resolved = false;
+    const fallbackTimer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        applyVideo();
+      }
+    }, 1200);
+
+    const tempVideo = document.createElement("video");
+    tempVideo.preload = "metadata";
+    tempVideo.src = videoUrl;
+    tempVideo.onloadedmetadata = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(fallbackTimer);
+      if (tempVideo.duration > 3.5) {
+        alert(
+          "Video je dlhšie ako 3 sekundy. Bude automaticky orezané a zacyklené na prvých 3 sekundách.",
+        );
+      }
+      applyVideo();
+    };
+    tempVideo.onerror = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(fallbackTimer);
+      applyVideo();
     };
   }
 
@@ -241,7 +275,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
           Pridajte video slučku
         </h2>
         <p className="text-xs text-foreground/75 leading-relaxed font-sans font-medium">
-          Základné informácie boli kalibrované. Pre overenie identity a algoritmický náhľad na trh vyžadujeme nahrať aspoň 1 krátke 3-sekundové video. Ak chcete, môžete pridať celkovo až 4 video slučky.
+          Pre overenie identity a algoritmický náhľad na trh je vyžadované nahrať aspoň 1 krátke 3-sekundové video (priamo cez kameru v aplikácii alebo výberom z galérie zariadenia). Môžete pridať celkovo až 4 video slučky.
         </p>
       </div>
 
@@ -290,25 +324,32 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
                   </button>
                 </>
               ) : (
-                <div className="size-full flex flex-col justify-center items-center p-2 bg-foreground/[0.01]">
-                  <div className="flex gap-2">
+                <div className="size-full flex flex-col justify-center items-center p-3 bg-foreground/[0.02] text-center">
+                  <span className="font-mono text-[8px] font-bold text-foreground/60 tracking-wider uppercase mb-2">
+                    {idx === 0 ? "SLOT 1 [POVINNÝ]" : `SLOT ${idx + 1} [VOLITEĽNÝ]`}
+                  </span>
+                  <div className="flex flex-col gap-1.5 w-full max-w-[130px]">
                     <button
+                      type="button"
                       onClick={() => startRecording(idx)}
-                      className="p-2 border border-foreground/10 hover:border-foreground/30 hover:bg-foreground/5 transition-all text-foreground rounded-none bg-card"
+                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 border border-foreground/25 hover:border-foreground hover:bg-foreground/10 transition-all text-foreground rounded-none bg-card text-[10px] font-mono font-medium uppercase shadow-none active:scale-[0.98]"
                       title="Nahrať kamerou"
                     >
-                      <Camera className="size-4" />
+                      <Camera className="size-3.5" />
+                      <span>KAMERA</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => triggerFileUpload(idx)}
-                      className="p-2 border border-foreground/10 hover:border-foreground/30 hover:bg-foreground/5 transition-all text-foreground rounded-none bg-card"
-                      title="Nahrať z galérie"
+                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 border border-foreground/25 hover:border-foreground hover:bg-foreground/10 transition-all text-foreground rounded-none bg-card text-[10px] font-mono font-medium uppercase shadow-none active:scale-[0.98]"
+                      title="Vybrať z galérie"
                     >
-                      <Upload className="size-4" />
+                      <Upload className="size-3.5" />
+                      <span>GALÉRIA</span>
                     </button>
                   </div>
-                  <span className="mt-1.5 font-mono text-[7px] text-foreground/35 uppercase">
-                    SLOT {idx + 1} (MAX 3s)
+                  <span className="mt-2 font-mono text-[7px] text-foreground/40 uppercase">
+                    MAX 3 SEKUNDY
                   </span>
                 </div>
               )}
@@ -320,7 +361,7 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       <input
         type="file"
         ref={fileInputRef}
-        accept="video/*"
+        accept="video/*,video/mp4,video/quicktime,video/webm,video/3gpp,video/x-matroska"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -328,29 +369,36 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
       {/* Action Footer */}
       <div className="space-y-3">
         <button
-          onClick={() => {
+          type="button"
+          disabled={snippets.filter(Boolean).length === 0 || isSubmitting}
+          onClick={async () => {
             const activeSnippets = snippets.filter(Boolean);
             if (activeSnippets.length === 0) {
               haptic("error");
-              alert("Chyba: Musíte nahrať aspoň 1 nový live snippet na overenie a pokračovanie.");
+              alert("Chyba: Musíte nahrať aspoň 1 video snippet (cez kameru alebo galériu) na vytvorenie účtu.");
               return;
             }
+            setIsSubmitting(true);
             haptic("success");
-            onDone(activeSnippets);
+            try {
+              await onDone(activeSnippets);
+            } catch (err) {
+              console.error("[SnippetsOnboarding] onDone error:", err);
+            } finally {
+              setIsSubmitting(false);
+            }
           }}
-          className="w-full border-2 border-foreground py-3.5 text-xs font-bold tracking-widest text-background bg-foreground hover:bg-foreground/90 transition-all rounded-none uppercase"
+          className={`w-full border-2 border-foreground py-3.5 text-xs font-bold tracking-widest uppercase transition-all rounded-none ${
+            snippets.filter(Boolean).length === 0 || isSubmitting
+              ? "opacity-40 cursor-not-allowed bg-foreground/20 text-muted-foreground border-foreground/20"
+              : "text-background bg-foreground hover:bg-foreground/90 cursor-pointer"
+          }`}
         >
-          [ POKRAČOVAŤ K SEMANTICKÉMU ZRKADLU ]
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            haptic("tap");
-            onDone(snippets.filter(Boolean));
-          }}
-          className="w-full border border-foreground/30 py-2.5 text-[11px] font-mono tracking-widest text-foreground/70 hover:bg-foreground/5 transition-all rounded-none uppercase"
-        >
-          [ PRESKOČIŤ A DOPLNIŤ NESKÔR V PROFILE ]
+          {isSubmitting
+            ? "[ UKLADÁM SNIPPET DO DATABÁZY... ]"
+            : snippets.filter(Boolean).length === 0
+            ? "[ NAHRAJTE ASPOŇ 1 SNIPPET PRE POKRAČOVANIE ]"
+            : `[ POKRAČOVAŤ K SEMANTICKÉMU ZRKADLU (${snippets.filter(Boolean).length}/4) ]`}
         </button>
         <p className="text-[9px] text-muted-foreground text-center uppercase">
           Všetky nahraté videá sa predvádzajú bez zvuku (muted).
