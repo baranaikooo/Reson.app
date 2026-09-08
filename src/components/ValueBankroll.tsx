@@ -91,7 +91,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
       {/* Utilitarian Chips Box Indicator */}
       <div className="border border-foreground/20 bg-card p-4 mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-foreground/10 p-2 text-foreground">
+          <div className="bg-cerebral/15 p-2 text-cerebral">
             <Coins className="size-5" />
           </div>
           <div>
@@ -118,7 +118,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
                   </h5>
                   <p className="text-xs text-foreground/55 leading-relaxed font-mono">{cat.desc}</p>
                 </div>
-                <div className="bg-foreground/10 px-2 py-1 font-mono text-xs font-bold text-foreground">
+                <div className={`px-2 py-1 font-mono text-xs font-bold ${val > 0 ? "bg-cerebral/20 text-cerebral" : "bg-foreground/10 text-foreground"}`}>
                   {val}
                 </div>
               </div>
@@ -131,7 +131,7 @@ export function ValueBankroll({ onDone, onSliderChange }: ValueBankrollProps) {
                   step="5"
                   value={val}
                   onChange={(e) => handleSliderChange(cat.id, parseInt(e.target.value))}
-                  className="h-1.5 w-full cursor-pointer appearance-none bg-foreground/10 accent-foreground"
+                  className="h-1.5 w-full cursor-pointer appearance-none bg-foreground/10 accent-cerebral"
                 />
               </div>
             </div>
