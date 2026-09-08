@@ -82,6 +82,7 @@ import {
   uploadSnippetVideo,
   saveUserProfile,
   fetchUserProfile,
+  recordLivenessVerified,
 } from "@/lib/supabase";
 import { initializeBanditState } from "@/lib/resonance";
 import { SemanticMirror } from "@/components/SemanticMirror";
@@ -265,9 +266,11 @@ function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
   return [mode, setMode];
 }
 
-function clearOnboardingStorage() {
+function clearOnboardingStorage(preserveActiveScreen = false) {
   if (typeof window === "undefined") return;
-  localStorage.removeItem("reson:active_screen");
+  if (!preserveActiveScreen) {
+    localStorage.removeItem("reson:active_screen");
+  }
   localStorage.removeItem("reson:profile_step");
   localStorage.removeItem("reson:profile_name");
   localStorage.removeItem("reson:profile_birthDate");
@@ -533,13 +536,13 @@ function ResonApp() {
         if (existingProfile) {
           setProfile(existingProfile);
           const savedScreen = localStorage.getItem("reson:active_screen") as Screen;
-          const validMainScreens: Screen[] = ["chamber", "noOne", "messages", "settings", "profile-dossier", "thread"];
+          const validMainScreens: Screen[] = ["chamber", "noOne", "messages", "settings", "profile-dossier", "thread", "autoMatch"];
           if (savedScreen && validMainScreens.includes(savedScreen)) {
             setScreen(savedScreen);
           } else {
             setScreen("autoMatch");
           }
-          clearOnboardingStorage();
+          clearOnboardingStorage(true);
         } else {
           const savedScreen = localStorage.getItem("reson:active_screen") as Screen;
           const validOnboardingScreens: Screen[] = [
@@ -1079,9 +1082,18 @@ function ResonApp() {
       )}
       {screen === "liveness" && (
         <Liveness
-          onDone={(url) => {
+          onDone={async (url) => {
             haptic("success");
             setLivenessVideoUrl(url);
+            const targetId = authUserId || (await supabase.auth.getUser()).data.user?.id;
+            if (targetId && targetId !== "00000000-0000-0000-0000-000000000001") {
+              try {
+                await recordLivenessVerified(url || undefined);
+                console.info("[Onboarding] Liveness verified recorded in Supabase.");
+              } catch (err) {
+                console.warn("[Onboarding] recordLivenessVerified failed:", err);
+              }
+            }
             setScreen("profile");
           }}
         />
@@ -1089,9 +1101,21 @@ function ResonApp() {
       {screen === "profile" && (
         <ProfileForm
           initialName={googleProfile?.name.split(/\s+/)[0] ?? ""}
-          onSubmit={(p) => {
+          onSubmit={async (p) => {
             haptic("success");
-            setProfile({ ...p, id: authUserId || "00000000-0000-0000-0000-000000000001" });
+            const targetId = authUserId || (await supabase.auth.getUser()).data.user?.id || "00000000-0000-0000-0000-000000000001";
+            const newProfile: UserProfile = { ...p, id: targetId, livenessVerified: true };
+            setProfile(newProfile);
+            
+            // Persist profile to Supabase immediately so account is never lost on refresh
+            if (targetId !== "00000000-0000-0000-0000-000000000001") {
+              try {
+                await saveUserProfile(targetId, newProfile, []);
+                console.info("[Onboarding] Profile successfully persisted to Supabase.");
+              } catch (err) {
+                console.error("[Onboarding] Failed to save profile to Supabase:", err);
+              }
+            }
             setScreen("snippets-onboarding");
           }}
         />

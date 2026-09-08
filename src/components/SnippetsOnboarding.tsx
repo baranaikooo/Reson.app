@@ -342,6 +342,16 @@ export function SnippetsOnboarding({ onDone }: SnippetsOnboardingProps) {
         >
           [ POKRAČOVAŤ K SEMANTICKÉMU ZRKADLU ]
         </button>
+        <button
+          type="button"
+          onClick={() => {
+            haptic("tap");
+            onDone(snippets.filter(Boolean));
+          }}
+          className="w-full border border-foreground/30 py-2.5 text-[11px] font-mono tracking-widest text-foreground/70 hover:bg-foreground/5 transition-all rounded-none uppercase"
+        >
+          [ PRESKOČIŤ A DOPLNIŤ NESKÔR V PROFILE ]
+        </button>
         <p className="text-[9px] text-muted-foreground text-center uppercase">
           Všetky nahraté videá sa predvádzajú bez zvuku (muted).
         </p>
