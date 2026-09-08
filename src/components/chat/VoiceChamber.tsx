@@ -28,14 +28,15 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
           width: size,
           height: size,
           background:
-            "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)",
+            "radial-gradient(circle, var(--cerebral-glow, rgba(212,131,123,0.25)), rgba(212,131,123,0.03) 60%, transparent 70%)",
         }}
       />
       {Array.from({ length: intense ? 4 : 2 }).map((_, i) => (
         <div
           key={i}
-          className="absolute rounded-full border border-foreground/30 mix-blend-screen"
+          className="absolute rounded-full border mix-blend-screen"
           style={{
+            borderColor: "var(--cerebral-border, currentColor)",
             width: size * (0.4 + i * 0.15),
             height: size * (0.4 + i * 0.15),
             animation: `spin ${8 + i * 2}s linear infinite${i % 2 === 0 ? " reverse" : ""}`,
@@ -47,12 +48,12 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
         />
       ))}
       <div
-        className="absolute rounded-full bg-foreground"
+        className="absolute rounded-full bg-foreground shadow-[0_0_6px_var(--cerebral)]"
         style={{
           width: size * 0.32,
           height: size * 0.32,
           background:
-            "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)",
+            "radial-gradient(circle, var(--cerebral-glow, rgba(212,131,123,0.25)), rgba(212,131,123,0.03) 60%, transparent 70%)",
         }}
       />
     </div>
@@ -414,9 +415,9 @@ export function Chamber({
                 style={{ filter: `blur(${blurPx}px)` }}
               />
             )}
-            <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
-              <span className="size-1 animate-pulse rounded-full bg-red-500" />
-              <span className="font-mono text-[5px] tracking-tighter text-white">LIVE</span>
+            <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/75 px-1 py-0.5 border border-white/5">
+              <span className="size-1 animate-pulse rounded-full bg-cerebral" />
+              <span className="font-mono text-[5px] tracking-tighter text-cerebral">LIVE</span>
             </div>
           </div>
           {myVideoUrl && (
@@ -433,15 +434,15 @@ export function Chamber({
               <span className="absolute bottom-0.5 right-0.5 bg-background/60 px-1 font-mono text-[6px] tracking-widest text-foreground/70 uppercase">
                 TY
               </span>
-              <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
-                <span className="size-1 animate-pulse rounded-full bg-red-500" />
-                <span className="font-mono text-[5px] tracking-tighter text-white">LIVE</span>
+              <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/75 px-1 py-0.5 border border-white/5">
+                <span className="size-1 animate-pulse rounded-full bg-cerebral" />
+                <span className="font-mono text-[5px] tracking-tighter text-cerebral">LIVE</span>
               </div>
             </div>
           )}
           <div className="ml-auto h-[4px] flex-1 overflow-hidden bg-foreground/5">
             <div
-              className="h-full transition-all duration-500 bg-foreground"
+              className="h-full transition-all duration-500 bg-cerebral"
               style={{ width: `${progressPct}%` }}
             />
           </div>

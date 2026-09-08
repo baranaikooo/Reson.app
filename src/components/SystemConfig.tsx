@@ -276,16 +276,20 @@ export function SystemConfig({
     <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-lg tracking-tight text-foreground font-bold uppercase">
-          NASTAVENIA ÚČTU
-        </h1>
-        <span className="font-mono text-xs tracking-widest text-muted-foreground">RESON v0.9</span>
+        <div className="flex items-center gap-2">
+          <span className="size-1.5 rounded-full bg-cerebral" />
+          <h1 className="font-sans text-lg tracking-tight text-foreground font-bold uppercase">
+            NASTAVENIA ÚČTU
+          </h1>
+        </div>
+        <span className="font-mono text-xs tracking-widest text-cerebral font-bold">RESON v0.9</span>
       </div>
 
       {/* Hardware Protocols */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          POVOLENIA A POLOHA
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>POVOLENIA A POLOHA</span>
         </p>
 
         <div className="space-y-3 font-mono text-xs">
@@ -328,7 +332,7 @@ export function SystemConfig({
           <button
             onClick={handleRefreshCoordinates}
             disabled={isGpsLoading}
-            className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:bg-foreground/5 transition-all rounded-none bg-card flex justify-center items-center gap-2"
+            className="w-full border border-foreground/20 py-3 text-xs tracking-widest text-foreground font-mono font-bold uppercase hover:border-cerebral/40 hover:text-cerebral transition-all rounded-none bg-card flex justify-center items-center gap-2 cursor-pointer"
           >
             {isGpsLoading ? "[ VYHĽADÁVAM... ]" : "[ AKTUALIZOVAŤ POLOHU ]"}
           </button>
@@ -337,8 +341,9 @@ export function SystemConfig({
 
       {/* Alert System (Anti-Ghosting Penalty Warning highlights) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          NOTIFIKÁCIE A UPOZORNENIA
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>NOTIFIKÁCIE A UPOZORNENIA</span>
         </p>
 
         <div className="space-y-4 font-mono text-xs">
@@ -366,7 +371,11 @@ export function SystemConfig({
                 haptic("tap");
                 setMessageAlerts(!messageAlerts);
               }}
-              className="border border-foreground/20 px-3 py-1 text-[10px] rounded-none font-bold"
+              className={`border px-3 py-1 text-[10px] rounded-none font-bold transition-all cursor-pointer ${
+                messageAlerts
+                  ? "border-cerebral bg-cerebral/15 text-cerebral"
+                  : "border-foreground/20 text-foreground/45"
+              }`}
             >
               {messageAlerts ? "[ ZAPNUTÉ ]" : "[ VYPNUTÉ ]"}
             </button>
@@ -376,8 +385,9 @@ export function SystemConfig({
 
       {/* Personalization & System Engine Configs */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          HARDWARE & PERSONALIZÁCIA
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>HARDWARE & PERSONALIZÁCIA</span>
         </p>
 
         <div className="space-y-4 font-mono text-xs">
@@ -396,8 +406,8 @@ export function SystemConfig({
                   onClick={() => handleUpdateHapticProfile(p)}
                   className={`border py-2 text-[8px] font-bold tracking-wider rounded-none transition-all cursor-pointer ${
                     hapticProfile === p
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/10 text-foreground/50 hover:bg-foreground/5"
+                      ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+                      : "border-foreground/10 text-foreground/50 hover:border-cerebral/30 hover:text-cerebral"
                   }`}
                 >
                   {p}
@@ -410,8 +420,9 @@ export function SystemConfig({
 
       {/* Theme Settings */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase">
-          Vzhľad aplikácie
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-foreground/45 uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>Vzhľad aplikácie</span>
         </p>
         <div className="grid grid-cols-3 gap-2">
           <button
@@ -421,8 +432,8 @@ export function SystemConfig({
             }}
             className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
               theme === "system"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
+                ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)] font-bold"
+                : "border-foreground/10 bg-transparent text-foreground/65 hover:border-cerebral/30 hover:text-cerebral"
             }`}
           >
             SYSTÉM
@@ -434,8 +445,8 @@ export function SystemConfig({
             }}
             className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
               theme === "dark"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
+                ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)] font-bold"
+                : "border-foreground/10 bg-transparent text-foreground/65 hover:border-cerebral/30 hover:text-cerebral"
             }`}
           >
             TMAVÝ
@@ -447,8 +458,8 @@ export function SystemConfig({
             }}
             className={`border py-3 text-xs tracking-widest transition-all rounded-none font-mono cursor-pointer ${
               theme === "light"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground/10 bg-transparent text-foreground/65 hover:bg-foreground/[0.02]"
+                ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)] font-bold"
+                : "border-foreground/10 bg-transparent text-foreground/65 hover:border-cerebral/30 hover:text-cerebral"
             }`}
           >
             SVETLÝ
@@ -458,8 +469,9 @@ export function SystemConfig({
 
       {/* Legal & Terms Row actions */}
       <div className="mb-6 border border-foreground/10 bg-card p-4 rounded-none space-y-2">
-        <p className="mb-2 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          DOKUMENTÁCIA
+        <p className="mb-2 font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>DOKUMENTÁCIA</span>
         </p>
         <div className="grid grid-cols-2 gap-2 text-center font-mono text-[10px]">
           <button

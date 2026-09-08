@@ -61,8 +61,12 @@ export function VoiceBubble({
           onClick={handleToggle}
           disabled={!canPlay}
           aria-label={playing ? "Pauznúť" : "Prehrať"}
-          className={`grid size-9 place-items-center rounded-none disabled:opacity-50 ${
-            mine ? "bg-foreground text-background" : "bg-foreground/10 text-foreground"
+          className={`grid size-9 place-items-center rounded-none disabled:opacity-50 transition-all cursor-pointer ${
+            playing
+              ? "bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+              : mine
+                ? "bg-foreground text-background"
+                : "bg-foreground/10 text-foreground"
           }`}
         >
           {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
@@ -73,10 +77,11 @@ export function VoiceBubble({
             return (
               <span
                 key={i}
-                className="w-[2px]"
+                className="w-[2px] transition-colors"
                 style={{
                   height: 6 + Math.abs(Math.sin(i * 0.6 + msg.duration)) * 18,
-                  background: lit ? "currentColor" : "rgba(128,128,128,0.4)",
+                  background: lit ? "var(--cerebral)" : "rgba(128,128,128,0.3)",
+                  boxShadow: lit ? "0 0 4px var(--cerebral)" : "none",
                   opacity: playing || lit ? 1 : 0.5,
                 }}
               />
