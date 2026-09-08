@@ -1518,30 +1518,38 @@ function BottomNav({
     return (
       <button
         onClick={onClick}
-        className="relative flex flex-1 flex-col items-center gap-0.5 py-1.5 transition-all active:scale-90"
+        className="relative flex flex-1 flex-col items-center gap-1 py-1 transition-all active:scale-95 cursor-pointer"
       >
-        <span
-          className={`relative grid size-11 place-items-center transition-all ${is ? "bg-foreground" : ""}`}
-        >
-          <span className={is ? "text-background" : "text-foreground/55"}>{icon}</span>
+        <span className="relative flex items-center justify-center size-8">
+          <span
+            className={`transition-colors duration-200 ${
+              is ? "text-cerebral" : "text-foreground/40 hover:text-foreground/70"
+            }`}
+          >
+            {icon}
+          </span>
+          {!!badge && badge > 0 && (
+            <span className="absolute -top-1 -right-2 grid min-w-[15px] h-[15px] place-items-center px-1 text-[8px] font-bold text-white bg-cerebral rounded-full font-mono shadow-[0_0_6px_var(--cerebral-glow)]">
+              {badge}
+            </span>
+          )}
         </span>
         <span
-          className={`font-mono text-[10px] tracking-widest uppercase flex flex-col items-center ${is ? "text-cerebral font-bold" : "text-foreground/45 font-medium"}`}
+          className={`font-mono text-[9px] tracking-widest uppercase flex flex-col items-center transition-colors duration-200 ${
+            is ? "text-cerebral font-bold" : "text-foreground/45 font-medium"
+          }`}
         >
           <span>{label}</span>
-          {is && <span className="size-1 rounded-full bg-cerebral mt-0.5 shadow-[0_0_6px_var(--cerebral)]" />}
+          {is && (
+            <span className="size-1 rounded-full bg-cerebral mt-0.5 shadow-[0_0_6px_var(--cerebral)]" />
+          )}
         </span>
-        {!!badge && badge > 0 && (
-          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[10px] font-bold text-white bg-cerebral ring-2 ring-card font-mono">
-            {badge}
-          </span>
-        )}
       </button>
     );
   };
   return (
-    <nav className="fixed inset-x-0 bottom-3 z-40 px-4">
-      <div className="mx-auto flex max-w-md items-stretch border border-border bg-card px-2 py-2">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/[0.08] bg-background/80 backdrop-blur-xl pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-2 transition-all">
+      <div className="mx-auto flex max-w-md items-center justify-around px-2">
         <Item
           id="home"
           icon={<Home className="size-5" />}
@@ -1558,7 +1566,7 @@ function BottomNav({
 
         {testDone && (
           <>
-            <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
+            <div className="w-[1px] h-6 bg-foreground/10 self-center mx-1" />
             <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
             <Item
               id="settings"
@@ -1570,7 +1578,7 @@ function BottomNav({
         )}
         {!testDone && (
           <>
-            <div className="w-[1px] bg-foreground/15 self-stretch my-1.5 mx-1" />
+            <div className="w-[1px] h-6 bg-foreground/10 self-center mx-1" />
             <Item
               id="settings"
               icon={<SettingsIcon className="size-5" />}
