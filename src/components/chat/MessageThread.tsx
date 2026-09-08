@@ -291,7 +291,7 @@ export function MessageThread({
                 <span className="font-semibold text-foreground text-sm tracking-tight">
                   {match.name}
                 </span>
-                <span className="font-mono text-[10px] tracking-widest text-foreground/50 uppercase">
+                <span className="font-mono text-[10px] tracking-widest text-cerebral uppercase font-bold">
                   BLUR: {conversation.blurLevel}%
                 </span>
               </div>
@@ -424,7 +424,7 @@ export function MessageThread({
               onClick={() => setShowGifs(!showGifs)}
               className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground/5 text-foreground hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-foreground"
             >
-              <Sparkles className="size-5" />
+              <Sparkles className="size-5 text-cerebral" />
             </button>
           </div>
           <textarea
@@ -445,13 +445,13 @@ export function MessageThread({
                   ? "Táto konverzácia je uzavretá."
                   : "Napíš správu…"
             }
-            className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50 disabled:pointer-events-none"
+            className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-cerebral disabled:opacity-50 disabled:pointer-events-none transition-colors"
           />
           <button
             onClick={send}
             disabled={pressureActive || !input.trim() || conversation.status === "closed"}
             aria-label="Odoslať správu"
-            className="grid size-10 shrink-0 place-items-center rounded-none bg-foreground text-background disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-foreground"
+            className="grid size-10 shrink-0 place-items-center rounded-none bg-cerebral text-white disabled:opacity-30 disabled:bg-foreground disabled:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cerebral transition-all shadow-[0_0_8px_var(--cerebral-glow)] cursor-pointer"
           >
             <Send className="size-4" />
           </button>

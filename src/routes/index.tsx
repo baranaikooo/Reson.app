@@ -159,7 +159,9 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-[100dvh] w-full overflow-hidden">
+    <div className="relative h-[100dvh] w-full overflow-hidden">
+      {/* Subtle ambient top cerebral hairline */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cerebral/40 to-transparent z-50" />
       <div className="mx-auto h-full max-w-2xl overflow-y-auto overscroll-contain px-5 pb-28 pt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {children}
       </div>
@@ -1524,10 +1526,10 @@ function BottomNav({
           <span className={is ? "text-background" : "text-foreground/55"}>{icon}</span>
         </span>
         <span
-          className={`font-mono text-[10px] font-bold tracking-widest uppercase flex flex-col items-center ${is ? "text-foreground" : "text-foreground/45"}`}
+          className={`font-mono text-[10px] tracking-widest uppercase flex flex-col items-center ${is ? "text-cerebral font-bold" : "text-foreground/45 font-medium"}`}
         >
           <span>{label}</span>
-          {is && <span className="size-1 rounded-full bg-cerebral mt-0.5" />}
+          {is && <span className="size-1 rounded-full bg-cerebral mt-0.5 shadow-[0_0_6px_var(--cerebral)]" />}
         </span>
         {!!badge && badge > 0 && (
           <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[10px] font-bold text-white bg-cerebral ring-2 ring-card font-mono">
@@ -2305,7 +2307,7 @@ function MatchCard({
           haptic("medium");
           onSelectMatch(match.id);
         }}
-        className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-4 active:scale-[0.99] transition-all text-sm tracking-widest uppercase hover:bg-foreground/90 cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-mono font-bold py-4 active:scale-[0.99] transition-all text-sm tracking-widest uppercase hover:bg-cerebral hover:text-white cursor-pointer"
       >
         <MessageCircle className="size-4" />
         <span>
@@ -2354,7 +2356,10 @@ function Dashboard({
       {/* Top Header */}
       <div className="mb-8 flex items-center justify-between">
         <Logo />
-        <span className="font-mono text-xs tracking-widest text-foreground/45">DASHBOARD</span>
+        <div className="flex items-center gap-1.5 font-mono text-xs tracking-widest text-foreground/45">
+          <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+          <span>DASHBOARD</span>
+        </div>
       </div>
 
       {profile.redemptionQuota && profile.redemptionQuota > 0 ? (
@@ -2388,8 +2393,8 @@ function Dashboard({
             }}
             className={`px-2 py-1 border transition-all rounded-none font-bold ${
               sortBy === "ev"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+                : "border-foreground/15 text-foreground hover:border-cerebral/40 hover:text-cerebral"
             }`}
           >
             ZHODA
@@ -2401,8 +2406,8 @@ function Dashboard({
             }}
             className={`px-2 py-1 border transition-all rounded-none font-bold ${
               sortBy === "distance"
-                ? "border-foreground bg-foreground text-background"
-                : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+                : "border-foreground/15 text-foreground hover:border-cerebral/40 hover:text-cerebral"
             }`}
           >
             VZDIALENOSŤ
@@ -2411,8 +2416,9 @@ function Dashboard({
       </div>
 
       <div className="space-y-2 mb-8">
-        <p className="font-mono text-[10px] tracking-widest text-foreground/45 uppercase">
-          // Tvoje dnešné spojenia
+        <p className="font-mono text-[10px] tracking-widest text-cerebral uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>// Tvoje dnešné spojenia</span>
         </p>
         <h2 className="font-sans text-lg font-bold tracking-tight text-foreground leading-tight uppercase">
           Algoritmus pre teba vybral
@@ -2476,7 +2482,7 @@ function Dashboard({
         <button
           type="button"
           onClick={onMessages}
-          className="mt-6 w-full border border-foreground/20 bg-foreground/[0.02] py-4 text-sm tracking-widest text-foreground/70 hover:bg-foreground/5 transition-all uppercase font-mono cursor-pointer"
+          className="mt-6 w-full border border-cerebral/30 bg-cerebral/5 py-4 text-sm tracking-widest text-foreground hover:bg-cerebral hover:text-white transition-all uppercase font-mono cursor-pointer"
         >
           Zobraziť uložené konverzácie
         </button>
@@ -3380,22 +3386,29 @@ function NoOne({ onMessages }: { onMessages: (() => void) | null }) {
     <div className="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
       <Blobs variant="warm" />
       <div className="relative z-10 flex flex-col items-center">
-        <span className="text-5xl">🌌</span>
+        <div className="size-16 rounded-full border border-cerebral/30 bg-cerebral/5 grid place-items-center mb-2 shadow-[0_0_15px_var(--cerebral-glow)]">
+          <Brain className="size-8 text-cerebral animate-pulse" />
+        </div>
         <h3 className="mt-4 font-sans text-lg font-bold tracking-tight text-foreground uppercase">
           Zatiaľ tu pre teba nikto nie je
         </h3>
-        <p className="mt-3 max-w-md text-sm text-muted-foreground">
+        <p className="mt-3 max-w-md text-xs font-mono leading-relaxed text-muted-foreground">
           Algoritmus zvažuje vek, pohlavie aj orientáciu. Nikto nový momentálne nesadol — skús sa
-          stavit o chvíľu, ľudia pribúdajú celý deň.
+          staviť o chvíľu, kognitívne profily pribúdajú v reálnom čase.
         </p>
         {onMessages && (
           <div className="mt-7 w-full max-w-xs">
-            <PillButton onClick={onMessages} variant="ghost">
-              Otvoriť správy 💬
-            </PillButton>
+            <button
+              onClick={onMessages}
+              className="w-full border border-cerebral/40 bg-cerebral/10 py-3.5 text-xs font-mono font-bold tracking-widest uppercase text-foreground hover:bg-cerebral hover:text-white transition-all cursor-pointer"
+            >
+              OTVORIŤ SPRÁVY
+            </button>
           </div>
         )}
-        <HandNote className="mt-4">občas nás prekvapí, kto sa zjaví ✨</HandNote>
+        <p className="mt-4 font-mono text-[10px] tracking-widest text-cerebral uppercase">
+          // REZONANČNÝ ENGINE AKTÍVNY
+        </p>
       </div>
     </div>
   );
@@ -3422,7 +3435,10 @@ function MessagesList({
     <div className="animate-fade-up">
       <div className="mb-8 flex items-center justify-between">
         <Logo />
-        <span className="font-mono text-xs tracking-widest text-foreground/40">SPRÁVY</span>
+        <div className="flex items-center gap-1.5 font-mono text-xs tracking-widest text-foreground/45">
+          <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+          <span>SPRÁVY</span>
+        </div>
       </div>
 
       {conversations.length === 0 ? (
@@ -3446,7 +3462,7 @@ function MessagesList({
               <button
                 key={c.id}
                 onClick={() => onOpen(c.id)}
-                className="group flex items-center gap-4 border border-foreground/10 bg-foreground/[0.02] p-4 text-left transition-all hover:border-foreground/40 hover:bg-foreground/[0.04]"
+                className="group flex items-center gap-4 border border-foreground/10 bg-foreground/[0.02] p-4 text-left transition-all hover:border-cerebral/40 hover:bg-foreground/[0.04]"
               >
                 <div className="relative size-14 shrink-0 overflow-hidden">
                   <img
@@ -3469,7 +3485,9 @@ function MessagesList({
                     </h3>
                     <span className="font-mono text-[10px] text-foreground/40">{m.age}</span>
                     <span className="text-[10px] text-foreground/40">· {m.city}</span>
-                    {c.unread && <span className="size-2 rounded-full bg-foreground" />}
+                    {c.unread && (
+                      <span className="size-2 rounded-full bg-cerebral shadow-[0_0_6px_var(--cerebral)] animate-pulse" />
+                    )}
                   </div>
                   <p className="mt-1 truncate text-sm font-light text-foreground/60">
                     {last
@@ -3486,7 +3504,7 @@ function MessagesList({
 
       <button
         onClick={onFindNew}
-        className="mt-8 w-full border border-foreground/30 bg-foreground/[0.05] py-4 text-sm tracking-[0.3em] text-foreground hover:bg-foreground/[0.1] cursor-pointer"
+        className="mt-8 w-full border border-cerebral/40 bg-cerebral/5 py-4 text-sm tracking-[0.3em] text-foreground hover:bg-cerebral hover:text-white transition-all cursor-pointer font-mono font-bold"
       >
         NÁJSŤ ĎALŠIU REZONANCIU
       </button>

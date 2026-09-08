@@ -535,9 +535,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       <div className="animate-fade-up">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
-        <h1 className="font-sans text-lg tracking-tight text-foreground font-bold uppercase">
-          MÔJ PROFIL // OSOBNOSŤ
-        </h1>
+        <div className="flex items-center gap-2">
+          <span className="size-1.5 rounded-full bg-cerebral" />
+          <h1 className="font-sans text-lg tracking-tight text-foreground font-bold uppercase">
+            MÔJ PROFIL // OSOBNOSŤ
+          </h1>
+        </div>
         <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           {user.name}
         </span>
@@ -566,8 +569,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* CCTV Live Snippets Grid (respects preview blur toggle) */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          Moje videá (3-sekundové slučky)
+        <p className="mb-3 font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>Moje videá (3-sekundové slučky)</span>
         </p>
         <div className="grid grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, idx) => {
@@ -652,8 +656,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Market Parameters (Moved from settings to DNA section) */}
       <div className="mb-6 border border-foreground/10 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          PARAMETRE TRHU (TRHOVÉ FILTRE)
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>PARAMETRE TRHU (TRHOVÉ FILTRE)</span>
         </p>
 
         <div className="space-y-4 font-mono text-xs">
@@ -667,10 +672,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                   setIsGlobalMode(false);
                   saveFilterChange("radiusKm", distance);
                 }}
-                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold transition-all ${
                   !isGlobalMode
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                    ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+                    : "border-foreground/15 text-foreground hover:border-cerebral/40 hover:text-cerebral"
                 }`}
               >
                 NÁRODNÝ
@@ -681,10 +686,10 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                   setIsGlobalMode(true);
                   saveFilterChange("radiusKm", 500); // 500+ triggers Global search
                 }}
-                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold ${
+                className={`px-2 py-1 border text-[9px] tracking-wider rounded-none font-bold transition-all ${
                   isGlobalMode
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-foreground/15 text-foreground hover:bg-foreground/5"
+                    ? "border-cerebral bg-cerebral text-white shadow-[0_0_8px_var(--cerebral-glow)]"
+                    : "border-foreground/15 text-foreground hover:border-cerebral/40 hover:text-cerebral"
                 }`}
               >
                 GLOBÁLNY
@@ -702,7 +707,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           >
             <div className="flex justify-between mb-1">
               <span className="text-foreground/45 uppercase text-[9px]">MAXIMÁLNA VZDIALENOSŤ</span>
-              <span className="font-bold text-foreground">{distance} km</span>
+              <span className="font-bold text-cerebral">{distance} km</span>
             </div>
             <input
               type="range"
@@ -716,7 +721,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
                 setDistance(val);
                 saveFilterChange("radiusKm", val);
               }}
-              className="w-full accent-foreground h-1 bg-foreground/10 rounded-none cursor-pointer"
+              className="w-full accent-cerebral h-1 bg-foreground/10 rounded-none cursor-pointer"
             />
           </div>
 
@@ -743,8 +748,9 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Brutalist Directives Form Fields (Onboarding Questions) */}
       <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
-          Moje osobné smernice (Kalibrácia)
+        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
+          <span className="size-1 rounded-full bg-cerebral" />
+          <span>Moje osobné smernice (Kalibrácia)</span>
         </p>
 
         {/* DIRECTIVE_01: GOAL */}
@@ -761,7 +767,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               handleSaveDirectives("directive_goal", val);
             }}
             placeholder="Tvoja hlavná vízia alebo na čo sa teraz najviac sústredíš..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
           />
         </div>
 
@@ -779,7 +785,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               handleSaveDirectives("directive_redflags", val);
             }}
             placeholder="Vlastnosti alebo správanie u ľudí, cez ktoré u teba nejde vlak..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
           />
         </div>
 
@@ -797,7 +803,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               handleSaveDirectives("directive_lifestyle", val);
             }}
             placeholder="Striktný plán, alebo riešenie vecí za pochodu a chaos..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-foreground focus:outline-none rounded-none resize-none placeholder:text-foreground/30"
+            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
           />
         </div>
       </div>
@@ -844,15 +850,16 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
           {/* HARDCODED ALGORITHMIC BRACKET */}
           <div className="flex justify-between border-b border-foreground/5 pb-2 border-dashed">
-            <span className="text-amber-500 font-bold uppercase">Hľadaný_vek_partnera</span>
-            <span className="font-black text-amber-500 font-mono">{calculatedBracket}</span>
+            <span className="text-cerebral font-bold uppercase">Hľadaný_vek_partnera</span>
+            <span className="font-black text-cerebral font-mono">{calculatedBracket}</span>
           </div>
 
-
-
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <span className="text-foreground/45 uppercase">Stav_účtu</span>
-            <span className="font-bold text-green-600 uppercase">KALIBROVANÉ</span>
+            <span className="font-bold text-cerebral uppercase flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+              KALIBROVANÉ
+            </span>
           </div>
         </div>
       </div>
