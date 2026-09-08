@@ -1575,7 +1575,7 @@ function BottomNav({
 
         {testDone && (
           <>
-            <Item id="profile" icon={<User className="size-5" />} label="DNA" onClick={onProfile} />
+            <Item id="profile" icon={<User className="size-5" />} label="Profil" onClick={onProfile} />
             <Item
               id="settings"
               icon={<SettingsIcon className="size-5" />}
