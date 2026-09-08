@@ -532,7 +532,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
   return (
     <>
-      <div className="animate-fade-up">
+      <div className="animate-fade-up pb-32">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between border-b border-foreground/15 pb-4">
         <div className="flex items-center gap-2">
@@ -761,6 +761,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           <textarea
             rows={2}
             value={directiveGoal}
+            onFocus={(e) => {
+              const el = e.currentTarget;
+              setTimeout(() => {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 250);
+            }}
             onChange={(e) => {
               const val = e.target.value;
               setDirectiveGoal(val);
@@ -779,6 +785,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           <textarea
             rows={2}
             value={directiveRedflags}
+            onFocus={(e) => {
+              const el = e.currentTarget;
+              setTimeout(() => {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 250);
+            }}
             onChange={(e) => {
               const val = e.target.value;
               setDirectiveRedflags(val);
@@ -797,6 +809,12 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           <textarea
             rows={2}
             value={directiveLifestyle}
+            onFocus={(e) => {
+              const el = e.currentTarget;
+              setTimeout(() => {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 250);
+            }}
             onChange={(e) => {
               const val = e.target.value;
               setDirectiveLifestyle(val);
