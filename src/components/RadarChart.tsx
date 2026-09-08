@@ -60,7 +60,7 @@ export const RadarChart = React.memo(function RadarChart({
           })
           .join(" ");
         return (
-          <polygon key={rIdx} points={ringPoints} fill="none" stroke="#222222" strokeWidth="1" />
+          <polygon key={rIdx} points={ringPoints} fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1" />
         );
       })}
 
@@ -74,14 +74,29 @@ export const RadarChart = React.memo(function RadarChart({
             y1={center}
             x2={end.x}
             y2={end.y}
-            stroke="#222222"
+            stroke="currentColor"
+            strokeOpacity="0.15"
             strokeWidth="1"
           />
         );
       })}
 
-      {/* Main Scored Area Outline (Strict White Line) */}
-      <polygon points={points} fill="none" stroke="#ffffff" strokeWidth="1.5" />
+      {/* Main Scored Area Outline (Subtle Cerebral Brain-Salmon) */}
+      <polygon points={points} fill="var(--cerebral-muted)" stroke="var(--cerebral)" strokeWidth="1.5" />
+
+      {/* Vertex Metric Dots */}
+      {axes.map((axis, idx) => {
+        const { x, y } = getCoords(idx, axis.val);
+        return (
+          <circle
+            key={idx}
+            cx={x}
+            cy={y}
+            r={2.5}
+            fill="var(--cerebral)"
+          />
+        );
+      })}
 
       {/* Monospace Labels */}
       {axes.map((axis, idx) => {
@@ -93,7 +108,8 @@ export const RadarChart = React.memo(function RadarChart({
             y={textPos.y}
             textAnchor="middle"
             alignmentBaseline="middle"
-            fill="#888888"
+            fill="currentColor"
+            fillOpacity="0.6"
             className="font-mono text-[8px] font-bold"
           >
             {axis.label}

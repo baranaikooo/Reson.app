@@ -136,10 +136,10 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
           style={{
             width: size * 0.5,
             height: size * 0.5,
-            borderColor: "currentColor",
+            borderColor: "var(--cerebral-border, currentColor)",
             borderWidth: 1,
             animationDelay: `${d}s`,
-            opacity: intense ? 0.8 : 0.4,
+            opacity: intense ? 0.7 : 0.35,
           }}
         />
       ))}
@@ -149,10 +149,10 @@ function Wave({ size = 280, intense = false }: { size?: number; intense?: boolea
           width: size * 0.32,
           height: size * 0.32,
           background:
-            "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 60%, transparent 70%)",
+            "radial-gradient(circle, var(--cerebral-glow, rgba(212,131,123,0.25)), rgba(212,131,123,0.03) 60%, transparent 70%)",
         }}
       />
-      <span className="absolute rounded-full bg-foreground" style={{ width: 12, height: 12 }} />
+      <span className="absolute rounded-full bg-foreground shadow-[0_0_6px_var(--cerebral)]" style={{ width: 12, height: 12 }} />
     </div>
   );
 }
@@ -1524,12 +1524,13 @@ function BottomNav({
           <span className={is ? "text-background" : "text-foreground/55"}>{icon}</span>
         </span>
         <span
-          className={`font-mono text-[10px] font-bold tracking-widest uppercase ${is ? "text-foreground" : "text-foreground/45"}`}
+          className={`font-mono text-[10px] font-bold tracking-widest uppercase flex flex-col items-center ${is ? "text-foreground" : "text-foreground/45"}`}
         >
-          {label}
+          <span>{label}</span>
+          {is && <span className="size-1 rounded-full bg-cerebral mt-0.5" />}
         </span>
         {!!badge && badge > 0 && (
-          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[10px] font-bold text-background bg-foreground ring-2 ring-card font-mono">
+          <span className="absolute right-[22%] top-0 grid size-4 place-items-center text-[10px] font-bold text-white bg-cerebral ring-2 ring-card font-mono">
             {badge}
           </span>
         )}
@@ -1632,8 +1633,9 @@ function Landing({
       </div>
       <div className="relative z-10 flex flex-col items-center max-w-sm w-full">
         {/* Terminal Header */}
-        <div className="border border-foreground/20 px-4 py-2 font-mono text-[10px] tracking-widest text-foreground/50 mb-4 uppercase">
-          RESON // SECURE COGNITIVE
+        <div className="border border-cerebral/35 bg-cerebral/5 px-4 py-2 font-mono text-[10px] tracking-widest text-cerebral mb-4 uppercase flex items-center gap-2">
+          <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+          <span>RESON // SECURE COGNITIVE</span>
         </div>
 
         <h1 className="font-sans text-lg font-bold uppercase tracking-tighter text-foreground">
@@ -2199,7 +2201,7 @@ function MatchCard({
       className="border border-foreground/10 bg-card p-6 relative overflow-hidden hover:border-foreground/30 select-none will-change-transform"
     >
       {/* Match Score Badge */}
-      <div className="absolute top-4 right-4 bg-foreground/10 border border-foreground/20 px-2.5 py-1 font-mono text-[10px] font-bold text-foreground tracking-widest pointer-events-none">
+      <div className="absolute top-4 right-4 bg-cerebral/10 border border-cerebral/30 px-2.5 py-1 font-mono text-[10px] font-bold text-cerebral tracking-widest pointer-events-none">
         ZHODA {Math.round(match.score)}%
       </div>
 
@@ -2224,9 +2226,9 @@ function MatchCard({
             />
           )}
           {/* CCTV Overlay Indicator */}
-          <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/65 px-1 py-0.5">
-            <span className="size-1 animate-pulse rounded-full bg-red-500" />
-            <span className="font-mono text-[6px] tracking-tighter text-white">LIVE</span>
+          <div className="absolute top-0.5 left-0.5 flex items-center gap-0.5 bg-black/75 px-1 py-0.5 border border-white/5">
+            <span className="size-1 animate-pulse rounded-full bg-cerebral" />
+            <span className="font-mono text-[6px] tracking-tighter text-cerebral">LIVE</span>
           </div>
         </div>
         <div className="min-w-0 pr-16">
@@ -2262,11 +2264,11 @@ function MatchCard({
         <div className="space-y-1">
           <div className="flex justify-between text-[10px] uppercase font-mono tracking-wider text-foreground/50">
             <span>Kognitívna zhoda</span>
-            <span className="text-foreground font-bold">{similarityPct}%</span>
+            <span className="text-cerebral font-bold">{similarityPct}%</span>
           </div>
           <div className="h-[3px] w-full bg-foreground/10 overflow-hidden">
             <div
-              className="h-full bg-foreground transition-all duration-500"
+              className="h-full bg-cerebral transition-all duration-500"
               style={{ width: `${similarityPct}%` }}
             />
           </div>
@@ -3355,9 +3357,12 @@ function AutoMatch({
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center text-center animate-fade-up">
       <Wave size={220} intense />
-      <p className="mt-8 font-mono text-xs tracking-widest text-foreground/70 uppercase">
-        ALGORITMUS HĽADÁ TVOJU REZONANCIU
-      </p>
+      <div className="mt-8 flex items-center justify-center gap-2">
+        <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+        <p className="font-mono text-xs tracking-widest text-foreground/75 uppercase">
+          ALGORITMUS HĽADÁ TVOJU REZONANCIU
+        </p>
+      </div>
       <p className="mt-4 text-sm font-light text-foreground/60 font-mono">
         {hasNext
           ? isInitiated

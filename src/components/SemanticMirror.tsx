@@ -141,7 +141,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
       {/* Progress Bar */}
       <div className="h-1.5 w-full bg-foreground/10 overflow-hidden mb-8">
         <div
-          className="h-full bg-foreground transition-all duration-300"
+          className="h-full bg-cerebral transition-all duration-300"
           style={{ width: `${((step + 1) / metaphors.length) * 100}%` }}
         />
       </div>
@@ -167,7 +167,7 @@ export function SemanticMirror({ onDone }: SemanticMirrorProps) {
               onClick={() => handleSelect(idx)}
               className={`w-full text-left border px-5 py-3.5 transition-all duration-200 active:scale-[0.98] cursor-pointer ${
                 isSelected
-                  ? "border-foreground bg-foreground/10 text-foreground font-bold"
+                  ? "border-cerebral bg-cerebral/10 text-foreground font-bold"
                   : "border-foreground/10 bg-foreground/[0.02] text-foreground/75 hover:bg-foreground/5"
               }`}
             >

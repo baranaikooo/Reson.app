@@ -267,8 +267,8 @@ export function SnippetsOnboarding({ initialSnippets = [], onDone }: SnippetsOnb
     <div className="max-w-md mx-auto p-6 bg-background min-h-screen flex flex-col justify-between animate-fade-in font-mono">
       {/* Title */}
       <div className="space-y-4 mb-6">
-        <div className="text-[10px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-foreground/30 animate-pulse" />
+        <div className="text-[10px] tracking-widest text-cerebral/90 uppercase flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-cerebral animate-pulse" />
           <span>FÁZA 0.5: MULTIPLE LIVE SNIPPETS</span>
         </div>
         <h2 className="font-sans text-sm font-bold tracking-tight text-foreground uppercase leading-none">
@@ -304,9 +304,9 @@ export function SnippetsOnboarding({ initialSnippets = [], onDone }: SnippetsOnb
                     className="size-full object-contain bg-black rounded-none transition-all duration-300"
                     style={{ transform: "scaleX(-1)" }}
                   />
-                  <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-none border border-white/5">
-                    <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="font-mono text-[7px] text-white tracking-widest uppercase">
+                  <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/75 px-1.5 py-0.5 rounded-none border border-white/10">
+                    <span className="size-1.5 rounded-full bg-cerebral animate-pulse" />
+                    <span className="font-mono text-[7px] text-cerebral tracking-widest uppercase">
                       LIVE
                     </span>
                   </div>
@@ -325,7 +325,7 @@ export function SnippetsOnboarding({ initialSnippets = [], onDone }: SnippetsOnb
                 </>
               ) : (
                 <div className="size-full flex flex-col justify-center items-center p-3 bg-foreground/[0.02] text-center">
-                  <span className="font-mono text-[8px] font-bold text-foreground/60 tracking-wider uppercase mb-2">
+                  <span className={`font-mono text-[8px] font-bold tracking-wider uppercase mb-2 ${idx === 0 ? "text-cerebral" : "text-foreground/60"}`}>
                     {idx === 0 ? "SLOT 1 [POVINNÝ]" : `SLOT ${idx + 1} [VOLITEĽNÝ]`}
                   </span>
                   <div className="flex flex-col gap-1.5 w-full max-w-[130px]">

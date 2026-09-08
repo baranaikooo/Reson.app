@@ -804,13 +804,14 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
 
       {/* Pure Data Algorithmic Diagnostics */}
       <div className="mb-6">
-        <p className="mb-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-          OSOBNOSTNÝ PROFIL // METRIKY
-        </p>
+        <div className="mb-3 flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+          <span className="size-1.5 rounded-full bg-cerebral" />
+          <span>OSOBNOSTNÝ PROFIL // METRIKY</span>
+        </div>
         <div className="border border-foreground/15 bg-card p-5 font-mono text-xs text-foreground/90 space-y-2.5 rounded-none select-none">
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Typ_osobnosti</span>
-            <span className="font-bold text-foreground">{primaryMarker}</span>
+            <span className="font-bold text-cerebral">{primaryMarker}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Rýchlosť_odpovedí</span>
@@ -826,7 +827,7 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Hĺbka_osobnosti</span>
-            <span className="font-bold text-foreground">{cognitiveDepth}</span>
+            <span className="font-bold text-cerebral">{cognitiveDepth}</span>
           </div>
           <div className="flex justify-between border-b border-foreground/5 pb-2">
             <span className="text-foreground/45 uppercase">Svedomitosť</span>
