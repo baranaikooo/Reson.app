@@ -67,11 +67,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
     };
   }, [cameraStream]);
 
-  // Directives local editing states (mapped to onboarding questions)
-  const [directiveGoal, setDirectiveGoal] = useState(user.directive_goal || "");
-  const [directiveRedflags, setDirectiveRedflags] = useState(user.directive_redflags || "");
-  const [directiveLifestyle, setDirectiveLifestyle] = useState(user.directive_lifestyle || "");
-
   // Local settings states
   const [distance, setDistance] = useState(user.radiusKm || 200);
   const [isGlobalMode, setIsGlobalMode] = useState(
@@ -128,28 +123,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
       if (!prev) return null;
       return { ...prev, videoUrls: urls };
     });
-  }
-
-  // Save directives changes back to profile
-  async function handleSaveDirectives(field: "directive_goal" | "directive_redflags" | "directive_lifestyle", val: string) {
-    onUpdateUser((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        [field]: val,
-      };
-    });
-
-    const userId = user.id;
-    if (userId && userId !== "00000000-0000-0000-0000-000000000001") {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ [field]: val })
-        .eq("id", userId);
-      if (error) {
-        console.error(`[AssetDossier] Failed to update ${field} in DB:`, error);
-      }
-    }
   }
 
   // JIT Camera Record Flow
@@ -743,86 +716,6 @@ export function AssetDossier({ user, onUpdateUser, onBack }: AssetDossierProps) 
               <option value="all">Všetkých</option>
             </select>
           </div>
-        </div>
-      </div>
-
-      {/* Brutalist Directives Form Fields (Onboarding Questions) */}
-      <div className="mb-6 border border-foreground/15 bg-card p-5 rounded-none space-y-4">
-        <p className="font-mono text-[9px] tracking-widest text-muted-foreground uppercase flex items-center gap-1.5">
-          <span className="size-1 rounded-full bg-cerebral" />
-          <span>Moje osobné smernice (Kalibrácia)</span>
-        </p>
-
-        {/* DIRECTIVE_01: GOAL */}
-        <div className="space-y-1">
-          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Na čom akurát pracuješ? (Vízia/Cieľ)</span>
-          </div>
-          <textarea
-            rows={2}
-            value={directiveGoal}
-            onFocus={(e) => {
-              const el = e.currentTarget;
-              setTimeout(() => {
-                el.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 250);
-            }}
-            onChange={(e) => {
-              const val = e.target.value;
-              setDirectiveGoal(val);
-              handleSaveDirectives("directive_goal", val);
-            }}
-            placeholder="Tvoja hlavná vízia alebo na čo sa teraz najviac sústredíš..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
-          />
-        </div>
-
-        {/* DIRECTIVE_02: REDFLAGS */}
-        <div className="space-y-1">
-          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Čo absolútne netoleruješ? (Red flags)</span>
-          </div>
-          <textarea
-            rows={2}
-            value={directiveRedflags}
-            onFocus={(e) => {
-              const el = e.currentTarget;
-              setTimeout(() => {
-                el.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 250);
-            }}
-            onChange={(e) => {
-              const val = e.target.value;
-              setDirectiveRedflags(val);
-              handleSaveDirectives("directive_redflags", val);
-            }}
-            placeholder="Vlastnosti alebo správanie u ľudí, cez ktoré u teba nejde vlak..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
-          />
-        </div>
-
-        {/* DIRECTIVE_03: LIFESTYLE */}
-        <div className="space-y-1">
-          <div className="flex justify-between font-mono text-[8px] text-muted-foreground uppercase">
-            <span>Aký je tvoj bežný deň? (Životný štýl)</span>
-          </div>
-          <textarea
-            rows={2}
-            value={directiveLifestyle}
-            onFocus={(e) => {
-              const el = e.currentTarget;
-              setTimeout(() => {
-                el.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 250);
-            }}
-            onChange={(e) => {
-              const val = e.target.value;
-              setDirectiveLifestyle(val);
-              handleSaveDirectives("directive_lifestyle", val);
-            }}
-            placeholder="Striktný plán, alebo riešenie vecí za pochodu a chaos..."
-            className="w-full border border-foreground/20 bg-background p-3 font-mono text-xs text-foreground focus:border-cerebral focus:outline-none rounded-none resize-none placeholder:text-foreground/30 transition-colors"
-          />
         </div>
       </div>
 
