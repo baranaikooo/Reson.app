@@ -453,10 +453,10 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
   }
   console.log("[fetchUserProfile] Retrieved profile data:", data);
 
-  // Check if profile is complete (must have age saved, not just liveness_verified)
-  if (error || !data || !data.liveness_verified || !data.age) {
-    console.warn("[fetchUserProfile] Profile is incomplete or not verified. liveness_verified:", data?.liveness_verified, "age:", data?.age);
-    return null; // Return null if user doesn't exist or hasn't finished onboarding
+  // Check if profile is complete (must have age saved in database)
+  if (error || !data || !data.age) {
+    console.warn("[fetchUserProfile] Profile is incomplete or not found. age:", data?.age);
+    return null; // Return null if user doesn't exist or hasn't finished profile form
   }
 
   // Fetch video loops from media_snippets table
@@ -511,6 +511,7 @@ export async function fetchUserProfile(userId: string): Promise<any | null> {
     directive_goal: data.directive_goal,
     directive_redflags: data.directive_redflags,
     directive_lifestyle: data.directive_lifestyle,
+    livenessVerified: data.liveness_verified ?? false,
   };
 }
 
